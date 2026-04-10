@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Property Billing Portal</title>
+<title>Rental Units Billing Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=IBM+Plex+Mono:wght@300;400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -655,8 +655,8 @@
   <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="sidebar-logo">
-      <div class="logo-text">PropMgr</div>
-      <div class="logo-sub">OWNER PORTAL v2.0</div>
+      <div class="logo-text">RentMgr</div>
+      <div class="logo-sub">5 UNITS · OWNER PORTAL</div>
     </div>
     <nav class="sidebar-nav">
       <div class="nav-label">Main</div>
@@ -675,7 +675,7 @@
       </div>
       <div class="nav-item" onclick="showView('tenants')">
         <span class="nav-icon">🏠</span>
-        <span>Tenants</span>
+        <span>Rental Units</span>
       </div>
     </nav>
     <div class="sidebar-footer">
@@ -699,15 +699,15 @@
       <div class="view active" id="view-dashboard">
         <div class="stat-grid">
           <div class="stat-card">
-            <div class="stat-label">Total Properties</div>
+            <div class="stat-label">Rental Units</div>
             <div class="stat-value" id="stat-properties">—</div>
-            <div class="stat-sub">Active units</div>
+            <div class="stat-sub">In this property</div>
             <div class="stat-icon">🏘</div>
           </div>
           <div class="stat-card">
-            <div class="stat-label">Monthly Rent</div>
+            <div class="stat-label">Total Monthly Rent</div>
             <div class="stat-value" id="stat-rent">—</div>
-            <div class="stat-sub">Base rent total ₹</div>
+            <div class="stat-sub">All 5 units combined</div>
             <div class="stat-icon">💰</div>
           </div>
           <div class="stat-card">
@@ -724,9 +724,28 @@
           </div>
         </div>
 
-        <div class="house-grid" id="house-cards">
-          <!-- populated by JS -->
+        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:14px 20px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+          <div>
+            <div style="font-family:var(--font-mono);font-size:9px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-bottom:4px;">Your Property</div>
+            <div style="font-family:var(--font-head);font-size:18px;font-weight:700;letter-spacing:1px;color:var(--amber);">5 Rental Units</div>
+          </div>
+          <div style="display:flex;gap:24px;flex-wrap:wrap;">
+            <div style="text-align:center;">
+              <div style="font-family:var(--font-mono);font-size:9px;letter-spacing:1px;color:var(--text3);">BILLED</div>
+              <div style="font-family:var(--font-head);font-size:20px;font-weight:700;" id="prop-billed">—/5</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-family:var(--font-mono);font-size:9px;letter-spacing:1px;color:var(--text3);">SENT</div>
+              <div style="font-family:var(--font-head);font-size:20px;font-weight:700;color:var(--green);" id="prop-sent">—/5</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-family:var(--font-mono);font-size:9px;letter-spacing:1px;color:var(--text3);">PENDING</div>
+              <div style="font-family:var(--font-head);font-size:20px;font-weight:700;color:var(--amber);" id="prop-pending">—</div>
+            </div>
+          </div>
         </div>
+
+        <div class="house-grid" id="house-cards"></div>
 
         <div class="two-col">
           <div class="panel">
@@ -754,9 +773,9 @@
             <div class="panel-body">
               <div class="form-grid">
                 <div class="form-group full">
-                  <label class="form-label">Select Property</label>
+                  <label class="form-label">Select Rental Unit</label>
                   <select class="form-select" id="bill-tenant" onchange="onTenantSelect()">
-                    <option value="">— Choose a property —</option>
+                    <option value="">— Choose a unit —</option>
                   </select>
                 </div>
                 <div class="form-group">
@@ -825,7 +844,7 @@
             <div class="panel-body" id="tenant-preview-box">
               <div class="empty">
                 <div class="empty-icon">🏠</div>
-                Select a property to see details
+                Select a unit to see details
               </div>
             </div>
           </div>
@@ -861,14 +880,14 @@
         <div class="two-col">
           <div class="panel">
             <div class="panel-header">
-              <span class="panel-title" id="tenant-form-title">Add New Tenant</span>
+              <span class="panel-title" id="tenant-form-title">Add Rental Unit</span>
             </div>
             <div class="panel-body">
               <input type="hidden" id="edit-tenant-id"/>
               <div class="form-grid">
                 <div class="form-group full">
-                  <label class="form-label">House / Property Name</label>
-                  <input type="text" class="form-input" id="t-name" placeholder="e.g. Ground Floor, House 3"/>
+                  <label class="form-label">Unit / House Label</label>
+                  <input type="text" class="form-input" id="t-name" placeholder="e.g. House 1, Ground Floor, Top Floor"/>
                 </div>
                 <div class="form-group full">
                   <label class="form-label">WhatsApp Number (with country code)</label>
@@ -892,7 +911,7 @@
 
           <div class="panel">
             <div class="panel-header">
-              <span class="panel-title">All Tenants</span>
+              <span class="panel-title">All Rental Units</span>
               <button class="btn btn-ghost" style="font-size:12px;" onclick="loadTenants()">↻ Refresh</button>
             </div>
             <div id="tenant-list-table"></div>
@@ -951,7 +970,7 @@ async function loadAll() {
 }
 
 // ======== NAVIGATION ========
-const titles = { dashboard:'DASHBOARD', 'new-bill':'NEW BILL', ledger:'BILL LEDGER', tenants:'TENANT MANAGEMENT' };
+const titles = { dashboard:'DASHBOARD', 'new-bill':'NEW BILL', ledger:'BILL LEDGER', tenants:'RENTAL UNITS' };
 function showView(name) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -1031,7 +1050,7 @@ function clearTenantForm() {
   document.getElementById('t-phone').value = '';
   document.getElementById('t-rent').value = '';
   document.getElementById('t-water-init').value = '0';
-  document.getElementById('tenant-form-title').textContent = 'Add New Tenant';
+  document.getElementById('tenant-form-title').textContent = 'Add Rental Unit';
 }
 
 async function saveTenant() {
@@ -1074,6 +1093,13 @@ async function loadDashboard() {
   const collected = allBills.filter(b=>b.is_sent).reduce((s,b)=>s+(b.total_amount||0),0);
   document.getElementById('stat-collected').textContent = '₹'+fmt(collected);
 
+  // Property-level counters
+  const sentCount = allBills.filter(b=>b.is_sent).length;
+  const pendingCount = tenants.length - sentCount;
+  document.getElementById('prop-billed').textContent = `${allBills.length}/5`;
+  document.getElementById('prop-sent').textContent = `${sentCount}/5`;
+  document.getElementById('prop-pending').textContent = Math.max(0, pendingCount);
+
   renderHouseCards(allBills);
   renderRecentBills(allBills.slice(0,6));
   renderUnsentBills(allBills.filter(b=>!b.is_sent));
@@ -1081,7 +1107,7 @@ async function loadDashboard() {
 
 function renderHouseCards(monthBills) {
   const el = document.getElementById('house-cards');
-  if(!tenants.length) { el.innerHTML=''; return; }
+  if(!tenants.length) { el.innerHTML='<div class="empty"><div class="empty-icon">🏠</div>No units added yet. Go to Rental Units to add them.</div>'; return; }
   el.innerHTML = tenants.map(t => {
     const bill = monthBills.find(b=>b.tenant_id===t.id);
     const sent = bill?.is_sent;
@@ -1416,7 +1442,7 @@ function buildReceipt(d) {
 
     <div class="r-footer">
       Please pay by the 5th of ${fmtMonth(d.month+'-01')} • Thank you!<br/>
-      Generated by Property Billing Portal
+      Generated by Rental Units Billing Portal
     </div>
   `;
 }
