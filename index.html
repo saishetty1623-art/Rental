@@ -1,272 +1,1549 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Property Dashboard</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
-    
-    <style>
-        body { font-family: Arial, sans-serif; padding: 20px; max-width: 900px; margin: auto; background-color: #f4f7f6; color: #333; }
-        h2, h3 { color: #2c3e50; }
-        
-        /* Grid Layout for Desktop */
-        .dashboard-container { display: flex; flex-wrap: wrap; gap: 20px; }
-        .action-panel { flex: 1; min-width: 300px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .history-panel { flex: 2; min-width: 400px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); overflow-x: auto; }
-        
-        .form-group { margin-bottom: 15px; }
-        label { font-weight: bold; font-size: 14px; }
-        input, select, button { width: 100%; padding: 10px; margin-top: 5px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
-        button { background-color: #2e7d32; color: white; border: none; cursor: pointer; font-size: 16px; font-weight: bold; transition: 0.3s; }
-        button:hover { background-color: #1b5e20; }
-        
-        /* Table Styling */
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-        th { background-color: #ecf0f1; color: #333; }
-        tr:nth-child(even) { background-color: #f9f9f9; }
-        
-        /* The Receipt Card Design (Hidden until calculated) */
-        #receipt-card { border: 1px solid #ddd; padding: 25px; margin-top: 20px; background-color: #fff; display: none; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        #receipt-card h3 { margin-top: 0; text-align: center; color: #2e7d32; }
-        .receipt-row { display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px dashed #eee; padding-bottom: 5px; }
-    </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Property Billing Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=IBM+Plex+Mono:wght@300;400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+  :root {
+    --bg: #0a0a0b;
+    --bg2: #111114;
+    --bg3: #18181d;
+    --border: #2a2a32;
+    --amber: #f5a623;
+    --amber2: #e8932a;
+    --amber-dim: rgba(245,166,35,0.12);
+    --amber-glow: rgba(245,166,35,0.25);
+    --green: #22c55e;
+    --red: #ef4444;
+    --blue: #60a5fa;
+    --text: #e8e8ec;
+    --text2: #9090a0;
+    --text3: #555568;
+    --font-head: 'Rajdhani', sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+    --font-body: 'IBM Plex Sans', sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* NOISE OVERLAY */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.4;
+  }
+
+  /* LAYOUT */
+  .shell { display: flex; min-height: 100vh; }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 220px;
+    min-height: 100vh;
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0; left: 0;
+    z-index: 100;
+  }
+  .sidebar-logo {
+    padding: 24px 20px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .logo-text {
+    font-family: var(--font-head);
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--amber);
+    text-transform: uppercase;
+  }
+  .logo-sub {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text3);
+    letter-spacing: 1px;
+    margin-top: 2px;
+  }
+  .sidebar-nav { padding: 16px 0; flex: 1; }
+  .nav-label {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--text3);
+    padding: 0 20px;
+    margin-bottom: 6px;
+    margin-top: 12px;
+    text-transform: uppercase;
+  }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 20px;
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text2);
+    transition: all 0.15s;
+    border-left: 2px solid transparent;
+    position: relative;
+  }
+  .nav-item:hover { color: var(--text); background: rgba(255,255,255,0.03); }
+  .nav-item.active {
+    color: var(--amber);
+    border-left-color: var(--amber);
+    background: var(--amber-dim);
+  }
+  .nav-icon { font-size: 16px; width: 18px; text-align: center; }
+  .sidebar-footer {
+    padding: 16px 20px;
+    border-top: 1px solid var(--border);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text3);
+  }
+  .status-dot {
+    display: inline-block; width: 6px; height: 6px;
+    background: var(--green); border-radius: 50%;
+    margin-right: 6px;
+    box-shadow: 0 0 6px var(--green);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* MAIN */
+  .main {
+    margin-left: 220px;
+    flex: 1;
+    min-height: 100vh;
+  }
+
+  /* TOP BAR */
+  .topbar {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky; top: 0; z-index: 50;
+  }
+  .page-title {
+    font-family: var(--font-head);
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: var(--text);
+  }
+  .topbar-right { display: flex; align-items: center; gap: 16px; }
+  .date-chip {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text3);
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    padding: 5px 12px;
+    border-radius: 4px;
+  }
+  .btn {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 13px;
+    padding: 8px 18px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 0.5px;
+  }
+  .btn-amber {
+    background: var(--amber);
+    color: #0a0a0b;
+  }
+  .btn-amber:hover { background: var(--amber2); transform: translateY(-1px); box-shadow: 0 4px 16px var(--amber-glow); }
+  .btn-ghost {
+    background: transparent;
+    color: var(--text2);
+    border: 1px solid var(--border);
+  }
+  .btn-ghost:hover { color: var(--text); border-color: var(--text3); }
+  .btn-danger { background: var(--red); color: #fff; }
+  .btn-danger:hover { background: #dc2626; }
+  .btn-green { background: var(--green); color: #0a0a0b; }
+  .btn-green:hover { background: #16a34a; transform: translateY(-1px); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+
+  /* CONTENT */
+  .content { padding: 28px 32px; }
+
+  /* VIEWS */
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* STAT CARDS */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .stat-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .stat-card:hover { border-color: var(--text3); }
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--amber);
+  }
+  .stat-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    color: var(--text3);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .stat-value {
+    font-family: var(--font-head);
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--amber);
+    line-height: 1;
+  }
+  .stat-sub {
+    font-size: 11px;
+    color: var(--text3);
+    margin-top: 6px;
+    font-family: var(--font-mono);
+  }
+  .stat-icon {
+    position: absolute;
+    top: 16px; right: 16px;
+    font-size: 22px;
+    opacity: 0.15;
+  }
+
+  /* HOUSE CARDS */
+  .house-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .house-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 20px;
+    transition: all 0.2s;
+    cursor: pointer;
+    position: relative;
+  }
+  .house-card:hover {
+    border-color: var(--amber);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  }
+  .house-name {
+    font-family: var(--font-head);
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .house-phone {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text3);
+    margin-bottom: 16px;
+  }
+  .house-stat {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .house-stat-label { font-size: 11px; color: var(--text3); font-family: var(--font-mono); }
+  .house-stat-value { font-size: 13px; color: var(--text); font-weight: 600; font-family: var(--font-mono); }
+  .house-badge {
+    position: absolute;
+    top: 16px; right: 16px;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 1px;
+    padding: 3px 8px;
+    border-radius: 2px;
+    text-transform: uppercase;
+  }
+  .badge-ok { background: rgba(34,197,94,0.15); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+  .badge-pending { background: rgba(245,166,35,0.15); color: var(--amber); border: 1px solid rgba(245,166,35,0.3); }
+  .house-divider { border: none; border-top: 1px solid var(--border); margin: 12px 0; }
+  .house-total {
+    font-family: var(--font-head);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--amber);
+  }
+
+  /* PANELS */
+  .panel {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .panel-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--bg3);
+  }
+  .panel-title {
+    font-family: var(--font-head);
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .panel-body { padding: 20px; }
+
+  /* FORM */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group.full { grid-column: 1/-1; }
+  .form-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    color: var(--text3);
+    text-transform: uppercase;
+  }
+  .form-input, .form-select {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 14px;
+    padding: 10px 14px;
+    outline: none;
+    transition: border-color 0.15s;
+    width: 100%;
+  }
+  .form-input:focus, .form-select:focus { border-color: var(--amber); }
+  .form-select option { background: var(--bg3); }
+  .form-input::placeholder { color: var(--text3); }
+  .form-hint {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text3);
+    margin-top: 2px;
+  }
+
+  /* CALC PREVIEW */
+  .calc-box {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 16px;
+    margin-top: 16px;
+  }
+  .calc-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 0;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text2);
+  }
+  .calc-row.total {
+    border-top: 1px solid var(--border);
+    margin-top: 8px;
+    padding-top: 12px;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--amber);
+    font-family: var(--font-head);
+    letter-spacing: 1px;
+  }
+  .calc-value { color: var(--text); }
+
+  /* TABLE */
+  .data-table { width: 100%; border-collapse: collapse; }
+  .data-table th {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--text3);
+    text-transform: uppercase;
+    padding: 10px 16px;
+    text-align: left;
+    background: var(--bg3);
+    border-bottom: 1px solid var(--border);
+    font-weight: 500;
+  }
+  .data-table td {
+    padding: 12px 16px;
+    font-size: 13px;
+    border-bottom: 1px solid rgba(42,42,50,0.5);
+    vertical-align: middle;
+    transition: background 0.1s;
+  }
+  .data-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .data-table tr:last-child td { border-bottom: none; }
+  .mono { font-family: var(--font-mono); font-size: 12px; }
+  .amount { font-family: var(--font-mono); font-weight: 500; color: var(--amber); }
+  .sent-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 1px;
+    padding: 2px 8px;
+    border-radius: 2px;
+    text-transform: uppercase;
+  }
+  .sent-yes { background: rgba(34,197,94,0.1); color: var(--green); border: 1px solid rgba(34,197,94,0.2); }
+  .sent-no  { background: rgba(245,166,35,0.1); color: var(--amber); border: 1px solid rgba(245,166,35,0.2); }
+
+  /* RECEIPT */
+  #receipt-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 200;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+  #receipt-overlay.open { display: flex; }
+  .receipt-modal {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    width: 440px;
+    max-width: 95vw;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  .receipt-modal-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .close-btn {
+    background: none; border: none; color: var(--text3);
+    font-size: 20px; cursor: pointer; padding: 2px 8px;
+    transition: color 0.15s;
+  }
+  .close-btn:hover { color: var(--text); }
+  .receipt-actions {
+    padding: 16px 20px;
+    display: flex; gap: 10px;
+    border-top: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+
+  /* RECEIPT TEMPLATE (printable) */
+  #receipt-print {
+    background: #ffffff;
+    color: #111;
+    padding: 32px;
+    font-family: 'IBM Plex Sans', sans-serif;
+  }
+  .r-header {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid #111;
+  }
+  .r-title { font-size: 24px; font-weight: 700; letter-spacing: 2px; color: #111; font-family: 'Rajdhani', sans-serif; }
+  .r-sub { font-size: 11px; color: #666; font-family: 'IBM Plex Mono', monospace; margin-top: 2px; }
+  .r-bill-no { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #666; text-align: right; }
+  .r-bill-no strong { display: block; font-size: 14px; color: #111; margin-top: 2px; }
+  .r-section { margin-bottom: 16px; }
+  .r-section-label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: #999; font-family: 'IBM Plex Mono', monospace; margin-bottom: 8px; }
+  .r-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .r-info-item { }
+  .r-info-key { font-size: 10px; color: #888; font-family: 'IBM Plex Mono', monospace; }
+  .r-info-val { font-size: 13px; font-weight: 600; color: #111; margin-top: 1px; }
+  .r-breakdown {
+    border: 1px solid #eee;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .r-row {
+    display: flex; justify-content: space-between;
+    padding: 9px 14px;
+    font-size: 13px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .r-row:last-child { border-bottom: none; }
+  .r-row.r-total {
+    background: #111;
+    color: #fff;
+    font-weight: 700;
+    font-size: 15px;
+    font-family: 'Rajdhani', sans-serif;
+    letter-spacing: 1px;
+  }
+  .r-row.r-total .r-val { color: #f5a623; }
+  .r-footer {
+    font-size: 10px;
+    color: #aaa;
+    font-family: 'IBM Plex Mono', monospace;
+    border-top: 1px dashed #ddd;
+    padding-top: 12px;
+    margin-top: 12px;
+    text-align: center;
+  }
+  .r-label { color: #555; }
+  .r-val { font-weight: 600; font-family: 'IBM Plex Mono', monospace; }
+
+  /* TOAST */
+  #toast {
+    position: fixed; bottom: 24px; right: 24px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 20px;
+    font-size: 13px;
+    color: var(--text);
+    z-index: 9000;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.3s;
+    display: flex; align-items: center; gap: 10px;
+    max-width: 300px;
+  }
+  #toast.show { transform: translateY(0); opacity: 1; }
+  #toast.success { border-color: var(--green); }
+  #toast.error { border-color: var(--red); }
+
+  /* LOADING */
+  .loading-overlay {
+    position: fixed; inset: 0;
+    background: var(--bg);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 9000;
+    flex-direction: column; gap: 16px;
+  }
+  .spinner {
+    width: 36px; height: 36px;
+    border: 2px solid var(--border);
+    border-top-color: var(--amber);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text3);
+    letter-spacing: 2px;
+  }
+  .loading-overlay.hidden { display: none; }
+
+  /* EMPTY STATE */
+  .empty {
+    padding: 48px;
+    text-align: center;
+    color: var(--text3);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 1px;
+  }
+  .empty-icon { font-size: 36px; margin-bottom: 12px; }
+
+  /* TABS */
+  .tab-strip {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 20px;
+  }
+  .tab {
+    padding: 10px 20px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text2);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s;
+    background: none; border-left: none; border-right: none; border-top: none;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--amber); border-bottom-color: var(--amber); }
+
+  /* FILTER BAR */
+  .filter-bar {
+    display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; align-items: center;
+  }
+  .filter-bar .form-select, .filter-bar .form-input {
+    flex: 1; min-width: 140px; max-width: 200px;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    .sidebar { width: 60px; }
+    .sidebar .logo-text, .sidebar .logo-sub, .nav-label, .nav-item span, .sidebar-footer { display: none; }
+    .nav-item { justify-content: center; padding: 12px; }
+    .main { margin-left: 60px; }
+    .stat-grid { grid-template-columns: 1fr 1fr; }
+    .topbar { padding: 12px 16px; }
+    .content { padding: 16px; }
+    .form-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 600px) {
+    .stat-grid { grid-template-columns: 1fr; }
+    .house-grid { grid-template-columns: 1fr; }
+  }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 800px) { .two-col { grid-template-columns: 1fr; } }
+
+  .mt-16 { margin-top: 16px; }
+  .mt-20 { margin-top: 20px; }
+  .text-amber { color: var(--amber); }
+  .text-green { color: var(--green); }
+  .text-red { color: var(--red); }
+  .fw-600 { font-weight: 600; }
+  .text-right { text-align: right; }
+</style>
 </head>
 <body>
 
-    <h2>Advanced Property Dashboard</h2>
+<div id="loading-overlay" class="loading-overlay">
+  <div class="spinner"></div>
+  <div class="loading-text">CONNECTING TO DATABASE</div>
+</div>
 
-    <div class="form-group" style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-        <label>Select Tenant to View Dashboard:</label>
-        <select id="tenant-select" onchange="handleTenantSelection()">
-            <option value="">Loading tenants...</option>
-        </select>
+<div class="shell">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-text">PropMgr</div>
+      <div class="logo-sub">OWNER PORTAL v2.0</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-label">Main</div>
+      <div class="nav-item active" onclick="showView('dashboard')">
+        <span class="nav-icon">⬛</span>
+        <span>Dashboard</span>
+      </div>
+      <div class="nav-item" onclick="showView('new-bill')">
+        <span class="nav-icon">⚡</span>
+        <span>New Bill</span>
+      </div>
+      <div class="nav-label">Records</div>
+      <div class="nav-item" onclick="showView('ledger')">
+        <span class="nav-icon">📋</span>
+        <span>Bill Ledger</span>
+      </div>
+      <div class="nav-item" onclick="showView('tenants')">
+        <span class="nav-icon">🏠</span>
+        <span>Tenants</span>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <span class="status-dot"></span>LIVE
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="topbar">
+      <div class="page-title" id="page-title">DASHBOARD</div>
+      <div class="topbar-right">
+        <div class="date-chip" id="current-date"></div>
+        <button class="btn btn-amber" onclick="showView('new-bill')">＋ NEW BILL</button>
+      </div>
     </div>
 
-    <div class="dashboard-container" id="dashboard-content" style="display: none;">
-        
-        <div class="action-panel">
-            <h3>Generate New Bill</h3>
-            <div class="form-group">
-                <label>New Water Meter Reading:</label>
-                <input type="number" id="water-reading" placeholder="e.g., 515">
-                <small style="color: gray;">Last Reading: <span id="hint-last-reading">N/A</span></small>
-            </div>
-            <div class="form-group">
-                <label>Electricity Charges (₹):</label>
-                <input type="number" id="elec-charges" placeholder="e.g., 850">
-            </div>
-            <button onclick="calculateBill()">Calculate & Preview</button>
+    <div class="content">
 
-            <div id="receipt-card">
-                <h3>Utility Bill</h3>
-                <div class="receipt-row"><span><strong>Tenant:</strong></span> <span id="r-name"></span></div>
-                <div class="receipt-row"><span><strong>Base Rent:</strong></span> <span>₹<span id="r-rent"></span></span></div>
-                <div class="receipt-row"><span><strong>Meter:</strong></span> <span><span id="r-meter"></span> (Prev: <span id="r-prev-meter"></span>)</span></div>
-                <div class="receipt-row"><span><strong>Water Cost (@0.22/L):</strong></span> <span>₹<span id="r-water-cost"></span></span></div>
-                <div class="receipt-row"><span><strong>Electricity:</strong></span> <span>₹<span id="r-elec"></span></span></div>
-                <div class="receipt-row"><span><strong>Total Due:</strong></span> <span style="color: #d32f2f; font-weight: bold;">₹<span id="r-total"></span></span></div>
-                <button id="send-btn" style="background-color: #25D366; margin-top: 15px;" onclick="saveAndSendWhatsApp()">Save & Send to WhatsApp</button>
-            </div>
+      <!-- ============ DASHBOARD ============ -->
+      <div class="view active" id="view-dashboard">
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="stat-label">Total Properties</div>
+            <div class="stat-value" id="stat-properties">—</div>
+            <div class="stat-sub">Active units</div>
+            <div class="stat-icon">🏘</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Monthly Rent</div>
+            <div class="stat-value" id="stat-rent">—</div>
+            <div class="stat-sub">Base rent total ₹</div>
+            <div class="stat-icon">💰</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Bills This Month</div>
+            <div class="stat-value" id="stat-bills">—</div>
+            <div class="stat-sub" id="stat-bills-sub">Generated</div>
+            <div class="stat-icon">📄</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Collected</div>
+            <div class="stat-value" id="stat-collected">—</div>
+            <div class="stat-sub">This month ₹</div>
+            <div class="stat-icon">✅</div>
+          </div>
         </div>
 
-        <div class="history-panel">
-            <h3>Billing Ledger</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Month</th>
-                        <th>Meter Reading</th>
-                        <th>Water (₹)</th>
-                        <th>Elec (₹)</th>
-                        <th>Total Billed (₹)</th>
-                    </tr>
-                </thead>
-                <tbody id="history-table-body">
-                    <tr><td colspan="5">Select a tenant to view history.</td></tr>
-                </tbody>
-            </table>
+        <div class="house-grid" id="house-cards">
+          <!-- populated by JS -->
         </div>
 
+        <div class="two-col">
+          <div class="panel">
+            <div class="panel-header">
+              <span class="panel-title">Recent Bills</span>
+            </div>
+            <div id="recent-bills-table"></div>
+          </div>
+          <div class="panel">
+            <div class="panel-header">
+              <span class="panel-title">Unsent Bills</span>
+            </div>
+            <div id="unsent-bills-table"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ NEW BILL ============ -->
+      <div class="view" id="view-new-bill">
+        <div class="two-col">
+          <div class="panel">
+            <div class="panel-header">
+              <span class="panel-title">Generate New Bill</span>
+            </div>
+            <div class="panel-body">
+              <div class="form-grid">
+                <div class="form-group full">
+                  <label class="form-label">Select Property</label>
+                  <select class="form-select" id="bill-tenant" onchange="onTenantSelect()">
+                    <option value="">— Choose a property —</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Billing Month</label>
+                  <input type="month" class="form-input" id="bill-month"/>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Previous Balance (₹)</label>
+                  <input type="number" class="form-input" id="bill-prev-balance" value="0" min="0" onchange="recalculate()"/>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Water Meter Reading (Units)</label>
+                  <input type="number" class="form-input" id="bill-water-new" placeholder="New reading" onchange="recalculate()"/>
+                  <span class="form-hint mono" id="prev-reading-hint">Previous: — units</span>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Electricity Charges (₹)</label>
+                  <input type="number" class="form-input" id="bill-elec" placeholder="Amount in ₹" onchange="recalculate()"/>
+                </div>
+              </div>
+
+              <div class="calc-box">
+                <div style="font-family:var(--font-mono);font-size:9px;letter-spacing:2px;color:var(--text3);margin-bottom:10px;text-transform:uppercase;">Live Calculation</div>
+                <div class="calc-row">
+                  <span>Base Rent</span>
+                  <span class="calc-value" id="calc-rent">₹ —</span>
+                </div>
+                <div class="calc-row">
+                  <span>Water Units</span>
+                  <span class="calc-value" id="calc-units">— units</span>
+                </div>
+                <div class="calc-row">
+                  <span>Water Liters</span>
+                  <span class="calc-value" id="calc-liters">— L</span>
+                </div>
+                <div class="calc-row">
+                  <span>Water Cost (₹0.22/L)</span>
+                  <span class="calc-value" id="calc-water">₹ —</span>
+                </div>
+                <div class="calc-row">
+                  <span>Electricity</span>
+                  <span class="calc-value" id="calc-elec">₹ —</span>
+                </div>
+                <div class="calc-row">
+                  <span>Previous Balance</span>
+                  <span class="calc-value" id="calc-prev">₹ 0</span>
+                </div>
+                <div class="calc-row total">
+                  <span>TOTAL DUE</span>
+                  <span id="calc-total">₹ 0</span>
+                </div>
+              </div>
+
+              <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;">
+                <button class="btn btn-ghost" onclick="previewReceipt()">👁 Preview</button>
+                <button class="btn btn-amber" onclick="saveBill(false)" id="save-btn">💾 Save Bill</button>
+                <button class="btn btn-green" onclick="saveBill(true)" id="save-send-btn">💬 Save & WhatsApp</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <span class="panel-title">Tenant Info</span>
+            </div>
+            <div class="panel-body" id="tenant-preview-box">
+              <div class="empty">
+                <div class="empty-icon">🏠</div>
+                Select a property to see details
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ LEDGER ============ -->
+      <div class="view" id="view-ledger">
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title">Bill Ledger</span>
+            <button class="btn btn-ghost" style="font-size:12px;" onclick="loadLedger()">↻ Refresh</button>
+          </div>
+          <div class="panel-body" style="padding:0;">
+            <div class="filter-bar" style="padding:16px 20px 0;">
+              <select class="form-select" id="filter-tenant" onchange="loadLedger()" style="max-width:180px;">
+                <option value="">All Properties</option>
+              </select>
+              <input type="month" class="form-input" id="filter-month" onchange="loadLedger()" style="max-width:160px;"/>
+              <select class="form-select" id="filter-sent" onchange="loadLedger()" style="max-width:140px;">
+                <option value="">All Status</option>
+                <option value="true">Sent</option>
+                <option value="false">Pending</option>
+              </select>
+            </div>
+            <div id="ledger-table" style="margin-top:12px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ TENANTS ============ -->
+      <div class="view" id="view-tenants">
+        <div class="two-col">
+          <div class="panel">
+            <div class="panel-header">
+              <span class="panel-title" id="tenant-form-title">Add New Tenant</span>
+            </div>
+            <div class="panel-body">
+              <input type="hidden" id="edit-tenant-id"/>
+              <div class="form-grid">
+                <div class="form-group full">
+                  <label class="form-label">House / Property Name</label>
+                  <input type="text" class="form-input" id="t-name" placeholder="e.g. Ground Floor, House 3"/>
+                </div>
+                <div class="form-group full">
+                  <label class="form-label">WhatsApp Number (with country code)</label>
+                  <input type="text" class="form-input" id="t-phone" placeholder="91XXXXXXXXXX"/>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Base Rent (₹)</label>
+                  <input type="number" class="form-input" id="t-rent" placeholder="Monthly rent"/>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Initial Water Reading</label>
+                  <input type="number" class="form-input" id="t-water-init" placeholder="Starting meter units" value="0"/>
+                </div>
+              </div>
+              <div style="display:flex;gap:10px;margin-top:20px;">
+                <button class="btn btn-amber" onclick="saveTenant()">💾 Save Tenant</button>
+                <button class="btn btn-ghost" onclick="clearTenantForm()">✕ Clear</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <span class="panel-title">All Tenants</span>
+              <button class="btn btn-ghost" style="font-size:12px;" onclick="loadTenants()">↻ Refresh</button>
+            </div>
+            <div id="tenant-list-table"></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </main>
+</div>
+
+<!-- RECEIPT MODAL -->
+<div id="receipt-overlay">
+  <div class="receipt-modal">
+    <div class="receipt-modal-header">
+      <span style="font-family:var(--font-head);font-size:15px;font-weight:700;letter-spacing:1px;">BILL RECEIPT</span>
+      <button class="close-btn" onclick="closeReceipt()">✕</button>
+    </div>
+    <div id="receipt-print"></div>
+    <div class="receipt-actions">
+      <button class="btn btn-amber" onclick="downloadReceipt()">⬇ Download PNG</button>
+      <button class="btn btn-green" onclick="sendWhatsApp()">💬 Send WhatsApp</button>
+      <button class="btn btn-ghost" onclick="closeReceipt()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+// ======== SUPABASE SETUP ========
+const SUPABASE_URL = 'https://fthknqhbnyrthfgruzgj.supabase.co';
+const SUPABASE_ANON = 'sb_publishable_GouLtjqj55gikMa7_2CU3w_PnTpeC9-';
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+// ======== STATE ========
+let tenants = [];
+let currentBillData = null;
+let editingBillId = null;
+
+// ======== INIT ========
+document.addEventListener('DOMContentLoaded', async () => {
+  document.getElementById('current-date').textContent = new Date().toLocaleDateString('en-IN', { weekday:'short', day:'2-digit', month:'short', year:'numeric' });
+  // Default billing month to current
+  const now = new Date();
+  document.getElementById('bill-month').value = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  await loadAll();
+  document.getElementById('loading-overlay').classList.add('hidden');
+});
+
+async function loadAll() {
+  await loadTenants();
+  await loadDashboard();
+}
+
+// ======== NAVIGATION ========
+const titles = { dashboard:'DASHBOARD', 'new-bill':'NEW BILL', ledger:'BILL LEDGER', tenants:'TENANT MANAGEMENT' };
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if(n.getAttribute('onclick') && n.getAttribute('onclick').includes(name)) n.classList.add('active');
+  });
+  document.getElementById('page-title').textContent = titles[name] || name.toUpperCase();
+  if(name === 'ledger') loadLedger();
+  if(name === 'tenants') loadTenants();
+  if(name === 'dashboard') loadDashboard();
+}
+
+// ======== TOAST ========
+function toast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = (type==='success'?'✓ ':'✕ ') + msg;
+  t.className = 'show '+type;
+  clearTimeout(t._timer);
+  t._timer = setTimeout(()=>{ t.className=''; }, 3500);
+}
+
+// ======== LOAD TENANTS ========
+async function loadTenants() {
+  const { data, error } = await db.from('tenants').select('*').order('house_name');
+  if(error) { toast('Failed to load tenants: '+error.message, 'error'); return; }
+  tenants = data || [];
+  populateTenantDropdowns();
+  renderTenantList();
+}
+
+function populateTenantDropdowns() {
+  ['bill-tenant','filter-tenant'].forEach(id => {
+    const sel = document.getElementById(id);
+    const cur = sel.value;
+    while(sel.options.length > 1) sel.remove(1);
+    tenants.forEach(t => {
+      const o = new Option(t.house_name, t.id);
+      sel.add(o);
+    });
+    sel.value = cur;
+  });
+}
+
+function renderTenantList() {
+  const el = document.getElementById('tenant-list-table');
+  if(!tenants.length) { el.innerHTML = '<div class="empty"><div class="empty-icon">🏠</div>No tenants yet</div>'; return; }
+  el.innerHTML = `<table class="data-table">
+    <thead><tr>
+      <th>Property</th><th>Phone</th><th>Rent</th><th></th>
+    </tr></thead>
+    <tbody>${tenants.map(t=>`
+      <tr>
+        <td class="fw-600">${t.house_name}</td>
+        <td class="mono">${t.phone_number||'—'}</td>
+        <td class="amount">₹${fmt(t.base_rent)}</td>
+        <td style="text-align:right;">
+          <button class="btn btn-ghost" style="font-size:11px;padding:4px 10px;" onclick="editTenant('${t.id}')">Edit</button>
+        </td>
+      </tr>`).join('')}
+    </tbody>
+  </table>`;
+}
+
+function editTenant(id) {
+  const t = tenants.find(x=>x.id===id); if(!t) return;
+  document.getElementById('edit-tenant-id').value = t.id;
+  document.getElementById('t-name').value = t.house_name;
+  document.getElementById('t-phone').value = t.phone_number||'';
+  document.getElementById('t-rent').value = t.base_rent;
+  document.getElementById('tenant-form-title').textContent = 'Edit Tenant';
+}
+
+function clearTenantForm() {
+  document.getElementById('edit-tenant-id').value = '';
+  document.getElementById('t-name').value = '';
+  document.getElementById('t-phone').value = '';
+  document.getElementById('t-rent').value = '';
+  document.getElementById('t-water-init').value = '0';
+  document.getElementById('tenant-form-title').textContent = 'Add New Tenant';
+}
+
+async function saveTenant() {
+  const id = document.getElementById('edit-tenant-id').value;
+  const name = document.getElementById('t-name').value.trim();
+  const phone = document.getElementById('t-phone').value.trim();
+  const rent = parseFloat(document.getElementById('t-rent').value)||0;
+  if(!name) { toast('Property name required','error'); return; }
+  const payload = { house_name:name, phone_number:phone, base_rent:rent };
+  let error;
+  if(id) {
+    ({ error } = await db.from('tenants').update(payload).eq('id',id));
+  } else {
+    ({ error } = await db.from('tenants').insert(payload));
+  }
+  if(error) { toast('Save failed: '+error.message,'error'); return; }
+  toast(id?'Tenant updated!':'Tenant added!');
+  clearTenantForm();
+  await loadTenants();
+}
+
+// ======== DASHBOARD ========
+async function loadDashboard() {
+  const now = new Date();
+  const ym = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+
+  document.getElementById('stat-properties').textContent = tenants.length;
+  const totalRent = tenants.reduce((s,t)=>s+(parseFloat(t.base_rent)||0),0);
+  document.getElementById('stat-rent').textContent = '₹'+fmt(totalRent);
+
+  const { data: bills, error } = await db.from('utility_bills')
+    .select('*, tenants(house_name, phone_number, base_rent)')
+    .gte('billing_month', ym+'-01')
+    .lte('billing_month', ym+'-31')
+    .order('billing_month', {ascending:false});
+
+  const allBills = bills||[];
+  document.getElementById('stat-bills').textContent = allBills.length;
+  document.getElementById('stat-bills-sub').textContent = `${allBills.filter(b=>b.is_sent).length} sent`;
+  const collected = allBills.filter(b=>b.is_sent).reduce((s,b)=>s+(b.total_amount||0),0);
+  document.getElementById('stat-collected').textContent = '₹'+fmt(collected);
+
+  renderHouseCards(allBills);
+  renderRecentBills(allBills.slice(0,6));
+  renderUnsentBills(allBills.filter(b=>!b.is_sent));
+}
+
+function renderHouseCards(monthBills) {
+  const el = document.getElementById('house-cards');
+  if(!tenants.length) { el.innerHTML=''; return; }
+  el.innerHTML = tenants.map(t => {
+    const bill = monthBills.find(b=>b.tenant_id===t.id);
+    const sent = bill?.is_sent;
+    return `<div class="house-card" onclick="selectHouseForBill('${t.id}')">
+      <div class="house-badge ${sent?'badge-ok':'badge-pending'}">${sent?'SENT':'PENDING'}</div>
+      <div class="house-name">${t.house_name}</div>
+      <div class="house-phone">📱 ${t.phone_number||'No number'}</div>
+      <div class="house-stat">
+        <span class="house-stat-label">Base Rent</span>
+        <span class="house-stat-value">₹${fmt(t.base_rent)}</span>
+      </div>
+      ${bill ? `
+      <div class="house-stat">
+        <span class="house-stat-label">Water Bill</span>
+        <span class="house-stat-value">₹${fmt(bill.total_amount - t.base_rent - (bill.elec_charges||0) - (bill.previous_balance||0))}</span>
+      </div>
+      <div class="house-stat">
+        <span class="house-stat-label">Electricity</span>
+        <span class="house-stat-value">₹${fmt(bill.elec_charges)}</span>
+      </div>
+      <hr class="house-divider"/>
+      <div class="house-total">₹${fmt(bill.total_amount)}</div>
+      <div style="font-size:11px;color:var(--text3);margin-top:4px;font-family:var(--font-mono);">Total Due</div>
+      ` : `<div style="font-family:var(--font-mono);font-size:11px;color:var(--text3);margin-top:12px;">No bill this month</div>`}
+    </div>`;
+  }).join('');
+}
+
+function renderRecentBills(bills) {
+  const el = document.getElementById('recent-bills-table');
+  if(!bills.length) { el.innerHTML='<div class="empty"><div>No bills yet</div></div>'; return; }
+  el.innerHTML = `<table class="data-table"><thead><tr><th>Property</th><th>Month</th><th>Total</th><th>Status</th></tr></thead>
+  <tbody>${bills.map(b=>`<tr>
+    <td class="fw-600">${b.tenants?.house_name||'—'}</td>
+    <td class="mono">${fmtMonth(b.billing_month)}</td>
+    <td class="amount">₹${fmt(b.total_amount)}</td>
+    <td><span class="sent-badge ${b.is_sent?'sent-yes':'sent-no'}">${b.is_sent?'✓ Sent':'Pending'}</span></td>
+  </tr>`).join('')}</tbody></table>`;
+}
+
+function renderUnsentBills(bills) {
+  const el = document.getElementById('unsent-bills-table');
+  if(!bills.length) { el.innerHTML='<div class="empty"><div class="empty-icon">✅</div>All sent!</div>'; return; }
+  el.innerHTML = `<table class="data-table"><thead><tr><th>Property</th><th>Total</th><th></th></tr></thead>
+  <tbody>${bills.map(b=>`<tr>
+    <td class="fw-600">${b.tenants?.house_name||'—'}</td>
+    <td class="amount">₹${fmt(b.total_amount)}</td>
+    <td><button class="btn btn-ghost" style="font-size:11px;padding:4px 10px;" onclick="resendWhatsApp('${b.id}')">💬 Send</button></td>
+  </tr>`).join('')}</tbody></table>`;
+}
+
+// ======== NEW BILL ========
+function selectHouseForBill(tenantId) {
+  showView('new-bill');
+  document.getElementById('bill-tenant').value = tenantId;
+  onTenantSelect();
+}
+
+async function onTenantSelect() {
+  const id = document.getElementById('bill-tenant').value;
+  const previewBox = document.getElementById('tenant-preview-box');
+  const hintEl = document.getElementById('prev-reading-hint');
+
+  if(!id) {
+    previewBox.innerHTML = '<div class="empty"><div class="empty-icon">🏠</div>Select a property</div>';
+    hintEl.textContent = 'Previous: — units';
+    recalculate();
+    return;
+  }
+
+  const t = tenants.find(x=>x.id===id);
+  if(!t) return;
+
+  // Get last bill for previous water reading
+  const { data: lastBills } = await db.from('utility_bills')
+    .select('*')
+    .eq('tenant_id', id)
+    .order('billing_month', {ascending:false})
+    .limit(1);
+
+  const lastBill = lastBills?.[0];
+  const prevReading = lastBill?.water_reading ?? 0;
+  hintEl.textContent = `Previous: ${prevReading} units (${fmtMonth(lastBill?.billing_month||'—')})`;
+  document.getElementById('bill-prev-balance').value = 0;
+
+  previewBox.innerHTML = `
+    <div class="calc-row"><span class="form-label">Property</span><span class="fw-600">${t.house_name}</span></div>
+    <div class="calc-row"><span class="form-label">Phone</span><span class="mono">${t.phone_number||'—'}</span></div>
+    <div class="calc-row"><span class="form-label">Base Rent</span><span class="amount">₹${fmt(t.base_rent)}</span></div>
+    <hr style="border:none;border-top:1px solid var(--border);margin:12px 0;"/>
+    <div class="calc-row"><span class="form-label">Last Bill</span><span>${fmtMonth(lastBill?.billing_month)||'None'}</span></div>
+    <div class="calc-row"><span class="form-label">Last Water Reading</span><span class="mono">${prevReading} units</span></div>
+    <div class="calc-row"><span class="form-label">Last Total</span><span class="amount">${lastBill?'₹'+fmt(lastBill.total_amount):'—'}</span></div>
+    ${lastBill ? `<hr style="border:none;border-top:1px solid var(--border);margin:12px 0;"/>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn btn-ghost" style="font-size:11px;" onclick="viewBillReceipt('${lastBill.id}')">View Last Receipt</button>
+    </div>` : ''}
+  `;
+
+  recalculate();
+}
+
+function recalculate() {
+  const id = document.getElementById('bill-tenant').value;
+  const t = tenants.find(x=>x.id===id);
+  const baseRent = t?.base_rent || 0;
+  const newReading = parseFloat(document.getElementById('bill-water-new').value)||0;
+  const elec = parseFloat(document.getElementById('bill-elec').value)||0;
+  const prevBal = parseFloat(document.getElementById('bill-prev-balance').value)||0;
+
+  // Get prev reading from hint
+  const hintText = document.getElementById('prev-reading-hint').textContent;
+  const prevMatch = hintText.match(/Previous: ([\d.]+)/);
+  const prevReading = prevMatch ? parseFloat(prevMatch[1]) : 0;
+
+  const units = Math.max(0, newReading - prevReading);
+  const liters = units * 10;
+  const waterCost = liters * 0.22;
+  const total = baseRent + waterCost + elec + prevBal;
+
+  document.getElementById('calc-rent').textContent = t ? `₹ ${fmt(baseRent)}` : '₹ —';
+  document.getElementById('calc-units').textContent = newReading ? `${fmt(units)} units` : '— units';
+  document.getElementById('calc-liters').textContent = newReading ? `${fmt(liters)} L` : '— L';
+  document.getElementById('calc-water').textContent = newReading ? `₹ ${fmt(waterCost)}` : '₹ —';
+  document.getElementById('calc-elec').textContent = `₹ ${fmt(elec)}`;
+  document.getElementById('calc-prev').textContent = `₹ ${fmt(prevBal)}`;
+  document.getElementById('calc-total').textContent = t ? `₹ ${fmt(total)}` : '₹ 0';
+}
+
+async function saveBill(sendWA) {
+  const tenantId = document.getElementById('bill-tenant').value;
+  const month = document.getElementById('bill-month').value;
+  const waterNew = parseFloat(document.getElementById('bill-water-new').value);
+  const elec = parseFloat(document.getElementById('bill-elec').value)||0;
+  const prevBal = parseFloat(document.getElementById('bill-prev-balance').value)||0;
+
+  if(!tenantId) { toast('Select a property','error'); return; }
+  if(!month) { toast('Select billing month','error'); return; }
+  if(isNaN(waterNew)) { toast('Enter water meter reading','error'); return; }
+
+  const t = tenants.find(x=>x.id===tenantId);
+  const baseRent = t?.base_rent||0;
+  const hintText = document.getElementById('prev-reading-hint').textContent;
+  const prevMatch = hintText.match(/Previous: ([\d.]+)/);
+  const prevReading = prevMatch ? parseFloat(prevMatch[1]) : 0;
+  const units = Math.max(0, waterNew - prevReading);
+  const liters = units * 10;
+  const waterCost = liters * 0.22;
+  const total = baseRent + waterCost + elec + prevBal;
+
+  const billPayload = {
+    tenant_id: tenantId,
+    billing_month: month+'-01',
+    water_reading: waterNew,
+    elec_charges: elec,
+    previous_balance: prevBal,
+    total_amount: total,
+    is_sent: sendWA
+  };
+
+  document.getElementById('save-btn').disabled = true;
+  document.getElementById('save-send-btn').disabled = true;
+
+  const { data, error } = await db.from('utility_bills').insert(billPayload).select().single();
+
+  document.getElementById('save-btn').disabled = false;
+  document.getElementById('save-send-btn').disabled = false;
+
+  if(error) { toast('Save failed: '+error.message,'error'); return; }
+  toast('Bill saved!');
+
+  // Build receipt data
+  currentBillData = {
+    id: data.id,
+    tenant: t,
+    month,
+    waterNew,
+    prevReading,
+    units,
+    liters,
+    waterCost,
+    elec,
+    prevBal,
+    baseRent,
+    total
+  };
+
+  if(sendWA) {
+    buildReceipt(currentBillData);
+    document.getElementById('receipt-overlay').classList.add('open');
+    setTimeout(()=> sendWhatsApp(), 800);
+  } else {
+    buildReceipt(currentBillData);
+    document.getElementById('receipt-overlay').classList.add('open');
+  }
+
+  // Clear form
+  document.getElementById('bill-water-new').value = '';
+  document.getElementById('bill-elec').value = '';
+  document.getElementById('bill-prev-balance').value = '0';
+  recalculate();
+  await loadDashboard();
+}
+
+function previewReceipt() {
+  const tenantId = document.getElementById('bill-tenant').value;
+  const t = tenants.find(x=>x.id===tenantId);
+  if(!t) { toast('Select a property first','error'); return; }
+  const waterNew = parseFloat(document.getElementById('bill-water-new').value)||0;
+  const elec = parseFloat(document.getElementById('bill-elec').value)||0;
+  const prevBal = parseFloat(document.getElementById('bill-prev-balance').value)||0;
+  const baseRent = t.base_rent||0;
+  const hintText = document.getElementById('prev-reading-hint').textContent;
+  const prevMatch = hintText.match(/Previous: ([\d.]+)/);
+  const prevReading = prevMatch ? parseFloat(prevMatch[1]) : 0;
+  const units = Math.max(0, waterNew - prevReading);
+  const liters = units * 10;
+  const waterCost = liters * 0.22;
+  const total = baseRent + waterCost + elec + prevBal;
+  const month = document.getElementById('bill-month').value;
+  currentBillData = { tenant:t, month, waterNew, prevReading, units, liters, waterCost, elec, prevBal, baseRent, total };
+  buildReceipt(currentBillData);
+  document.getElementById('receipt-overlay').classList.add('open');
+}
+
+async function viewBillReceipt(billId) {
+  const { data, error } = await db.from('utility_bills')
+    .select('*, tenants(*)')
+    .eq('id', billId)
+    .single();
+  if(error||!data) { toast('Could not load bill','error'); return; }
+  const t = data.tenants;
+  const month = data.billing_month?.slice(0,7);
+  const units = 0; // We don't store prev reading separately but can reconstruct
+  const liters = 0;
+  const waterCost = data.total_amount - (t?.base_rent||0) - (data.elec_charges||0) - (data.previous_balance||0);
+  currentBillData = {
+    id: billId,
+    tenant: t,
+    month,
+    waterNew: data.water_reading,
+    prevReading: '—',
+    units: '—',
+    liters: '—',
+    waterCost,
+    elec: data.elec_charges,
+    prevBal: data.previous_balance,
+    baseRent: t?.base_rent||0,
+    total: data.total_amount
+  };
+  buildReceipt(currentBillData);
+  document.getElementById('receipt-overlay').classList.add('open');
+}
+
+async function resendWhatsApp(billId) {
+  const { data, error } = await db.from('utility_bills')
+    .select('*, tenants(*)')
+    .eq('id', billId)
+    .single();
+  if(error||!data) { toast('Could not load bill','error'); return; }
+  const t = data.tenants;
+  const waterCost = data.total_amount - (t?.base_rent||0) - (data.elec_charges||0) - (data.previous_balance||0);
+  currentBillData = {
+    id: billId,
+    tenant: t,
+    month: data.billing_month?.slice(0,7),
+    waterNew: data.water_reading,
+    prevReading: '—',
+    units: '—',
+    liters: '—',
+    waterCost,
+    elec: data.elec_charges,
+    prevBal: data.previous_balance,
+    baseRent: t?.base_rent||0,
+    total: data.total_amount
+  };
+  buildReceipt(currentBillData);
+  document.getElementById('receipt-overlay').classList.add('open');
+}
+
+// ======== RECEIPT ========
+function buildReceipt(d) {
+  const el = document.getElementById('receipt-print');
+  const billNo = 'BILL-'+Date.now().toString().slice(-6);
+  const dateStr = new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+  el.innerHTML = `
+    <div class="r-header">
+      <div>
+        <div class="r-title">RENT RECEIPT</div>
+        <div class="r-sub">PROPERTY BILLING PORTAL</div>
+      </div>
+      <div class="r-bill-no">
+        <span>Bill Reference</span>
+        <strong>${billNo}</strong>
+        <span style="font-size:9px;">${dateStr}</span>
+      </div>
     </div>
 
-    <script>
-        // --- 1. SETUP SUPABASE ---
-        const supabaseUrl = 'PASTE_YOUR_PROJECT_URL_HERE';
-        const supabaseKey = 'PASTE_YOUR_NEW_ANON_KEY_HERE';
-        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+    <div class="r-section">
+      <div class="r-section-label">Tenant Details</div>
+      <div class="r-info-grid">
+        <div class="r-info-item">
+          <div class="r-info-key">Property</div>
+          <div class="r-info-val">${d.tenant?.house_name||'—'}</div>
+        </div>
+        <div class="r-info-item">
+          <div class="r-info-key">Billing Period</div>
+          <div class="r-info-val">${fmtMonth(d.month+'-01')}</div>
+        </div>
+        <div class="r-info-item">
+          <div class="r-info-key">Water Reading</div>
+          <div class="r-info-val">${d.waterNew} units</div>
+        </div>
+        <div class="r-info-item">
+          <div class="r-info-key">Prev Reading</div>
+          <div class="r-info-val">${d.prevReading} units</div>
+        </div>
+      </div>
+    </div>
 
-        let currentBillData = {}; 
-        let globalPrevReading = 0; // Stores the last reading to use for math
+    <div class="r-section">
+      <div class="r-section-label">Charges Breakdown</div>
+      <div class="r-breakdown">
+        <div class="r-row"><span class="r-label">Base Rent</span><span class="r-val">₹ ${fmt(d.baseRent)}</span></div>
+        <div class="r-row"><span class="r-label">Water Used</span><span class="r-val">${d.units} units × 10 = ${d.liters} L</span></div>
+        <div class="r-row"><span class="r-label">Water Cost (₹0.22/L)</span><span class="r-val">₹ ${fmt(d.waterCost)}</span></div>
+        <div class="r-row"><span class="r-label">Electricity Charges</span><span class="r-val">₹ ${fmt(d.elec)}</span></div>
+        ${(d.prevBal>0)?`<div class="r-row"><span class="r-label">Previous Balance</span><span class="r-val">₹ ${fmt(d.prevBal)}</span></div>`:''}
+        <div class="r-row r-total"><span>TOTAL AMOUNT DUE</span><span class="r-val">₹ ${fmt(d.total)}</span></div>
+      </div>
+    </div>
 
-        // --- 2. FETCH TENANTS ---
-        async function loadTenants() {
-            const { data, error } = await supabase.from('tenants').select('*');
-            if (error) return console.error(error);
+    <div class="r-footer">
+      Please pay by the 5th of ${fmtMonth(d.month+'-01')} • Thank you!<br/>
+      Generated by Property Billing Portal
+    </div>
+  `;
+}
 
-            const select = document.getElementById('tenant-select');
-            select.innerHTML = '<option value="">-- Select a House --</option>';
-            
-            data.forEach(t => {
-                const option = document.createElement('option');
-                option.value = t.id;
-                option.textContent = `${t.house_name} (${t.tenant_name})`;
-                option.dataset.rent = t.base_rent;
-                option.dataset.phone = t.phone_number;
-                option.dataset.name = t.tenant_name;
-                select.appendChild(option);
-            });
-        }
-        loadTenants();
+function closeReceipt() {
+  document.getElementById('receipt-overlay').classList.remove('open');
+}
 
-        // --- 3. HANDLE TENANT SELECTION (Loads the Ledger) ---
-        async function handleTenantSelection() {
-            const select = document.getElementById('tenant-select');
-            const tenantId = select.value;
-            const dashboard = document.getElementById('dashboard-content');
-            const tbody = document.getElementById('history-table-body');
-            const hint = document.getElementById('hint-last-reading');
+async function downloadReceipt() {
+  const el = document.getElementById('receipt-print');
+  try {
+    const canvas = await html2canvas(el, { scale:2, backgroundColor:'#ffffff', useCORS:true });
+    const link = document.createElement('a');
+    link.download = `bill-${currentBillData?.tenant?.house_name||'receipt'}-${currentBillData?.month||'now'}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    toast('Receipt downloaded!');
+  } catch(e) { toast('Download failed: '+e.message,'error'); }
+}
 
-            if (!tenantId) {
-                dashboard.style.display = 'none';
-                return;
-            }
+function sendWhatsApp() {
+  if(!currentBillData) return;
+  const d = currentBillData;
+  const phone = d.tenant?.phone_number;
+  if(!phone) { toast('No phone number for this tenant','error'); return; }
+  const msg = encodeURIComponent(
+`🏠 *RENT BILL - ${d.tenant.house_name}*
+📅 Period: ${fmtMonth(d.month+'-01')}
 
-            // Show dashboard layout
-            dashboard.style.display = 'flex';
-            tbody.innerHTML = '<tr><td colspan="5">Loading history...</td></tr>';
-            document.getElementById('receipt-card').style.display = 'none';
+💧 Water Reading: ${d.waterNew} units
+   Units used: ${d.units} × 10 = ${d.liters} L
+   Water cost: ₹${fmt(d.waterCost)}
+⚡ Electricity: ₹${fmt(d.elec)}
+🏠 Base Rent: ₹${fmt(d.baseRent)}${d.prevBal>0?`\n⚠️ Previous Balance: ₹${fmt(d.prevBal)}`:''}
 
-            // Fetch history from Supabase
-            const { data: history, error } = await supabase
-                .from('utility_bills')
-                .select('*')
-                .eq('tenant_id', tenantId)
-                .order('billing_month', { ascending: false });
+━━━━━━━━━━━━━━━
+💰 *TOTAL DUE: ₹${fmt(d.total)}*
+━━━━━━━━━━━━━━━
+Please pay by 5th. Thank you!`
+  );
+  window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
 
-            if (error) {
-                tbody.innerHTML = '<tr><td colspan="5" style="color:red;">Error loading data.</td></tr>';
-                return;
-            }
+  // Mark as sent in DB
+  if(currentBillData.id) {
+    db.from('utility_bills').update({is_sent:true}).eq('id', currentBillData.id).then(()=>{
+      loadDashboard();
+    });
+  }
+}
 
-            tbody.innerHTML = '';
-            
-            if (history.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5">No previous bills found. First time billing!</td></tr>';
-                globalPrevReading = 0;
-                hint.textContent = "None (First Bill)";
-            } else {
-                // Populate Table
-                history.forEach(row => {
-                    const tr = document.createElement('tr');
-                    // Calculate water cost for display in history (assuming previous reading logic was saved, or recalculating for visual)
-                    tr.innerHTML = `
-                        <td>${row.billing_month}</td>
-                        <td>${row.water_reading}</td>
-                        <td>(See Total)</td> 
-                        <td>₹${row.elec_charges}</td>
-                        <td><strong>₹${row.total_amount}</strong></td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-                
-                // Set the previous reading for the calculator
-                globalPrevReading = history[0].water_reading;
-                hint.textContent = globalPrevReading;
-            }
-        }
+// ======== LEDGER ========
+async function loadLedger() {
+  const el = document.getElementById('ledger-table');
+  el.innerHTML = '<div class="empty"><div class="spinner" style="margin:auto;"></div></div>';
 
-        // --- 4. CALCULATE LOGIC ---
-        function calculateBill() {
-            const select = document.getElementById('tenant-select');
-            const tenantId = select.value;
-            const selectedOption = select.options[select.selectedIndex];
-            
-            const newReading = parseFloat(document.getElementById('water-reading').value);
-            const elecCharges = parseFloat(document.getElementById('elec-charges').value) || 0;
-            const baseRent = parseFloat(selectedOption.dataset.rent);
+  const tenantFilter = document.getElementById('filter-tenant').value;
+  const monthFilter = document.getElementById('filter-month').value;
+  const sentFilter = document.getElementById('filter-sent').value;
 
-            if (isNaN(newReading)) return alert("Please enter the water reading.");
+  let q = db.from('utility_bills')
+    .select('*, tenants(house_name, phone_number, base_rent)')
+    .order('billing_month', {ascending:false})
+    .limit(100);
 
-            // Ask for starting meter if no history
-            if (globalPrevReading === 0 && document.getElementById('hint-last-reading').textContent === "None (First Bill)") {
-                const userInput = prompt("No history found. Enter the previous meter reading to calculate units:");
-                if(userInput === null || isNaN(parseFloat(userInput))) return;
-                globalPrevReading = parseFloat(userInput);
-            }
+  if(tenantFilter) q = q.eq('tenant_id', tenantFilter);
+  if(monthFilter) {
+    q = q.gte('billing_month', monthFilter+'-01').lte('billing_month', monthFilter+'-31');
+  }
+  if(sentFilter !== '') q = q.eq('is_sent', sentFilter==='true');
 
-            const unitsUsed = newReading - globalPrevReading;
-            if (unitsUsed < 0) return alert("Error: New reading cannot be lower than the previous reading!");
-            
-            const liters = unitsUsed * 10;
-            const waterCost = (liters * 0.22).toFixed(2);
-            const totalDue = (baseRent + parseFloat(waterCost) + elecCharges).toFixed(2);
+  const { data, error } = await q;
+  if(error) { el.innerHTML='<div class="empty">Error loading bills</div>'; return; }
+  if(!data?.length) { el.innerHTML='<div class="empty"><div class="empty-icon">📋</div>No bills found</div>'; return; }
 
-            // Update UI
-            document.getElementById('r-name').textContent = selectedOption.dataset.name;
-            document.getElementById('r-rent').textContent = baseRent;
-            document.getElementById('r-meter').textContent = newReading;
-            document.getElementById('r-prev-meter').textContent = globalPrevReading;
-            document.getElementById('r-water-cost').textContent = waterCost;
-            document.getElementById('r-elec').textContent = elecCharges;
-            document.getElementById('r-total').textContent = totalDue;
+  el.innerHTML = `<table class="data-table">
+    <thead><tr>
+      <th>Property</th><th>Month</th><th>Water</th><th>Electricity</th><th>Prev Bal</th><th>Total</th><th>Status</th><th>Actions</th>
+    </tr></thead>
+    <tbody>${data.map(b=>`
+      <tr>
+        <td class="fw-600">${b.tenants?.house_name||'—'}</td>
+        <td class="mono">${fmtMonth(b.billing_month)}</td>
+        <td class="mono">${b.water_reading} u</td>
+        <td class="amount">₹${fmt(b.elec_charges)}</td>
+        <td class="mono">₹${fmt(b.previous_balance)}</td>
+        <td class="amount fw-600">₹${fmt(b.total_amount)}</td>
+        <td><span class="sent-badge ${b.is_sent?'sent-yes':'sent-no'}">${b.is_sent?'✓ Sent':'Pending'}</span></td>
+        <td style="display:flex;gap:6px;flex-wrap:wrap;">
+          <button class="btn btn-ghost" style="font-size:11px;padding:4px 8px;" onclick="viewBillReceipt('${b.id}')">👁</button>
+          <button class="btn btn-ghost" style="font-size:11px;padding:4px 8px;" onclick="resendWhatsApp('${b.id}')">💬</button>
+          ${!b.is_sent?`<button class="btn btn-ghost" style="font-size:11px;padding:4px 8px;" onclick="markSent('${b.id}')">✓</button>`:''}
+          <button class="btn btn-danger" style="font-size:11px;padding:4px 8px;" onclick="deleteBill('${b.id}')">🗑</button>
+        </td>
+      </tr>`).join('')}
+    </tbody>
+  </table>`;
+}
 
-            document.getElementById('receipt-card').style.display = 'block';
+async function markSent(id) {
+  const { error } = await db.from('utility_bills').update({is_sent:true}).eq('id',id);
+  if(error) { toast('Failed','error'); return; }
+  toast('Marked as sent!');
+  loadLedger();
+  loadDashboard();
+}
 
-            currentBillData = {
-                tenant_id: tenantId,
-                billing_month: new Date().toISOString().split('T')[0],
-                water_reading: newReading,
-                elec_charges: elecCharges,
-                previous_balance: 0,
-                total_amount: totalDue,
-                is_sent: true
-            };
-        }
+async function deleteBill(id) {
+  if(!confirm('Delete this bill? This cannot be undone.')) return;
+  const { error } = await db.from('utility_bills').delete().eq('id',id);
+  if(error) { toast('Delete failed','error'); return; }
+  toast('Bill deleted');
+  loadLedger();
+  loadDashboard();
+}
 
-        // --- 5. SAVE & SEND ---
-        async function saveAndSendWhatsApp() {
-            const card = document.getElementById('receipt-card');
-            const btn = document.getElementById('send-btn');
-            const phone = document.getElementById('tenant-select').options[document.getElementById('tenant-select').selectedIndex].dataset.phone;
+// ======== HELPERS ========
+function fmt(n) {
+  if(n===undefined||n===null||n==='—') return '0';
+  return parseFloat(n).toLocaleString('en-IN', {minimumFractionDigits:0, maximumFractionDigits:2});
+}
 
-            btn.style.display = 'none';
-
-            try {
-                // Save to DB
-                await supabase.from('utility_bills').insert([currentBillData]);
-
-                // Generate Image
-                const dataUrl = await htmlToImage.toPng(card);
-                
-                // Mobile Share Fallback vs Desktop Download
-                if (navigator.canShare && navigator.userAgent.match(/mobile/i)) {
-                    const blob = await (await fetch(dataUrl)).blob();
-                    const file = new File([blob], "bill.png", { type: "image/png" });
-                    await navigator.share({ files: [file], title: 'Bill' });
-                } else {
-                    const link = document.createElement('a');
-                    link.download = `Bill_${currentBillData.billing_month}.png`;
-                    link.href = dataUrl;
-                    link.click();
-                    window.open(`https://wa.me/${phone}?text=Hello, please find your utility bill attached.`, '_blank');
-                }
-                
-                // Refresh the ledger table immediately to show the new bill!
-                handleTenantSelection();
-
-            } catch (error) {
-                console.error(error);
-                alert("Something went wrong!");
-            } finally {
-                btn.style.display = 'block';
-                card.style.display = 'none'; 
-                document.getElementById('water-reading').value = '';
-                document.getElementById('elec-charges').value = '';
-            }
-        }
-    </script>
+function fmtMonth(dateStr) {
+  if(!dateStr||dateStr==='—') return '—';
+  try {
+    return new Date(dateStr).toLocaleDateString('en-IN',{month:'long',year:'numeric'});
+  } catch { return dateStr; }
+}
+</script>
 </body>
 </html>
