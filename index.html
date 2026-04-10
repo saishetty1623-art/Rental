@@ -21,9 +21,9 @@
   --green-dim: rgba(34,197,94,0.12);
   --red: #ef4444;
   --blue: #60a5fa;
-  --text: #e8e8ec;
-  --text2: #9090a0;
-  --text3: #555568;
+  --text: #ffffff; /* FIXED: Brighter headings and primary text */
+  --text2: #e8e8ec; 
+  --text3: #a0a0a0; /* Slightly brighter dim text */
   --font-head: 'Rajdhani', sans-serif;
   --font-mono: 'IBM Plex Mono', monospace;
   --font-body: 'IBM Plex Sans', sans-serif;
@@ -34,7 +34,7 @@
 html { font-size: 16px; }
 body {
   background: var(--bg);
-  color: var(--text);
+  color: var(--text2);
   font-family: var(--font-body);
   min-height: 100vh;
   overflow-x: hidden;
@@ -114,7 +114,7 @@ body::before {
   display: flex; align-items: center; justify-content: space-between;
   background: var(--bg3);
 }
-.card-title { font-family: var(--font-head); font-size: 13px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text2); }
+.card-title { font-family: var(--font-head); font-size: 13px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text); }
 .card-body { padding: 16px; }
 
 /* ── STAT GRID ── */
@@ -149,14 +149,15 @@ body::before {
   letter-spacing: 1px; text-transform: uppercase; margin-top: 12px;
 }
 .pill-sent { background: var(--green-dim); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
-.pill-pending { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(245,166,35,0.3); }
+.pill-pending { background: rgba(239, 68, 68, 0.1); color: var(--red); border: 1px solid rgba(239, 68, 68, 0.3); }
+.pill-partial { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(245,166,35,0.3); }
 
 /* ── FORM ── */
 .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
 .form-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 1.5px; color: var(--text3); text-transform: uppercase; }
 .form-input, .form-select {
   background: var(--bg3); border: 1px solid var(--border); border-radius: 10px;
-  color: var(--text); font-family: var(--font-body); font-size: 16px; /* 16px prevents iOS zoom */
+  color: var(--text); font-family: var(--font-body); font-size: 16px; 
   padding: 14px 16px; outline: none; transition: border-color 0.15s; width: 100%;
   -webkit-appearance: none; appearance: none;
 }
@@ -206,12 +207,12 @@ body::before {
 .btn-amber:active { background: var(--amber2); transform: scale(0.98); }
 .btn-green { background: var(--green); color: #0a0a0b; }
 .btn-green:active { transform: scale(0.98); }
-.btn-ghost { background: var(--bg3); color: var(--text2); border: 1px solid var(--border); font-size: 13px; }
+.btn-ghost { background: var(--bg3); color: var(--text); border: 1px solid var(--border); font-size: 13px; }
 .btn-ghost:active { border-color: var(--text3); }
 .btn-danger { background: var(--red); color: #fff; }
 .btn-sm { padding: 8px 14px; font-size: 12px; min-height: 36px; width: auto; }
 .btn:disabled { opacity: 0.4; cursor: not-allowed; }
-.btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;}
 .btn-row .btn { flex: 1; }
 
 /* ── TOGGLE ── */
@@ -255,7 +256,8 @@ body::before {
   font-size: 9px; letter-spacing: 1px; padding: 3px 8px; border-radius: 20px; text-transform: uppercase;
 }
 .sent-yes { background: rgba(34,197,94,0.1); color: var(--green); border: 1px solid rgba(34,197,94,0.2); }
-.sent-no  { background: rgba(245,166,35,0.1); color: var(--amber); border: 1px solid rgba(245,166,35,0.2); }
+.sent-no  { background: rgba(239, 68, 68, 0.1); color: var(--red); border: 1px solid rgba(239, 68, 68, 0.3); }
+.sent-partial { background: rgba(245,166,35,0.1); color: var(--amber); border: 1px solid rgba(245,166,35,0.2); }
 
 /* ── RECEIPT MODAL ── */
 #receipt-overlay {
@@ -276,40 +278,31 @@ body::before {
   display: flex; justify-content: space-between; align-items: center;
   position: sticky; top: 0; background: var(--bg2); z-index: 1;
 }
-.receipt-sheet-title { font-family: var(--font-head); font-size: 16px; font-weight: 700; letter-spacing: 1px; }
+.receipt-sheet-title { font-family: var(--font-head); font-size: 16px; font-weight: 700; letter-spacing: 1px; color: var(--text); }
 .close-btn { background: var(--bg3); border: 1px solid var(--border); color: var(--text2); width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; }
 .receipt-preview-wrap { padding: 16px; }
 .receipt-img-preview { width: 100%; border-radius: 10px; display: block; }
 .receipt-img-loading { padding: 40px; text-align: center; font-family: var(--font-mono); font-size: 11px; color: var(--text3); }
 .receipt-actions { padding: 0 16px 16px; display: flex; flex-direction: column; gap: 10px; }
 
-/* ── RECEIPT TEMPLATE (off-screen for html2canvas) ── */
+/* ── NEW MINIMALIST RECEIPT TEMPLATE (off-screen for html2canvas) ── */
 #receipt-print-zone {
   position: fixed; left: -9999px; top: 0;
-  width: 380px; /* fixed width for consistent rendering */
+  width: 380px;
   background: #ffffff; color: #111;
-  padding: 28px 24px; font-family: 'IBM Plex Sans', sans-serif;
-  z-index: -1;
+  padding: 30px 24px; font-family: 'IBM Plex Sans', sans-serif;
+  z-index: -1; border-radius: 8px;
 }
-.r-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; padding-bottom: 14px; border-bottom: 2px solid #111; }
-.r-title { font-size: 22px; font-weight: 700; letter-spacing: 2px; color: #111; font-family: 'Rajdhani', sans-serif; }
-.r-sub { font-size: 10px; color: #666; font-family: 'IBM Plex Mono', monospace; margin-top: 2px; }
-.r-bill-no { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #888; text-align: right; line-height: 1.6; }
-.r-bill-no strong { display: block; font-size: 13px; color: #111; margin-bottom: 2px; }
-.r-section { margin-bottom: 16px; }
-.r-section-label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: #aaa; font-family: 'IBM Plex Mono', monospace; margin-bottom: 8px; }
-.r-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.r-info-key { font-size: 9px; color: #999; font-family: 'IBM Plex Mono', monospace; text-transform: uppercase; letter-spacing: 1px; }
-.r-info-val { font-size: 13px; font-weight: 600; color: #111; margin-top: 2px; }
-.r-breakdown { border: 1px solid #e8e8e8; border-radius: 6px; overflow: hidden; margin-bottom: 14px; }
-.r-row { display: flex; justify-content: space-between; padding: 9px 14px; font-size: 12px; border-bottom: 1px solid #f0f0f0; }
+.r-title { font-size: 24px; font-weight: 700; letter-spacing: 2px; color: #111; font-family: 'Rajdhani', sans-serif; text-align: center; margin-bottom: 5px; text-transform: uppercase;}
+.r-date { font-size: 12px; color: #666; font-family: 'IBM Plex Mono', monospace; text-align: center; margin-bottom: 25px; border-bottom: 2px solid #111; padding-bottom: 15px;}
+.r-breakdown { margin-bottom: 14px; }
+.r-row { display: flex; justify-content: space-between; padding: 10px 0; font-size: 14px; border-bottom: 1px dashed #e0e0e0; }
 .r-row:last-child { border-bottom: none; }
-.r-label { color: #555; }
+.r-label { color: #444; font-weight: 500; }
 .r-val { font-weight: 600; font-family: 'IBM Plex Mono', monospace; color: #111; }
-.r-row.r-total { background: #111; color: #fff; font-weight: 700; font-size: 15px; font-family: 'Rajdhani', sans-serif; letter-spacing: 1px; }
+.r-row.r-total { border-top: 2px solid #111; padding-top: 15px; margin-top: 10px; font-size: 18px; font-family: 'Rajdhani', sans-serif; letter-spacing: 1px; font-weight: bold;}
 .r-row.r-total .r-val { color: #f5a623; }
-.r-row.r-discount .r-val { color: #16a34a; }
-.r-footer { font-size: 10px; color: #aaa; font-family: 'IBM Plex Mono', monospace; border-top: 1px dashed #e0e0e0; padding-top: 12px; margin-top: 4px; text-align: center; line-height: 1.6; }
+.r-footer { font-size: 12px; font-weight: 600; color: #333; text-align: center; margin-top: 30px; padding-top: 15px; border-top: 1px dashed #ccc; font-style: italic; }
 
 /* ── TOAST ── */
 #toast {
@@ -327,19 +320,19 @@ body::before {
 .empty-icon { font-size: 32px; margin-bottom: 10px; }
 
 /* ── SECTION LABEL ── */
-.section-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 2px; color: var(--text3); text-transform: uppercase; margin: 20px 0 10px; }
+.section-label { font-family: var(--font-head); font-size: 20px; font-weight: 700; letter-spacing: 1px; color: var(--text); text-transform: uppercase; margin: 24px 0 12px; border-bottom: 2px solid var(--amber); display: inline-block; padding-bottom: 4px;}
 
 /* ── BILL HISTORY ITEM ── */
 .bill-item {
   background: var(--bg2); border: 1px solid var(--border); border-radius: 12px;
-  padding: 14px 16px; margin-bottom: 10px; display: flex;
-  justify-content: space-between; align-items: center;
+  padding: 14px 16px; margin-bottom: 14px; display: flex; flex-direction: column;
 }
-.bill-item-left .month { font-family: var(--font-head); font-size: 16px; font-weight: 700; color: var(--text); }
-.bill-item-left .details { font-family: var(--font-mono); font-size: 10px; color: var(--text3); margin-top: 3px; }
+.bill-item-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;}
+.bill-item-left .month { font-family: var(--font-head); font-size: 18px; font-weight: 700; color: var(--text); }
+.bill-item-left .details { font-family: var(--font-mono); font-size: 11px; color: var(--text3); margin-top: 3px; }
 .bill-item-right { text-align: right; }
 .bill-item-right .total { font-family: var(--font-head); font-size: 20px; font-weight: 700; color: var(--amber); }
-.bill-item-actions { display: flex; gap: 6px; margin-top: 8px; justify-content: flex-end; flex-wrap: wrap; }
+.bill-item-actions { display: flex; gap: 6px; margin-top: 12px; justify-content: flex-end; flex-wrap: wrap; border-top: 1px solid var(--border); padding-top: 12px;}
 
 /* ── RESPONSIVE DESKTOP FALLBACK ── */
 @media (min-width: 600px) {
@@ -355,7 +348,6 @@ body::before {
   <div class="loading-text">LOADING</div>
 </div>
 
-<!-- TOP BAR -->
 <div class="topbar">
   <div class="topbar-left">
     <div class="logo-dot"></div>
@@ -366,10 +358,8 @@ body::before {
   </div>
 </div>
 
-<!-- VIEWS -->
 <div class="content">
 
-  <!-- ═══════════ DASHBOARD ═══════════ -->
   <div class="view active" id="view-dashboard">
     <div class="stat-grid">
       <div class="stat-card">
@@ -394,20 +384,17 @@ body::before {
       </div>
     </div>
 
-    <div id="house-cards"></div>
+    <div class="section-label" style="color:var(--amber);">Active / Unpaid Bills</div>
+    <div id="active-bills"></div>
 
-    <div class="section-label">Unsent Bills</div>
-    <div id="unsent-bills"></div>
-
-    <div class="section-label">Recent Bills</div>
-    <div id="recent-bills"></div>
+    <div class="section-label" style="color:var(--green); margin-top: 30px;">Completed / Paid</div>
+    <div id="paid-bills"></div>
   </div>
 
-  <!-- ═══════════ NEW BILL ═══════════ -->
   <div class="view" id="view-new-bill">
+    <input type="hidden" id="edit-bill-id" value=""/>
 
-    <!-- Tenant selector (only shown if multiple tenants) -->
-    <div id="tenant-select-wrap" style="display:none;">
+    <div id="tenant-select-wrap">
       <div class="form-group">
         <label class="form-label">Select Rental Unit</label>
         <select class="form-select" id="bill-tenant" onchange="onTenantSelect()">
@@ -416,7 +403,6 @@ body::before {
       </div>
     </div>
 
-    <!-- Tenant info pill (auto-selected) -->
     <div id="selected-tenant-pill" style="display:none;margin-bottom:14px;">
       <div class="tenant-hero">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;">
@@ -435,7 +421,6 @@ body::before {
       </div>
     </div>
 
-    <!-- Reading info -->
     <div class="reading-info" style="margin-bottom:14px;" id="prev-reading-display">
       <div>
         <div class="reading-info-label">Previous Reading</div>
@@ -465,9 +450,9 @@ body::before {
     <div class="form-group">
       <label class="form-label">Previous Balance (₹)</label>
       <input type="number" class="form-input" id="bill-prev-balance" value="0" inputmode="decimal" onchange="recalculate()" oninput="recalculate()"/>
+      <small style="color:var(--green); font-size:11px; margin-top:4px;">Auto-calculated from unpaid amounts.</small>
     </div>
 
-    <!-- Live Calculation -->
     <div class="calc-box">
       <div class="calc-title">Live Calculation</div>
       <div class="calc-row">
@@ -505,26 +490,24 @@ body::before {
     </div>
 
     <div class="btn-row" style="margin-bottom:10px;">
-      <button class="btn btn-ghost" onclick="previewReceipt()">👁 Preview</button>
-      <button class="btn btn-amber" onclick="saveBill(false)" id="save-btn">💾 Save</button>
+      <button class="btn btn-ghost" onclick="previewReceipt()">👁 Preview Image</button>
     </div>
-    <button class="btn btn-green" onclick="saveBill(true)" id="save-send-btn">💬 Save & Send WhatsApp</button>
+    <button class="btn btn-green" onclick="saveBill()" id="save-btn" style="font-size: 16px;">💾 Save & Generate Bill</button>
   </div>
 
-  <!-- ═══════════ LEDGER ═══════════ -->
   <div class="view" id="view-ledger">
     <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
       <input type="month" class="form-input" id="filter-month" onchange="loadLedger()" style="flex:1;min-width:130px;"/>
       <select class="form-select" id="filter-sent" onchange="loadLedger()" style="flex:1;min-width:120px;">
-        <option value="">All Status</option>
-        <option value="true">Sent</option>
-        <option value="false">Pending</option>
+        <option value="all">All Payment Status</option>
+        <option value="unpaid">Not Paid</option>
+        <option value="partial">Partly Paid</option>
+        <option value="paid">Fully Paid</option>
       </select>
     </div>
     <div id="ledger-list"></div>
   </div>
 
-  <!-- ═══════════ SETTINGS ═══════════ -->
   <div class="view" id="view-settings">
     <div class="card">
       <div class="card-header">
@@ -549,7 +532,6 @@ body::before {
           <input type="number" class="form-input" id="t-water-init" placeholder="Starting meter units" value="0" inputmode="numeric"/>
         </div>
 
-        <!-- Water Cap Toggle -->
         <div class="toggle-row" onclick="toggleWaterCap()">
           <div>
             <div class="toggle-label">Subsidized Water Cap</div>
@@ -576,21 +558,18 @@ body::before {
   
   </div>
 
-</div><!-- /content -->
-
-<!-- BOTTOM NAV -->
-<nav class="bottom-nav">
+</div><nav class="bottom-nav">
   <button class="nav-btn active" onclick="showView('dashboard')" id="nav-dashboard">
     <span class="nav-icon">⬛</span>
     <span class="nav-label">Home</span>
   </button>
-  <button class="nav-btn" onclick="showView('new-bill')" id="nav-new-bill">
+  <button class="nav-btn" onclick="showView('new-bill'); clearBillForm();" id="nav-new-bill">
     <span class="nav-icon">⚡</span>
     <span class="nav-label">New Bill</span>
   </button>
   <button class="nav-btn" onclick="showView('ledger')" id="nav-ledger">
     <span class="nav-icon">📋</span>
-    <span class="nav-label">Ledger</span>
+    <span class="nav-label">Library</span>
   </button>
   <button class="nav-btn" onclick="showView('settings')" id="nav-settings">
     <span class="nav-icon">⚙️</span>
@@ -598,12 +577,11 @@ body::before {
   </button>
 </nav>
 
-<!-- RECEIPT MODAL (bottom sheet) -->
 <div id="receipt-overlay">
   <div style="flex:1;" onclick="closeReceipt()"></div>
   <div class="receipt-sheet">
     <div class="receipt-sheet-header">
-      <span class="receipt-sheet-title">Bill Preview</span>
+      <span class="receipt-sheet-title">Share Bill</span>
       <button class="close-btn" onclick="closeReceipt()">✕</button>
     </div>
     <div class="receipt-preview-wrap">
@@ -614,17 +592,14 @@ body::before {
       <img id="receipt-img" class="receipt-img-preview" style="display:none;" alt="Receipt"/>
     </div>
     <div class="receipt-actions">
-      <button class="btn btn-green" onclick="sendWhatsApp()" id="wa-send-btn">💬 Send via WhatsApp</button>
+      <button class="btn btn-green" onclick="shareReceiptImage()" id="wa-send-btn" style="font-size: 16px;">💬 Share Image Only</button>
       <button class="btn btn-ghost" onclick="downloadReceipt()">⬇ Download Image</button>
-      <button class="btn btn-ghost" onclick="closeReceipt()">Close</button>
     </div>
   </div>
 </div>
 
-<!-- OFF-SCREEN RECEIPT TEMPLATE -->
 <div id="receipt-print-zone"></div>
 
-<!-- TOAST -->
 <div id="toast"></div>
 
 <script>
@@ -637,22 +612,30 @@ const db = createClient(SUPABASE_URL, SUPABASE_ANON);
 // ── STATE ──
 let tenants = [];
 let currentBillData = null;
+let currentReceiptDataUrl = null;
 let waterCapLocal = {}; // fallback if DB column missing
+
+// ── DATE LOGIC (The 10th Rule) ──
+function getDefaultBillingMonth() {
+  const now = new Date();
+  // If today is before the 10th, default to previous month.
+  if (now.getDate() < 10) now.setMonth(now.getMonth() - 1);
+  return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+}
 
 // ── INIT ──
 document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('current-date').textContent = new Date().toLocaleDateString('en-IN', {
     weekday:'short', day:'2-digit', month:'short', year:'numeric'
   });
-  const now = new Date();
-  document.getElementById('bill-month').value = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  document.getElementById('bill-month').value = getDefaultBillingMonth();
   await loadTenants();
   await loadDashboard();
   document.getElementById('loading-overlay').classList.add('hidden');
 });
 
 // ── NAVIGATION ──
-const pageTitles = { dashboard:'RentMgr', 'new-bill':'New Bill', ledger:'Bill Ledger', settings:'Rental Units' };
+const pageTitles = { dashboard:'RentMgr', 'new-bill':'New Bill', ledger:'Library', settings:'Rental Units' };
 function showView(name) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(n => n.classList.remove('active'));
@@ -678,26 +661,12 @@ async function loadTenants() {
   tenants = data || [];
   populateTenantDropdown();
   renderTenantList();
-  setupNewBillForm();
 }
 
 function populateTenantDropdown() {
   const sel = document.getElementById('bill-tenant');
   while(sel.options.length > 1) sel.remove(1);
   tenants.forEach(t => sel.add(new Option(t.house_name, t.id)));
-
-  const filterSel = document.getElementById('filter-sent');
-  // no tenant filter in ledger (single-property)
-}
-
-function setupNewBillForm() {
-  if(tenants.length === 1) {
-    document.getElementById('tenant-select-wrap').style.display = 'none';
-    document.getElementById('bill-tenant').value = tenants[0].id;
-    onTenantSelect();
-  } else if(tenants.length > 1) {
-    document.getElementById('tenant-select-wrap').style.display = 'block';
-  }
 }
 
 function renderTenantList() {
@@ -706,7 +675,7 @@ function renderTenantList() {
   el.innerHTML = `<table class="data-table">
     <thead><tr><th>Unit</th><th>Phone</th><th>Rent</th><th></th></tr></thead>
     <tbody>${tenants.map(t=>`<tr>
-      <td><span class="fw-600">${t.house_name}</span>${t.water_cap?'<br><span style="font-size:9px;color:var(--green);font-family:var(--font-mono);">💧 cap</span>':''}</td>
+      <td><span class="fw-600" style="color:var(--text);">${t.house_name}</span>${t.water_cap?'<br><span style="font-size:9px;color:var(--green);font-family:var(--font-mono);">💧 cap</span>':''}</td>
       <td class="mono">${t.phone_number||'—'}</td>
       <td class="amount">₹${fmt(t.base_rent)}</td>
       <td><button class="btn btn-ghost btn-sm" onclick="editTenant('${t.id}')">Edit</button></td>
@@ -715,7 +684,7 @@ function renderTenantList() {
 }
 
 function editTenant(id) {
-  // FIXED: Converted both to strings to prevent type mismatch
+  // FIXED: String conversion
   const t = tenants.find(x => String(x.id) === String(id)); 
   if(!t) return;
   
@@ -753,24 +722,20 @@ async function saveTenant() {
   if(!name) { toast('Unit name required','error'); return; }
 
   const payload = { house_name:name, phone_number:phone, base_rent:rent, initial_water_reading:waterInit };
-  
-  // Try to save water_cap column
   let error;
   const fullPayload = {...payload, water_cap: capOn};
   
   if(id) {
-    // Try with water_cap first
     let res = await db.from('tenants').update(fullPayload).eq('id',id);
     if(res.error && res.error.message.includes('water_cap')) {
       res = await db.from('tenants').update(payload).eq('id',id);
-      waterCapLocal[id] = capOn; // fallback
+      waterCapLocal[id] = capOn;
     }
     error = res.error;
   } else {
     let res = await db.from('tenants').insert(fullPayload);
     if(res.error && res.error.message.includes('water_cap')) {
       res = await db.from('tenants').insert(payload);
-      // store cap locally after we get the new id
     }
     error = res.error;
   }
@@ -788,91 +753,116 @@ async function loadDashboard() {
   const totalRent = tenants.reduce((s,t)=>s+(parseFloat(t.base_rent)||0),0);
   document.getElementById('stat-rent').textContent = '₹'+fmtK(totalRent);
 
-  const { data: bills } = await db.from('utility_bills')
-    .select('*, tenants(house_name,phone_number,base_rent,water_cap)')
-    .gte('billing_month', ym+'-01').lte('billing_month', ym+'-31')
-    .order('billing_month', {ascending:false});
+  const { data: bills } = await db.from('utility_bills').select('*, tenants(house_name,phone_number,base_rent,water_cap)').order('billing_month', {ascending:false});
 
   const allBills = bills||[];
-  const sentBills = allBills.filter(b=>b.is_sent);
   document.getElementById('stat-bills').textContent = allBills.length;
-  document.getElementById('stat-bills-sub').textContent = `of ${tenants.length} units`;
-  document.getElementById('stat-sent').textContent = sentBills.length;
-  document.getElementById('stat-collected').textContent = '₹'+fmtK(sentBills.reduce((s,b)=>s+(b.total_amount||0),0));
+  document.getElementById('stat-bills-sub').textContent = `Total History`;
+  document.getElementById('stat-sent').textContent = allBills.filter(b=>b.is_sent).length;
+  
+  // Calculate collected amount based on amount_paid column
+  const totalCollected = allBills.reduce((s,b) => s + (parseFloat(b.amount_paid)||0), 0);
+  document.getElementById('stat-collected').textContent = '₹'+fmtK(totalCollected);
 
-  renderHouseCards(allBills);
-  renderUnsentBills(allBills.filter(b=>!b.is_sent));
-  renderRecentBills(allBills.slice(0,5));
-}
+  const activeDiv = document.getElementById('active-bills');
+  const paidDiv = document.getElementById('paid-bills');
+  activeDiv.innerHTML = ''; paidDiv.innerHTML = '';
 
-function renderHouseCards(monthBills) {
-  const el = document.getElementById('house-cards');
-  if(!tenants.length) { el.innerHTML='<div class="empty"><div class="empty-icon">🏠</div>No units yet. Go to Units tab to add.</div>'; return; }
-  el.innerHTML = tenants.map(t => {
-    const bill = monthBills.find(b=>b.tenant_id===t.id);
-    const sent = bill?.is_sent;
-    return `<div class="tenant-hero" style="cursor:pointer;" onclick="selectHouseForBill('${t.id}')">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-        <div>
-          <div class="tenant-hero-name">${t.house_name}</div>
-          <div class="tenant-hero-phone">📱 ${t.phone_number||'No number'}</div>
-        </div>
-        <span class="status-pill ${sent?'pill-sent':'pill-pending'}">${sent?'✓ Sent':'Pending'}</span>
-      </div>
-      ${bill ? `
-        <div style="display:flex;gap:20px;margin-top:14px;flex-wrap:wrap;">
-          <div><div class="tenant-hero-rent-label">Rent</div><div style="font-family:var(--font-mono);font-size:13px;color:var(--text);margin-top:2px;">₹${fmt(t.base_rent)}</div></div>
-          <div><div class="tenant-hero-rent-label">Water</div><div style="font-family:var(--font-mono);font-size:13px;color:var(--text);margin-top:2px;">₹${fmt(bill.total_amount-(t.base_rent||0)-(bill.elec_charges||0)-(bill.previous_balance||0))}</div></div>
-          <div><div class="tenant-hero-rent-label">Elec</div><div style="font-family:var(--font-mono);font-size:13px;color:var(--text);margin-top:2px;">₹${fmt(bill.elec_charges)}</div></div>
-        </div>
-        <div style="margin-top:10px;display:flex;justify-content:space-between;align-items:center;">
-          <div class="tenant-hero-rent">₹${fmt(bill.total_amount)}</div>
-          <div style="font-family:var(--font-mono);font-size:10px;color:var(--text3);">Total Due</div>
-        </div>
-      ` : `<div style="font-family:var(--font-mono);font-size:11px;color:var(--text3);margin-top:12px;">No bill this month — tap to create</div>`}
-    </div>`;
-  }).join('');
-}
+  if(!bills || bills.length === 0) {
+    activeDiv.innerHTML = '<div class="empty">No bills generated yet. Go to New Bill.</div>'; return;
+  }
 
-function renderUnsentBills(bills) {
-  const el = document.getElementById('unsent-bills');
-  if(!bills.length) { el.innerHTML='<div style="font-family:var(--font-mono);font-size:11px;color:var(--green);padding:8px 0;">All bills sent ✓</div>'; return; }
-  el.innerHTML = bills.map(b=>`
-    <div class="bill-item">
-      <div class="bill-item-left">
-        <div class="month">${b.tenants?.house_name||'—'}</div>
-        <div class="details">${fmtMonth(b.billing_month)}</div>
-      </div>
-      <div class="bill-item-right">
-        <div class="total">₹${fmt(b.total_amount)}</div>
+  // Filter bills to only show the LATEST bill for each tenant
+  const latestBills = [];
+  const seenTenants = new Set();
+  bills.forEach(b => {
+    if(!seenTenants.has(b.tenant_id)) {
+      seenTenants.add(b.tenant_id);
+      latestBills.push(b);
+    }
+  });
+
+  latestBills.forEach(b => {
+    const amtPaid = parseFloat(b.amount_paid) || 0;
+    const total = parseFloat(b.total_amount) || 0;
+    const balance = total - amtPaid;
+    
+    let statusHTML = '';
+    let isPaid = false;
+
+    if (amtPaid >= total && total > 0) {
+      statusHTML = `<span class="status-pill pill-paid">✓ Paid</span>`;
+      isPaid = true;
+    } else if (amtPaid > 0) {
+      statusHTML = `<span class="status-pill pill-partial">Partial (₹${amtPaid})</span>`;
+    } else {
+      statusHTML = `<span class="status-pill pill-unpaid">Not Paid</span>`;
+    }
+
+    const card = `
+      <div class="bill-item">
+        <div class="bill-item-top">
+          <div class="bill-item-left">
+            <div class="month">${b.tenants?.house_name}</div>
+            <div class="details">Bill Month: ${fmtMonth(b.billing_month)}</div>
+          </div>
+          <div class="bill-item-right">${statusHTML}</div>
+        </div>
+        <div style="display:flex; justify-content:space-between; margin-top:10px;">
+          <span style="color:var(--text3); font-family:var(--font-mono);">Total Billed: <span style="color:var(--text);font-weight:bold;">₹${fmt(total)}</span></span>
+          <span style="color:var(--text3); font-family:var(--font-mono);">Balance: <span style="color:var(--amber);font-weight:bold;font-size:18px;">₹${fmt(balance)}</span></span>
+        </div>
         <div class="bill-item-actions">
-          <button class="btn btn-ghost btn-sm" onclick="resendWhatsApp('${b.id}')">💬 Send</button>
+          ${!isPaid ? `<button class="btn btn-green btn-sm" onclick="markPaid('${b.id}', ${total})">✓ Paid Full</button>
+                       <button class="btn btn-ghost btn-sm" onclick="partialPay('${b.id}', ${amtPaid}, ${total})">Partial</button>` : ''}
+          <button class="btn btn-ghost btn-sm" onclick="editBill('${b.id}')">✏️ Edit</button>
+          <button class="btn btn-amber btn-sm" onclick="viewBillReceipt('${b.id}')">👁 Share</button>
         </div>
       </div>
-    </div>`).join('');
+    `;
+
+    if(isPaid) paidDiv.innerHTML += card;
+    else activeDiv.innerHTML += card;
+  });
+
+  if(activeDiv.innerHTML==='') activeDiv.innerHTML = '<div style="color:var(--green); font-weight:bold; padding:10px;">All caught up! No unpaid bills.</div>';
+  if(paidDiv.innerHTML==='') paidDiv.innerHTML = '<div style="color:var(--text3); padding:10px;">No fully paid bills yet.</div>';
 }
 
-function renderRecentBills(bills) {
-  const el = document.getElementById('recent-bills');
-  if(!bills.length) { el.innerHTML='<div class="empty"><div>No bills yet</div></div>'; return; }
-  el.innerHTML = bills.map(b=>`
-    <div class="bill-item">
-      <div class="bill-item-left">
-        <div class="month">${fmtMonth(b.billing_month)}</div>
-        <div class="details">${b.tenants?.house_name||'—'} • ${b.water_reading} units</div>
-      </div>
-      <div class="bill-item-right">
-        <div class="total">₹${fmt(b.total_amount)}</div>
-        <span class="sent-badge ${b.is_sent?'sent-yes':'sent-no'}">${b.is_sent?'Sent':'Pending'}</span>
-      </div>
-    </div>`).join('');
+// ── PAYMENTS ──
+async function markPaid(id, total) {
+  if(!confirm("Mark this bill as fully paid?")) return;
+  document.getElementById('loading-overlay').classList.remove('hidden');
+  await db.from('utility_bills').update({ amount_paid: total }).eq('id', id);
+  document.getElementById('loading-overlay').classList.add('hidden');
+  toast('Marked as Paid!'); loadDashboard();
 }
 
-// ── NEW BILL ──
-function selectHouseForBill(tenantId) {
-  showView('new-bill');
-  document.getElementById('bill-tenant').value = tenantId;
-  onTenantSelect();
+async function partialPay(id, currentPaid, total) {
+  const input = prompt(`Total is ₹${total}. Currently paid: ₹${currentPaid}.\nEnter NEW payment amount to add:`);
+  if(!input) return;
+  const added = parseFloat(input);
+  if(isNaN(added)) return alert("Invalid amount.");
+  
+  document.getElementById('loading-overlay').classList.remove('hidden');
+  await db.from('utility_bills').update({ amount_paid: currentPaid + added }).eq('id', id);
+  document.getElementById('loading-overlay').classList.add('hidden');
+  toast('Payment recorded! Remainder carried over.'); loadDashboard();
+}
+
+// ── NEW / EDIT BILL ──
+function clearBillForm() {
+  document.getElementById('edit-bill-id').value = '';
+  document.getElementById('bill-tenant').value = '';
+  document.getElementById('bill-month').value = getDefaultBillingMonth();
+  document.getElementById('bill-water-new').value = '';
+  document.getElementById('bill-elec').value = '';
+  document.getElementById('bill-prev-balance').value = '0';
+  document.getElementById('selected-tenant-pill').style.display = 'none';
+  document.getElementById('prev-reading-val').textContent = '— units';
+  document.getElementById('prev-month-val').textContent = '—';
+  document.getElementById('save-btn').textContent = '💾 Save & Generate Bill';
+  recalculate();
 }
 
 async function onTenantSelect() {
@@ -893,14 +883,24 @@ async function onTenantSelect() {
 
   // Get previous reading from last bill or initial reading
   const { data: lastBills } = await db.from('utility_bills')
-    .select('water_reading, billing_month')
+    .select('water_reading, billing_month, total_amount, amount_paid')
     .eq('tenant_id', id)
-    .order('billing_month', {ascending:false})
-    .limit(1);
+    .order('billing_month', {ascending:false});
 
-  const lastBill = lastBills?.[0];
-  const prevReading = lastBill?.water_reading ?? (t.initial_water_reading ?? 0);
-  const prevMonth = lastBill?.billing_month || null;
+  let prevReading = t.initial_water_reading ?? 0;
+  let prevMonth = null;
+  let outstandingBal = 0;
+
+  if (lastBills && lastBills.length > 0) {
+    const lastBill = lastBills[0];
+    // Only auto-fill previous reading and balance if we are NOT in edit mode
+    if(!document.getElementById('edit-bill-id').value) {
+      prevReading = lastBill.water_reading;
+      prevMonth = lastBill.billing_month;
+      outstandingBal = (parseFloat(lastBill.total_amount) || 0) - (parseFloat(lastBill.amount_paid) || 0);
+      document.getElementById('bill-prev-balance').value = outstandingBal;
+    }
+  }
 
   document.getElementById('prev-reading-val').textContent = `${prevReading} units`;
   document.getElementById('prev-month-val').textContent = prevMonth ? fmtMonth(prevMonth) : 'Initial';
@@ -956,12 +956,14 @@ function recalculate() {
     capRow.style.display = 'none';
   }
 }
-async function saveBill(sendWA) {
+
+async function saveBill() {
   const tenantId = document.getElementById('bill-tenant').value;
   const month = document.getElementById('bill-month').value;
   const waterNew = parseFloat(document.getElementById('bill-water-new').value);
   const elec = parseFloat(document.getElementById('bill-elec').value)||0;
   const prevBal = parseFloat(document.getElementById('bill-prev-balance').value)||0;
+  const editId = document.getElementById('edit-bill-id').value;
 
   if(!tenantId) { toast('No unit selected','error'); return; }
   if(!month) { toast('Select billing month','error'); return; }
@@ -986,46 +988,54 @@ async function saveBill(sendWA) {
   const total = baseRent + chargedWater + elec + prevBal;
 
   document.getElementById('save-btn').disabled = true;
-  document.getElementById('save-send-btn').disabled = true;
+  document.getElementById('loading-overlay').classList.remove('hidden');
 
-  const { data, error } = await db.from('utility_bills').insert({
-    tenant_id: tenantId,
-    billing_month: month+'-01',
-    water_reading: waterNew,
-    elec_charges: elec,
-    previous_balance: prevBal,
-    total_amount: total,
-    is_sent: sendWA
-  }).select().single();
-
-  document.getElementById('save-btn').disabled = false;
-  document.getElementById('save-send-btn').disabled = false;
-
-  if(error) { toast('Save failed: '+error.message,'error'); return; }
-  toast('Bill saved!');
-
-  currentBillData = {
-    id: data.id, tenant: t, month,
-    waterNew, prevReading, units, liters,
-    rawWaterCost, subsidy, chargedWater,
-    elec, prevBal, baseRent, total, capActive
+  const payload = {
+    tenant_id: tenantId, billing_month: month+'-01', water_reading: waterNew,
+    elec_charges: elec, previous_balance: prevBal, total_amount: total
   };
 
-  // Reset fields
-  document.getElementById('bill-water-new').value = '';
-  document.getElementById('bill-elec').value = '';
-  document.getElementById('bill-prev-balance').value = '0';
+  let res;
+  if(editId) res = await db.from('utility_bills').update(payload).eq('id', editId).select().single();
+  else res = await db.from('utility_bills').insert(payload).select().single();
 
-  // Show receipt preview
-  await openReceiptPreview(sendWA);
-  await loadDashboard();
-  setupNewBillForm();
+  document.getElementById('save-btn').disabled = false;
+  document.getElementById('loading-overlay').classList.add('hidden');
+
+  if(res.error) { toast('Save failed: '+res.error.message,'error'); return; }
+  toast('Bill saved!');
+
+  // Generate Receipt instantly after saving
+  await viewBillReceipt(res.data.id);
+  loadDashboard();
+  clearBillForm();
 }
 
+async function editBill(id) {
+  const { data: b } = await db.from('utility_bills').select('*').eq('id', id).single();
+  if(!b) return;
+  
+  // Find the previous bill to get the previous reading
+  const { data: past } = await db.from('utility_bills').select('water_reading').eq('tenant_id', b.tenant_id).lt('billing_month', b.billing_month).order('billing_month', {ascending:false}).limit(1);
+  const t = tenants.find(x => String(x.id) === String(b.tenant_id));
+  
+  document.getElementById('edit-bill-id').value = b.id;
+  document.getElementById('bill-tenant').value = b.tenant_id;
+  document.getElementById('bill-month').value = b.billing_month.slice(0,7);
+  document.getElementById('bill-water-new').value = b.water_reading;
+  document.getElementById('bill-elec').value = b.elec_charges;
+  document.getElementById('bill-prev-balance').value = b.previous_balance;
+  document.getElementById('prev-reading-val').textContent = past?.[0]?.water_reading || t?.initial_water_reading || 0;
+  document.getElementById('prev-month-val').textContent = "Editing Mode";
+  
+  document.getElementById('save-btn').textContent = '💾 Update Bill';
+  recalculate();
+  showView('new-bill');
+}
+
+// ── MINIMALIST RECEIPT ──
 function previewReceipt() {
   const id = document.getElementById('bill-tenant').value;
-  
-  // FIXED: String conversion
   const t = tenants.find(x => String(x.id) === String(id));
   if(!t) { toast('Select a unit first','error'); return; }
 
@@ -1036,18 +1046,35 @@ function previewReceipt() {
   const prevText = document.getElementById('prev-reading-val').textContent;
   const prevReading = parseFloat(prevText)||0;
   const units = Math.max(0, waterNew - prevReading);
-  const liters = units * 10;
-  const rawWaterCost = liters * 0.22;
+  const rawWaterCost = (units * 10) * 0.22;
   const capActive = !!(t.water_cap || waterCapLocal[id]);
-  let subsidy = 0, chargedWater = rawWaterCost;
-  if(capActive && rawWaterCost > 500) { subsidy = 500; chargedWater = rawWaterCost - 500; }
+  let chargedWater = rawWaterCost;
+  if(capActive && rawWaterCost > 500) { chargedWater = rawWaterCost - 500; }
   const total = baseRent + chargedWater + elec + prevBal;
   const month = document.getElementById('bill-month').value;
 
-  currentBillData = { tenant:t, month, waterNew, prevReading, units, liters, rawWaterCost, subsidy, chargedWater, elec, prevBal, baseRent, total, capActive };
-  openReceiptPreview(false);
+  currentBillData = { tenant:t, month, waterNew, prevReading, units, chargedWater, elec, prevBal, baseRent, total };
+  openReceiptPreview();
 }
-async function openReceiptPreview(autoSend) {
+
+async function viewBillReceipt(billId) {
+  const { data, error } = await db.from('utility_bills').select('*, tenants(*)').eq('id', billId).single();
+  if(error||!data) { toast('Could not load bill','error'); return; }
+  const t = data.tenants;
+  
+  // Need to get previous reading to show units if we wanted, but minimalist receipt skips it!
+  const chargedWater = data.total_amount - (t?.base_rent||0) - (data.elec_charges||0) - (data.previous_balance||0);
+  
+  currentBillData = {
+    id: billId, tenant: t, month: data.billing_month?.slice(0,7),
+    waterNew: data.water_reading, prevReading: '—', units: '—', 
+    chargedWater: chargedWater, elec: data.elec_charges, prevBal: data.previous_balance,
+    baseRent: t?.base_rent||0, total: data.total_amount
+  };
+  openReceiptPreview();
+}
+
+async function openReceiptPreview() {
   buildReceiptHTML(currentBillData);
   document.getElementById('receipt-overlay').classList.add('open');
   document.getElementById('receipt-img').style.display = 'none';
@@ -1057,89 +1084,30 @@ async function openReceiptPreview(autoSend) {
   await new Promise(r => setTimeout(r, 300)); // let DOM paint
   try {
     const canvas = await html2canvas(document.getElementById('receipt-print-zone'), {
-      scale: 2, backgroundColor: '#ffffff', useCORS: true, logging: false
+      scale: 3, backgroundColor: '#ffffff', useCORS: true, logging: false
     });
-    const imgSrc = canvas.toDataURL('image/png');
-    document.getElementById('receipt-img').src = imgSrc;
+    currentReceiptDataUrl = canvas.toDataURL('image/png');
+    document.getElementById('receipt-img').src = currentReceiptDataUrl;
     document.getElementById('receipt-img').style.display = 'block';
     document.getElementById('receipt-img-loading').style.display = 'none';
-    if(autoSend) setTimeout(()=> sendWhatsApp(), 400);
   } catch(e) {
-    document.getElementById('receipt-img-loading').textContent = 'Preview unavailable — receipt ready to send.';
-    if(autoSend) sendWhatsApp();
+    document.getElementById('receipt-img-loading').textContent = 'Preview unavailable.';
   }
 }
 
-async function viewBillReceipt(billId) {
-  const { data, error } = await db.from('utility_bills').select('*, tenants(*)').eq('id', billId).single();
-  if(error||!data) { toast('Could not load bill','error'); return; }
-  const t = data.tenants;
-  const rawWaterCost = data.total_amount - (t?.base_rent||0) - (data.elec_charges||0) - (data.previous_balance||0);
-  currentBillData = {
-    id: billId, tenant: t, month: data.billing_month?.slice(0,7),
-    waterNew: data.water_reading, prevReading: '—', units: '—', liters: '—',
-    rawWaterCost, subsidy: 0, chargedWater: rawWaterCost,
-    elec: data.elec_charges, prevBal: data.previous_balance,
-    baseRent: t?.base_rent||0, total: data.total_amount, capActive: false
-  };
-  openReceiptPreview(false);
-}
-
-async function resendWhatsApp(billId) {
-  const { data, error } = await db.from('utility_bills').select('*, tenants(*)').eq('id', billId).single();
-  if(error||!data) { toast('Could not load bill','error'); return; }
-  const t = data.tenants;
-  const chargedWater = data.total_amount - (t?.base_rent||0) - (data.elec_charges||0) - (data.previous_balance||0);
-  currentBillData = {
-    id: billId, tenant: t, month: data.billing_month?.slice(0,7),
-    waterNew: data.water_reading, prevReading: '—', units: '—', liters: '—',
-    rawWaterCost: chargedWater, subsidy: 0, chargedWater,
-    elec: data.elec_charges, prevBal: data.previous_balance,
-    baseRent: t?.base_rent||0, total: data.total_amount, capActive: false
-  };
-  openReceiptPreview(false);
-}
-
-// ── RECEIPT ──
 function buildReceiptHTML(d) {
-  const billNo = 'B'+Date.now().toString().slice(-6);
-  const dateStr = new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+  const dateStr = new Date(d.month+'-01').toLocaleDateString('en-IN',{month:'long',year:'numeric'});
   document.getElementById('receipt-print-zone').innerHTML = `
-    <div class="r-header">
-      <div>
-        <div class="r-title">RENT RECEIPT</div>
-        <div class="r-sub">PROPERTY BILLING PORTAL</div>
-      </div>
-      <div class="r-bill-no">
-        <strong>${billNo}</strong>
-        ${dateStr}
-      </div>
+    <div class="r-title">RENT RECEIPT</div>
+    <div class="r-date">Date: ${dateStr}</div>
+    <div class="r-breakdown">
+      <div class="r-row"><span class="r-label">Rent</span><span class="r-val">₹${fmt(d.baseRent)}</span></div>
+      <div class="r-row"><span class="r-label">Water Charges</span><span class="r-val">₹${fmt(d.chargedWater)}</span></div>
+      <div class="r-row"><span class="r-label">Electricity</span><span class="r-val">₹${fmt(d.elec)}</span></div>
+      <div class="r-row"><span class="r-label">Previous Balance</span><span class="r-val">₹${fmt(d.prevBal)}</span></div>
+      <div class="r-row r-total"><span>TOTAL DUE</span><span class="r-val">₹${fmt(d.total)}</span></div>
     </div>
-    <div class="r-section">
-      <div class="r-section-label">Tenant Details</div>
-      <div class="r-info-grid">
-        <div><div class="r-info-key">Property</div><div class="r-info-val">${d.tenant?.house_name||'—'}</div></div>
-        <div><div class="r-info-key">Period</div><div class="r-info-val">${fmtMonth(d.month+'-01')}</div></div>
-        <div><div class="r-info-key">Prev Reading</div><div class="r-info-val">${d.prevReading} units</div></div>
-        <div><div class="r-info-key">New Reading</div><div class="r-info-val">${d.waterNew} units</div></div>
-      </div>
-    </div>
-    <div class="r-section">
-      <div class="r-section-label">Charges</div>
-      <div class="r-breakdown">
-        <div class="r-row"><span class="r-label">Base Rent</span><span class="r-val">₹ ${fmt(d.baseRent)}</span></div>
-        <div class="r-row"><span class="r-label">Water: ${d.units} units × 10 = ${d.liters} L × ₹0.22</span><span class="r-val">₹ ${fmt(d.rawWaterCost)}</span></div>
-        ${d.capActive && d.subsidy > 0 ? `<div class="r-row r-discount"><span class="r-label">Water Subsidy (cap ₹500)</span><span class="r-val" style="color:#16a34a;">− ₹ ${fmt(d.subsidy)}</span></div>` : ''}
-        <div class="r-row"><span class="r-label">Water Charged</span><span class="r-val">₹ ${fmt(d.chargedWater)}</span></div>
-        <div class="r-row"><span class="r-label">Electricity</span><span class="r-val">₹ ${fmt(d.elec)}</span></div>
-        ${d.prevBal>0?`<div class="r-row"><span class="r-label">Previous Balance</span><span class="r-val">₹ ${fmt(d.prevBal)}</span></div>`:''}
-        <div class="r-row r-total"><span>TOTAL DUE</span><span class="r-val">₹ ${fmt(d.total)}</span></div>
-      </div>
-    </div>
-    <div class="r-footer">
-      Please pay by the 5th of ${fmtMonth(d.month+'-01')}<br/>
-      Thank you! — Rental Units Billing Portal
-    </div>
+    <div class="r-footer">Please pay as soon as possible. Thank you!</div>
   `;
 }
 
@@ -1148,11 +1116,10 @@ function closeReceipt() {
 }
 
 async function downloadReceipt() {
-  const imgEl = document.getElementById('receipt-img');
-  if(imgEl.src && imgEl.style.display !== 'none') {
+  if(currentReceiptDataUrl) {
     const link = document.createElement('a');
-    link.download = `bill-${currentBillData?.tenant?.house_name||'receipt'}-${currentBillData?.month||'now'}.png`;
-    link.href = imgEl.src;
+    link.download = `Rent_Bill_${currentBillData?.month||'now'}.png`;
+    link.href = currentReceiptDataUrl;
     link.click();
     toast('Downloaded!');
   } else {
@@ -1160,31 +1127,33 @@ async function downloadReceipt() {
   }
 }
 
-function sendWhatsApp() {
-  if(!currentBillData) return;
-  const d = currentBillData;
-  const phone = d.tenant?.phone_number;
-  if(!phone) { toast('No phone number for this unit','error'); return; }
+// ── SHARE IMAGE ONLY (WhatsApp) ──
+async function shareReceiptImage() {
+  if(!currentReceiptDataUrl) return;
+  const blob = await (await fetch(currentReceiptDataUrl)).blob();
+  const file = new File([blob], 'Rent_Bill.png', { type: 'image/png' });
 
-  const msg = encodeURIComponent(
-`🏠 *RENT BILL — ${d.tenant.house_name}*
-📅 ${fmtMonth(d.month+'-01')}
-
-💧 Water Reading: ${d.waterNew} units
-   Consumed: ${d.units} × 10 = ${d.liters} L
-   Water cost: ₹${fmt(d.rawWaterCost)}${d.capActive&&d.subsidy>0?`\n   Subsidy: − ₹${fmt(d.subsidy)}\n   Charged: ₹${fmt(d.chargedWater)}`:''}
-⚡ Electricity: ₹${fmt(d.elec)}
-🏠 Base Rent: ₹${fmt(d.baseRent)}${d.prevBal>0?`\n⚠️ Prev Balance: ₹${fmt(d.prevBal)}`:''}
-
-━━━━━━━━━━━━━
-💰 *TOTAL: ₹${fmt(d.total)}*
-━━━━━━━━━━━━━
-Please pay by 5th. Thank you! 🙏`
-  );
-  window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
-
-  if(currentBillData.id) {
+  // Update DB as sent if an ID exists
+  if(currentBillData && currentBillData.id) {
     db.from('utility_bills').update({is_sent:true}).eq('id', currentBillData.id).then(()=> loadDashboard());
+  }
+
+  // 1. Try Mobile Native Share (Opens WhatsApp natively with image)
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try {
+      await navigator.share({ files: [file] });
+      return;
+    } catch (e) { console.log("Share cancelled"); }
+  } 
+  
+  // 2. Desktop Fallback: Copy to Clipboard
+  try {
+    await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+    toast('Image Copied! Paste it (Ctrl+V) in WhatsApp.');
+  } catch (e) {
+    // 3. Ultimate Fallback: Download
+    downloadReceipt();
+    toast('Image Downloaded! Attach it in WhatsApp.');
   }
 }
 
@@ -1200,38 +1169,47 @@ async function loadLedger() {
     .order('billing_month', {ascending:false}).limit(100);
 
   if(monthFilter) q = q.gte('billing_month', monthFilter+'-01').lte('billing_month', monthFilter+'-31');
-  if(sentFilter !== '') q = q.eq('is_sent', sentFilter==='true');
 
   const { data, error } = await q;
   if(error||!data?.length) {
     el.innerHTML='<div class="empty"><div class="empty-icon">📋</div>No bills found</div>'; return;
   }
 
-  el.innerHTML = data.map(b => `
+  el.innerHTML = '';
+  data.forEach(b => {
+    const amtPaid = parseFloat(b.amount_paid) || 0;
+    const total = parseFloat(b.total_amount) || 0;
+    
+    let currentStatus = 'unpaid';
+    if(amtPaid >= total && total > 0) currentStatus = 'paid';
+    else if(amtPaid > 0) currentStatus = 'partial';
+
+    if(sentFilter !== 'all' && sentFilter !== currentStatus) return;
+
+    let badge = `<span class="status-pill pill-unpaid">Not Paid</span>`;
+    if(currentStatus === 'paid') badge = `<span class="status-pill pill-paid">Paid</span>`;
+    if(currentStatus === 'partial') badge = `<span class="status-pill pill-partial">Partial (₹${amtPaid})</span>`;
+
+    el.innerHTML += `
     <div class="bill-item" style="flex-direction:column;align-items:stretch;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
         <div>
-          <div class="fw-600">${b.tenants?.house_name||'—'}</div>
-          <div class="mono" style="color:var(--text3);font-size:11px;margin-top:2px;">${fmtMonth(b.billing_month)} · ${b.water_reading} units</div>
+          <div class="fw-600" style="color:var(--text); font-size:18px;">${b.tenants?.house_name||'—'}</div>
+          <div class="mono" style="color:var(--text3);font-size:12px;margin-top:2px;">${fmtMonth(b.billing_month)}</div>
         </div>
         <div style="text-align:right;">
-          <div class="amount" style="font-size:18px;font-family:var(--font-head);font-weight:700;">₹${fmt(b.total_amount)}</div>
-          <span class="sent-badge ${b.is_sent?'sent-yes':'sent-no'}" style="margin-top:4px;display:inline-block;">${b.is_sent?'✓ Sent':'Pending'}</span>
+          <div class="amount" style="font-size:20px;font-family:var(--font-head);font-weight:700;">₹${fmt(b.total_amount)}</div>
+          <div style="margin-top:4px;">${badge}</div>
         </div>
       </div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;">
-        <button class="btn btn-ghost btn-sm" onclick="viewBillReceipt('${b.id}')">👁 View</button>
-        <button class="btn btn-ghost btn-sm" onclick="resendWhatsApp('${b.id}')">💬 Send</button>
-        ${!b.is_sent?`<button class="btn btn-ghost btn-sm" onclick="markSent('${b.id}')">✓ Mark Sent</button>`:''}
+      <div class="bill-item-actions" style="margin-top:8px; border-top: 1px solid var(--border); padding-top: 10px;">
+        <button class="btn btn-ghost btn-sm" onclick="viewBillReceipt('${b.id}')">👁 View Image</button>
         <button class="btn btn-danger btn-sm" onclick="deleteBill('${b.id}')">🗑</button>
       </div>
-    </div>`).join('');
-}
-
-async function markSent(id) {
-  const { error } = await db.from('utility_bills').update({is_sent:true}).eq('id',id);
-  if(error) { toast('Failed','error'); return; }
-  toast('Marked as sent!'); loadLedger(); loadDashboard();
+    </div>`;
+  });
+  
+  if(el.innerHTML==='') el.innerHTML = '<div class="empty">No bills match this filter.</div>';
 }
 
 async function deleteBill(id) {
