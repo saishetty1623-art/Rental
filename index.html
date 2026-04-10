@@ -3,76 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Property Billing Dashboard</title>
+    <title>Advanced Property Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
     
     <style>
-        body { font-family: Arial, sans-serif; padding: 20px; max-width: 500px; margin: auto; background-color: #f9f9f9; }
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 900px; margin: auto; background-color: #f4f7f6; color: #333; }
+        h2, h3 { color: #2c3e50; }
+        
+        /* Grid Layout for Desktop */
+        .dashboard-container { display: flex; flex-wrap: wrap; gap: 20px; }
+        .action-panel { flex: 1; min-width: 300px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .history-panel { flex: 2; min-width: 400px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); overflow-x: auto; }
+        
         .form-group { margin-bottom: 15px; }
-        input, select, button { width: 100%; padding: 10px; margin-top: 5px; box-sizing: border-box; }
-        button { background-color: #2e7d32; color: white; border: none; cursor: pointer; font-size: 16px; font-weight: bold; }
+        label { font-weight: bold; font-size: 14px; }
+        input, select, button { width: 100%; padding: 10px; margin-top: 5px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+        button { background-color: #2e7d32; color: white; border: none; cursor: pointer; font-size: 16px; font-weight: bold; transition: 0.3s; }
         button:hover { background-color: #1b5e20; }
         
-        /* The Receipt Card Design */
-        #receipt-card {
-            border: 1px solid #ddd; padding: 25px; margin-top: 30px;
-            background-color: #fff; display: none; border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-        #receipt-card h3 { margin-top: 0; }
-        .receipt-row { display: flex; justify-content: space-between; margin-bottom: 8px; }
+        /* Table Styling */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #ecf0f1; color: #333; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        
+        /* The Receipt Card Design (Hidden until calculated) */
+        #receipt-card { border: 1px solid #ddd; padding: 25px; margin-top: 20px; background-color: #fff; display: none; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        #receipt-card h3 { margin-top: 0; text-align: center; color: #2e7d32; }
+        .receipt-row { display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px dashed #eee; padding-bottom: 5px; }
     </style>
 </head>
 <body>
 
-    <h2>Monthly Billing Dashboard</h2>
+    <h2>Advanced Property Dashboard</h2>
 
-    <div class="form-group">
-        <label>Select Tenant:</label>
-        <select id="tenant-select">
+    <div class="form-group" style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+        <label>Select Tenant to View Dashboard:</label>
+        <select id="tenant-select" onchange="handleTenantSelection()">
             <option value="">Loading tenants...</option>
         </select>
     </div>
-    
-    <div class="form-group">
-        <label>New Water Meter Reading:</label>
-        <input type="number" id="water-reading" placeholder="e.g., 515">
-    </div>
 
-    <div class="form-group">
-        <label>Electricity Charges (₹):</label>
-        <input type="number" id="elec-charges" placeholder="e.g., 850">
-    </div>
-
-    <button onclick="calculateBill()">Calculate & Preview</button>
-
-    <div id="receipt-card">
-        <h3 style="color: #2e7d32; text-align: center;">Utility Bill</h3>
-        <hr>
-        <div class="receipt-row"><span><strong>Tenant:</strong></span> <span id="r-name"></span></div>
-        <div class="receipt-row"><span><strong>Base Rent:</strong></span> <span>₹<span id="r-rent"></span></span></div>
-        <hr>
-        <div class="receipt-row"><span><strong>Water Meter:</strong></span> <span><span id="r-meter"></span> (Previous: <span id="r-prev-meter"></span>)</span></div>
-        <div class="receipt-row"><span><strong>Water Used:</strong></span> <span><span id="r-liters"></span> Liters</span></div>
-        <div class="receipt-row"><span><strong>Water Cost (@0.22/L):</strong></span> <span>₹<span id="r-water-cost"></span></span></div>
-        <div class="receipt-row"><span><strong>Electricity:</strong></span> <span>₹<span id="r-elec"></span></span></div>
-        <div class="receipt-row"><span><strong>Previous Balance:</strong></span> <span>₹<span id="r-balance"></span></span></div>
-        <hr>
-        <h3 style="color: #d32f2f; text-align: center;">Total Due: ₹<span id="r-total"></span></h3>
+    <div class="dashboard-container" id="dashboard-content" style="display: none;">
         
-        <button id="send-btn" style="background-color: #25D366; margin-top: 15px;" onclick="saveAndSendWhatsApp()">Save & Send via WhatsApp</button>
+        <div class="action-panel">
+            <h3>Generate New Bill</h3>
+            <div class="form-group">
+                <label>New Water Meter Reading:</label>
+                <input type="number" id="water-reading" placeholder="e.g., 515">
+                <small style="color: gray;">Last Reading: <span id="hint-last-reading">N/A</span></small>
+            </div>
+            <div class="form-group">
+                <label>Electricity Charges (₹):</label>
+                <input type="number" id="elec-charges" placeholder="e.g., 850">
+            </div>
+            <button onclick="calculateBill()">Calculate & Preview</button>
+
+            <div id="receipt-card">
+                <h3>Utility Bill</h3>
+                <div class="receipt-row"><span><strong>Tenant:</strong></span> <span id="r-name"></span></div>
+                <div class="receipt-row"><span><strong>Base Rent:</strong></span> <span>₹<span id="r-rent"></span></span></div>
+                <div class="receipt-row"><span><strong>Meter:</strong></span> <span><span id="r-meter"></span> (Prev: <span id="r-prev-meter"></span>)</span></div>
+                <div class="receipt-row"><span><strong>Water Cost (@0.22/L):</strong></span> <span>₹<span id="r-water-cost"></span></span></div>
+                <div class="receipt-row"><span><strong>Electricity:</strong></span> <span>₹<span id="r-elec"></span></span></div>
+                <div class="receipt-row"><span><strong>Total Due:</strong></span> <span style="color: #d32f2f; font-weight: bold;">₹<span id="r-total"></span></span></div>
+                <button id="send-btn" style="background-color: #25D366; margin-top: 15px;" onclick="saveAndSendWhatsApp()">Save & Send to WhatsApp</button>
+            </div>
+        </div>
+
+        <div class="history-panel">
+            <h3>Billing Ledger</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Month</th>
+                        <th>Meter Reading</th>
+                        <th>Water (₹)</th>
+                        <th>Elec (₹)</th>
+                        <th>Total Billed (₹)</th>
+                    </tr>
+                </thead>
+                <tbody id="history-table-body">
+                    <tr><td colspan="5">Select a tenant to view history.</td></tr>
+                </tbody>
+            </table>
+        </div>
+
     </div>
 
     <script>
         // --- 1. SETUP SUPABASE ---
-        const supabaseUrl = 'sb_publishable_GouLtjqj55gikMa7_2CU3w_PnTpeC9-';
-        const supabaseKey = 'fthknqhbnyrthfgruzgj';
+        const supabaseUrl = 'PASTE_YOUR_PROJECT_URL_HERE';
+        const supabaseKey = 'PASTE_YOUR_NEW_ANON_KEY_HERE';
         const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-        let currentBillData = {}; // Stores data to save to DB
+        let currentBillData = {}; 
+        let globalPrevReading = 0; // Stores the last reading to use for math
 
-        // --- 2. FETCH TENANTS ON LOAD ---
+        // --- 2. FETCH TENANTS ---
         async function loadTenants() {
             const { data, error } = await supabase.from('tenants').select('*');
             if (error) return console.error(error);
@@ -92,123 +121,152 @@
         }
         loadTenants();
 
-        // --- 3. CALCULATE LOGIC ---
-        async function calculateBill() {
+        // --- 3. HANDLE TENANT SELECTION (Loads the Ledger) ---
+        async function handleTenantSelection() {
             const select = document.getElementById('tenant-select');
             const tenantId = select.value;
-            if (!tenantId) return alert("Please select a tenant!");
+            const dashboard = document.getElementById('dashboard-content');
+            const tbody = document.getElementById('history-table-body');
+            const hint = document.getElementById('hint-last-reading');
 
+            if (!tenantId) {
+                dashboard.style.display = 'none';
+                return;
+            }
+
+            // Show dashboard layout
+            dashboard.style.display = 'flex';
+            tbody.innerHTML = '<tr><td colspan="5">Loading history...</td></tr>';
+            document.getElementById('receipt-card').style.display = 'none';
+
+            // Fetch history from Supabase
+            const { data: history, error } = await supabase
+                .from('utility_bills')
+                .select('*')
+                .eq('tenant_id', tenantId)
+                .order('billing_month', { ascending: false });
+
+            if (error) {
+                tbody.innerHTML = '<tr><td colspan="5" style="color:red;">Error loading data.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = '';
+            
+            if (history.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5">No previous bills found. First time billing!</td></tr>';
+                globalPrevReading = 0;
+                hint.textContent = "None (First Bill)";
+            } else {
+                // Populate Table
+                history.forEach(row => {
+                    const tr = document.createElement('tr');
+                    // Calculate water cost for display in history (assuming previous reading logic was saved, or recalculating for visual)
+                    tr.innerHTML = `
+                        <td>${row.billing_month}</td>
+                        <td>${row.water_reading}</td>
+                        <td>(See Total)</td> 
+                        <td>₹${row.elec_charges}</td>
+                        <td><strong>₹${row.total_amount}</strong></td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+                
+                // Set the previous reading for the calculator
+                globalPrevReading = history[0].water_reading;
+                hint.textContent = globalPrevReading;
+            }
+        }
+
+        // --- 4. CALCULATE LOGIC ---
+        function calculateBill() {
+            const select = document.getElementById('tenant-select');
+            const tenantId = select.value;
             const selectedOption = select.options[select.selectedIndex];
+            
             const newReading = parseFloat(document.getElementById('water-reading').value);
             const elecCharges = parseFloat(document.getElementById('elec-charges').value) || 0;
             const baseRent = parseFloat(selectedOption.dataset.rent);
 
             if (isNaN(newReading)) return alert("Please enter the water reading.");
 
-            // Fetch the LAST reading for this tenant to use as "Previous"
-            const { data: lastBill } = await supabase
-                .from('utility_bills')
-                .select('water_reading, total_amount')
-                .eq('tenant_id', tenantId)
-                .order('billing_month', { ascending: false })
-                .limit(1);
-
-            let prevReading = 0;
-            let prevBalance = 0; // Assuming balance wasn't paid for this example, you can adjust this logic later
-
-            if (lastBill && lastBill.length > 0) {
-                prevReading = lastBill[0].water_reading;
-            } else {
-                // If this is their very first bill, ask what the starting meter was
-                prevReading = prompt("No previous bill found. Enter the starting meter reading:");
-                if(prevReading === null) return; 
+            // Ask for starting meter if no history
+            if (globalPrevReading === 0 && document.getElementById('hint-last-reading').textContent === "None (First Bill)") {
+                const userInput = prompt("No history found. Enter the previous meter reading to calculate units:");
+                if(userInput === null || isNaN(parseFloat(userInput))) return;
+                globalPrevReading = parseFloat(userInput);
             }
 
-            // --- YOUR MATH LOGIC ---
-            const unitsUsed = newReading - prevReading;
-            if (unitsUsed < 0) return alert("Error: New reading is lower than previous reading!");
+            const unitsUsed = newReading - globalPrevReading;
+            if (unitsUsed < 0) return alert("Error: New reading cannot be lower than the previous reading!");
             
             const liters = unitsUsed * 10;
             const waterCost = (liters * 0.22).toFixed(2);
-            const totalDue = (baseRent + parseFloat(waterCost) + elecCharges + prevBalance).toFixed(2);
+            const totalDue = (baseRent + parseFloat(waterCost) + elecCharges).toFixed(2);
 
-            // --- UPDATE THE PREVIEW ---
+            // Update UI
             document.getElementById('r-name').textContent = selectedOption.dataset.name;
             document.getElementById('r-rent').textContent = baseRent;
             document.getElementById('r-meter').textContent = newReading;
-            document.getElementById('r-prev-meter').textContent = prevReading;
-            document.getElementById('r-liters').textContent = liters;
+            document.getElementById('r-prev-meter').textContent = globalPrevReading;
             document.getElementById('r-water-cost').textContent = waterCost;
             document.getElementById('r-elec').textContent = elecCharges;
-            document.getElementById('r-balance').textContent = prevBalance;
             document.getElementById('r-total').textContent = totalDue;
 
-            // Show the receipt
             document.getElementById('receipt-card').style.display = 'block';
 
-            // Prepare data for saving
             currentBillData = {
                 tenant_id: tenantId,
-                billing_month: new Date().toISOString().split('T')[0], // YYYY-MM-DD
+                billing_month: new Date().toISOString().split('T')[0],
                 water_reading: newReading,
                 elec_charges: elecCharges,
-                previous_balance: prevBalance,
+                previous_balance: 0,
                 total_amount: totalDue,
                 is_sent: true
             };
         }
 
-        // --- 4. SAVE TO DB & SEND WHATSAPP ---
+        // --- 5. SAVE & SEND ---
         async function saveAndSendWhatsApp() {
             const card = document.getElementById('receipt-card');
             const btn = document.getElementById('send-btn');
-            const select = document.getElementById('tenant-select');
-            const phone = select.options[select.selectedIndex].dataset.phone;
+            const phone = document.getElementById('tenant-select').options[document.getElementById('tenant-select').selectedIndex].dataset.phone;
 
-            // 1. Hide button so it doesn't show in the image
             btn.style.display = 'none';
 
             try {
-                // 2. Save data to Supabase
+                // Save to DB
                 await supabase.from('utility_bills').insert([currentBillData]);
 
-                // 3. Generate Image
-                const blob = await htmlToImage.toBlob(card);
-                const file = new File([blob], "utility_bill.png", { type: "image/png" });
-
-                // 4. Try Mobile Native Share (Works on most phones)
-                if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                    await navigator.share({
-                        files: [file],
-                        title: 'Utility Bill',
-                        text: 'Hello, here is your utility bill for this month.'
-                    });
+                // Generate Image
+                const dataUrl = await htmlToImage.toPng(card);
+                
+                // Mobile Share Fallback vs Desktop Download
+                if (navigator.canShare && navigator.userAgent.match(/mobile/i)) {
+                    const blob = await (await fetch(dataUrl)).blob();
+                    const file = new File([blob], "bill.png", { type: "image/png" });
+                    await navigator.share({ files: [file], title: 'Bill' });
                 } else {
-                    // 5. Fallback for Desktop: Download image and open WhatsApp Web
-                    const dataUrl = await htmlToImage.toPng(card);
                     const link = document.createElement('a');
                     link.download = `Bill_${currentBillData.billing_month}.png`;
                     link.href = dataUrl;
-                    link.click(); // Triggers download
-
-                    // Open WhatsApp link
-                    const waUrl = `https://wa.me/${phone}?text=Hello, please find your monthly utility bill attached. (I just sent it as an image!)`;
-                    window.open(waUrl, '_blank');
-                    alert("Image downloaded! You can now drag/paste it into the WhatsApp chat that just opened.");
+                    link.click();
+                    window.open(`https://wa.me/${phone}?text=Hello, please find your utility bill attached.`, '_blank');
                 }
+                
+                // Refresh the ledger table immediately to show the new bill!
+                handleTenantSelection();
+
             } catch (error) {
-                console.error("Error:", error);
+                console.error(error);
                 alert("Something went wrong!");
             } finally {
-                // Restore button
                 btn.style.display = 'block';
-                // Hide receipt after sending
                 card.style.display = 'none'; 
                 document.getElementById('water-reading').value = '';
                 document.getElementById('elec-charges').value = '';
             }
         }
     </script>
-
 </body>
 </html>
