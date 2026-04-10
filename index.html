@@ -715,13 +715,17 @@ function renderTenantList() {
 }
 
 function editTenant(id) {
-  const t = tenants.find(x=>x.id===id); if(!t) return;
+  // FIXED: Converted both to strings to prevent type mismatch
+  const t = tenants.find(x => String(x.id) === String(id)); 
+  if(!t) return;
+  
   document.getElementById('edit-tenant-id').value = t.id;
   document.getElementById('t-name').value = t.house_name;
   document.getElementById('t-phone').value = t.phone_number||'';
   document.getElementById('t-rent').value = t.base_rent;
   document.getElementById('t-water-init').value = t.initial_water_reading||0;
-  const capOn = !!(t.water_cap || waterCapLocal[t.id]);
+  
+  const capOn = !!(t.water_cap || waterCapLocal[id]);
   const tog = document.getElementById('water-cap-toggle');
   tog.classList.toggle('on', capOn);
   document.getElementById('tenant-form-title').textContent = 'Edit Unit';
@@ -874,7 +878,9 @@ function selectHouseForBill(tenantId) {
 async function onTenantSelect() {
   const id = document.getElementById('bill-tenant').value;
   if(!id) return;
-  const t = tenants.find(x=>x.id===id);
+  
+  // FIXED: String conversion
+  const t = tenants.find(x => String(x.id) === String(id));
   if(!t) return;
 
   // Show tenant pill
@@ -904,7 +910,9 @@ async function onTenantSelect() {
 
 function recalculate() {
   const id = document.getElementById('bill-tenant').value;
-  const t = tenants.find(x=>x.id===id);
+  
+  // FIXED: String conversion
+  const t = tenants.find(x => String(x.id) === String(id));
   if(!t) return;
 
   const baseRent = parseFloat(t.base_rent)||0;
@@ -948,7 +956,6 @@ function recalculate() {
     capRow.style.display = 'none';
   }
 }
-
 async function saveBill(sendWA) {
   const tenantId = document.getElementById('bill-tenant').value;
   const month = document.getElementById('bill-month').value;
@@ -960,7 +967,8 @@ async function saveBill(sendWA) {
   if(!month) { toast('Select billing month','error'); return; }
   if(isNaN(waterNew)) { toast('Enter water meter reading','error'); return; }
 
-  const t = tenants.find(x=>x.id===tenantId);
+  // FIXED: String conversion
+  const t = tenants.find(x => String(x.id) === String(tenantId));
   const baseRent = t?.base_rent||0;
   const prevText = document.getElementById('prev-reading-val').textContent;
   const prevReading = parseFloat(prevText)||0;
@@ -1016,7 +1024,9 @@ async function saveBill(sendWA) {
 
 function previewReceipt() {
   const id = document.getElementById('bill-tenant').value;
-  const t = tenants.find(x=>x.id===id);
+  
+  // FIXED: String conversion
+  const t = tenants.find(x => String(x.id) === String(id));
   if(!t) { toast('Select a unit first','error'); return; }
 
   const waterNew = parseFloat(document.getElementById('bill-water-new').value)||0;
@@ -1037,7 +1047,6 @@ function previewReceipt() {
   currentBillData = { tenant:t, month, waterNew, prevReading, units, liters, rawWaterCost, subsidy, chargedWater, elec, prevBal, baseRent, total, capActive };
   openReceiptPreview(false);
 }
-
 async function openReceiptPreview(autoSend) {
   buildReceiptHTML(currentBillData);
   document.getElementById('receipt-overlay').classList.add('open');
