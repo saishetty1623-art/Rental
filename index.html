@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Property Billing Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
+    
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 500px; margin: auto; background-color: #f9f9f9; }
+        .form-group { margin-bottom: 15px; }
+        input, select, button { width: 100%; padding: 10px; margin-top: 5px; box-sizing: border-box; }
+        button { background-color: #2e7d32; color: white; border: none; cursor: pointer; font-size: 16px; font-weight: bold; }
+        button:hover { background-color: #1b5e20; }
+        
+        /* The Receipt Card Design */
+        #receipt-card {
+            border: 1px solid #ddd; padding: 25px; margin-top: 30px;
+            background-color: #fff; display: none; border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        #receipt-card h3 { margin-top: 0; }
+        .receipt-row { display: flex; justify-content: space-between; margin-bottom: 8px; }
+    </style>
+</head>
+<body>
+
+    <h2>Monthly Billing Dashboard</h2>
+
+    <div class="form-group">
+        <label>Select Tenant:</label>
+        <select id="tenant-select">
+            <option value="">Loading tenants...</option>
+        </select>
+    </div>
+    
+    <div class="form-group">
+        <label>New Water Meter Reading:</label>
+        <input type="number" id="water-reading" placeholder="e.g., 515">
+    </div>
+
+    <div class="form-group">
+        <label>Electricity Charges (₹):</label>
+        <input type="number" id="elec-charges" placeholder="e.g., 850">
+    </div>
+
+    <button onclick="calculateBill()">Calculate & Preview</button>
+
+    <div id="receipt-card">
+        <h3 style="color: #2e7d32; text-align: center;">Utility Bill</h3>
+        <hr>
+        <div class="receipt-row"><span><strong>Tenant:</strong></span> <span id="r-name"></span></div>
+        <div class="receipt-row"><span><strong>Base Rent:</strong></span> <span>₹<span id="r-rent"></span></span></div>
+        <hr>
+        <div class="receipt-row"><span><strong>Water Meter:</strong></span> <span><span id="r-meter"></span> (Previous: <span id="r-prev-meter"></span>)</span></div>
+        <div class="receipt-row"><span><strong>Water Used:</strong></span> <span><span id="r-liters"></span> Liters</span></div>
+        <div class="receipt-row"><span><strong>Water Cost (@0.22/L):</strong></span> <span>₹<span id="r-water-cost"></span></span></div>
+        <div class="receipt-row"><span><strong>Electricity:</strong></span> <span>₹<span id="r-elec"></span></span></div>
+        <div class="receipt-row"><span><strong>Previous Balance:</strong></span> <span>₹<span id="r-balance"></span></span></div>
+        <hr>
+        <h3 style="color: #d32f2f; text-align: center;">Total Due: ₹<span id="r-total"></span></h3>
+        
+        <button id="send-btn" style="background-color: #25D366; margin-top: 15px;" onclick="saveAndSendWhatsApp()">Save & Send via WhatsApp</button>
+    </div>
+
+    <script>
+        // --- 1. SETUP SUPABASE ---
+        const supabaseUrl = 'sb_publishable_GouLtjqj55gikMa7_2CU3w_PnTpeC9-';
+        const supabaseKey = 'fthknqhbnyrthfgruzgj';
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        let currentBillData = {}; // Stores data to save to DB
+
+        // --- 2. FETCH TENANTS ON LOAD ---
+        async function loadTenants() {
+            const { data, error } = await supabase.from('tenants').select('*');
+            if (error) return console.error(error);
+
+            const select = document.getElementById('tenant-select');
+            select.innerHTML = '<option value="">-- Select a House --</option>';
+            
+            data.forEach(t => {
+                const option = document.createElement('option');
+                option.value = t.id;
+                option.textContent = `${t.house_name} (${t.tenant_name})`;
+                option.dataset.rent = t.base_rent;
+                option.dataset.phone = t.phone_number;
+                option.dataset.name = t.tenant_name;
+                select.appendChild(option);
+            });
+        }
+        loadTenants();
+
+        // --- 3. CALCULATE LOGIC ---
+        async function calculateBill() {
+            const select = document.getElementById('tenant-select');
+            const tenantId = select.value;
+            if (!tenantId) return alert("Please select a tenant!");
+
+            const selectedOption = select.options[select.selectedIndex];
+            const newReading = parseFloat(document.getElementById('water-reading').value);
+            const elecCharges = parseFloat(document.getElementById('elec-charges').value) || 0;
+            const baseRent = parseFloat(selectedOption.dataset.rent);
+
+            if (isNaN(newReading)) return alert("Please enter the water reading.");
+
+            // Fetch the LAST reading for this tenant to use as "Previous"
+            const { data: lastBill } = await supabase
+                .from('utility_bills')
+                .select('water_reading, total_amount')
+                .eq('tenant_id', tenantId)
+                .order('billing_month', { ascending: false })
+                .limit(1);
+
+            let prevReading = 0;
+            let prevBalance = 0; // Assuming balance wasn't paid for this example, you can adjust this logic later
+
+            if (lastBill && lastBill.length > 0) {
+                prevReading = lastBill[0].water_reading;
+            } else {
+                // If this is their very first bill, ask what the starting meter was
+                prevReading = prompt("No previous bill found. Enter the starting meter reading:");
+                if(prevReading === null) return; 
+            }
+
+            // --- YOUR MATH LOGIC ---
+            const unitsUsed = newReading - prevReading;
+            if (unitsUsed < 0) return alert("Error: New reading is lower than previous reading!");
+            
+            const liters = unitsUsed * 10;
+            const waterCost = (liters * 0.22).toFixed(2);
+            const totalDue = (baseRent + parseFloat(waterCost) + elecCharges + prevBalance).toFixed(2);
+
+            // --- UPDATE THE PREVIEW ---
+            document.getElementById('r-name').textContent = selectedOption.dataset.name;
+            document.getElementById('r-rent').textContent = baseRent;
+            document.getElementById('r-meter').textContent = newReading;
+            document.getElementById('r-prev-meter').textContent = prevReading;
+            document.getElementById('r-liters').textContent = liters;
+            document.getElementById('r-water-cost').textContent = waterCost;
+            document.getElementById('r-elec').textContent = elecCharges;
+            document.getElementById('r-balance').textContent = prevBalance;
+            document.getElementById('r-total').textContent = totalDue;
+
+            // Show the receipt
+            document.getElementById('receipt-card').style.display = 'block';
+
+            // Prepare data for saving
+            currentBillData = {
+                tenant_id: tenantId,
+                billing_month: new Date().toISOString().split('T')[0], // YYYY-MM-DD
+                water_reading: newReading,
+                elec_charges: elecCharges,
+                previous_balance: prevBalance,
+                total_amount: totalDue,
+                is_sent: true
+            };
+        }
+
+        // --- 4. SAVE TO DB & SEND WHATSAPP ---
+        async function saveAndSendWhatsApp() {
+            const card = document.getElementById('receipt-card');
+            const btn = document.getElementById('send-btn');
+            const select = document.getElementById('tenant-select');
+            const phone = select.options[select.selectedIndex].dataset.phone;
+
+            // 1. Hide button so it doesn't show in the image
+            btn.style.display = 'none';
+
+            try {
+                // 2. Save data to Supabase
+                await supabase.from('utility_bills').insert([currentBillData]);
+
+                // 3. Generate Image
+                const blob = await htmlToImage.toBlob(card);
+                const file = new File([blob], "utility_bill.png", { type: "image/png" });
+
+                // 4. Try Mobile Native Share (Works on most phones)
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share({
+                        files: [file],
+                        title: 'Utility Bill',
+                        text: 'Hello, here is your utility bill for this month.'
+                    });
+                } else {
+                    // 5. Fallback for Desktop: Download image and open WhatsApp Web
+                    const dataUrl = await htmlToImage.toPng(card);
+                    const link = document.createElement('a');
+                    link.download = `Bill_${currentBillData.billing_month}.png`;
+                    link.href = dataUrl;
+                    link.click(); // Triggers download
+
+                    // Open WhatsApp link
+                    const waUrl = `https://wa.me/${phone}?text=Hello, please find your monthly utility bill attached. (I just sent it as an image!)`;
+                    window.open(waUrl, '_blank');
+                    alert("Image downloaded! You can now drag/paste it into the WhatsApp chat that just opened.");
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert("Something went wrong!");
+            } finally {
+                // Restore button
+                btn.style.display = 'block';
+                // Hide receipt after sending
+                card.style.display = 'none'; 
+                document.getElementById('water-reading').value = '';
+                document.getElementById('elec-charges').value = '';
+            }
+        }
+    </script>
+
+</body>
+</html>
