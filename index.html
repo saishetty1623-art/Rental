@@ -236,9 +236,10 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 /* ── OFF-SCREEN RECEIPT RENDER ZONES ── */
 /* ZONE A: Minimal receipt (home share) */
 #receipt-print-minimal{
-  position:fixed;left:-9999px;top:0;width:400px;
-  background:#fff;color:#111;padding:30px 24px 24px;
+  position:fixed;left:-9999px;top:0;width:420px;
+  background:#fff;color:#111;padding:0;
   font-family:'IBM Plex Sans',sans-serif;z-index:-1;
+  border-radius:0;
 }
 /* ZONE B: Detailed receipt (library view) */
 #receipt-print-detailed{
@@ -1353,38 +1354,98 @@ function upiLogos(){
   </div>`;
 }
 
-function buildMinimalReceiptHTML(d){
-  const monthLabel=fmtMonth(d.month);
-  const dateStr=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
-  const miscRow=d.miscAmount&&parseFloat(d.miscAmount)>0
-    ?`<tr><td class="rz-label">${d.miscLabel||'Miscellaneous'}</td><td>₹ ${fmt(d.miscAmount)}</td></tr>`:'';
-  const prevRow=parseFloat(d.prevBal)>0
-    ?`<tr><td class="rz-label">Previous Balance</td><td>₹ ${fmt(d.prevBal)}</td></tr>`:'';
+function buildMinimalReceiptHTML(d) {
+  const monthLabel = fmtMonth(d.month);
+  const dateStr    = new Date().toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
+  const miscRow    = d.miscAmount && parseFloat(d.miscAmount) > 0
+    ? `<tr><td class="rz-label">${d.miscLabel || 'Misc'}</td><td>₹ ${fmt(d.miscAmount)}</td></tr>` : '';
+  const prevRow    = parseFloat(d.prevBal) > 0
+    ? `<tr><td class="rz-label">Previous Balance</td><td>₹ ${fmt(d.prevBal)}</td></tr>` : '';
 
-  // QR section (shown only if qrCodeUrl is set)
-  const qrSection=qrCodeUrl
-    ?`<div class="rz-qr-section">
-        <img class="rz-qr-img" src="${qrCodeUrl}?t=${Date.now()}" crossorigin="anonymous" alt="Payment QR"/>
-        <div class="rz-qr-label">Scan to Pay · All UPI apps accepted</div>
-        ${upiLogos()}
-      </div>`:'';
+  // QR section — uses uploaded image from Supabase
+  const qrSection = qrCodeUrl ? `
+    <div style="background:#f9f9f9;border-top:1px solid #eee;padding:20px 24px 16px;text-align:center;">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:2px;color:#aaa;text-transform:uppercase;margin-bottom:12px;">Scan &amp; Pay</div>
+      <img src="${qrCodeUrl}?t=${Date.now()}"
+           crossorigin="anonymous"
+           style="width:150px;height:150px;object-fit:contain;display:block;margin:0 auto 8px;border:1px solid #eee;border-radius:8px;padding:6px;background:#fff;"
+           alt="Payment QR"/>
+      <div style="font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;color:#111;letter-spacing:1px;margin-bottom:4px;">B L SRIVANI</div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#aaa;margin-bottom:12px;letter-spacing:.5px;">PhonePe UPI</div>
+      <!-- UPI logos row -->
+      <div style="display:flex;justify-content:center;align-items:center;gap:14px;margin-bottom:4px;">
+        <!-- PhonePe -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <circle cx="16" cy="16" r="16" fill="#5F259F"/>
+            <text x="16" y="21" text-anchor="middle" font-family="sans-serif" font-weight="700" font-size="14" fill="white">पे</text>
+          </svg>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:8px;color:#999;">PhonePe</span>
+        </div>
+        <!-- BHIM -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <circle cx="16" cy="16" r="16" fill="#00529B"/>
+            <text x="16" y="20" text-anchor="middle" font-family="sans-serif" font-weight="800" font-size="9" fill="white">BHIM</text>
+          </svg>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:8px;color:#999;">BHIM</span>
+        </div>
+        <!-- GPay -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <circle cx="16" cy="16" r="16" fill="#fff" stroke="#e0e0e0" stroke-width="1"/>
+            <text x="7" y="19" font-family="sans-serif" font-weight="700" font-size="9" fill="#4285F4">G</text>
+            <text x="13" y="19" font-family="sans-serif" font-weight="700" font-size="9" fill="#EA4335">P</text>
+            <text x="19" y="19" font-family="sans-serif" font-weight="700" font-size="9" fill="#FBBC05">a</text>
+            <text x="24" y="19" font-family="sans-serif" font-weight="700" font-size="9" fill="#34A853">y</text>
+          </svg>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:8px;color:#999;">GPay</span>
+        </div>
+        <!-- Paytm -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <circle cx="16" cy="16" r="16" fill="#00BAF2"/>
+            <text x="16" y="21" text-anchor="middle" font-family="sans-serif" font-weight="800" font-size="9" fill="white">paytm</text>
+          </svg>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:8px;color:#999;">Paytm</span>
+        </div>
+      </div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:8px;color:#ccc;margin-top:8px;letter-spacing:1px;text-transform:uppercase;">Supported on all UPI apps · Powered by UPI</div>
+    </div>` : '';
 
-  document.getElementById('receipt-print-minimal').innerHTML=`
-    <div class="rz-header">
-      <div class="rz-title">Rent Receipt</div>
-      <div class="rz-for">${monthLabel}</div>
-      <div class="rz-unit">${d.tenant?.house_name||'—'}</div>
-      <div class="rz-date">Generated: ${dateStr}</div>
+  document.getElementById('receipt-print-minimal').innerHTML = `
+    <!-- HEADER BAND -->
+    <div style="background:#111;padding:18px 24px 14px;text-align:center;">
+      <div style="font-family:'Rajdhani',sans-serif;font-size:11px;letter-spacing:3px;color:#f5a623;text-transform:uppercase;margin-bottom:4px;">Rent Receipt</div>
+      <div style="font-family:'Rajdhani',sans-serif;font-size:26px;font-weight:700;color:#ffffff;letter-spacing:1px;">${d.tenant?.house_name || '—'}</div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#aaa;margin-top:4px;">${monthLabel}</div>
     </div>
-    <table class="rz-table">
-      <tr><td class="rz-label">Base Rent</td><td>₹ ${fmt(d.baseRent)}</td></tr>
-      <tr><td class="rz-label">Water Charges</td><td>₹ ${fmt(d.chargedWater)}</td></tr>
-      <tr><td class="rz-label">Electricity Charges</td><td>₹ ${fmt(d.elec)}</td></tr>
-      ${miscRow}${prevRow}
-      <tr class="rz-total-row"><td>Total Due</td><td>₹ ${fmt(d.total)}</td></tr>
-    </table>
-    <div class="rz-footer">Kindly pay by the 5th. Thank you! 🙏</div>
-    ${qrSection}`;
+
+    <!-- TOTAL BAND -->
+    <div style="background:#f5a623;padding:14px 24px;text-align:center;">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:2px;color:rgba(0,0,0,0.5);text-transform:uppercase;margin-bottom:3px;">Total Amount Due</div>
+      <div style="font-family:'Rajdhani',sans-serif;font-size:40px;font-weight:700;color:#0a0a0b;letter-spacing:1px;line-height:1;">₹ ${fmt(d.total)}</div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:rgba(0,0,0,0.5);margin-top:4px;letter-spacing:.5px;">Please pay by the 25th · ${dateStr}</div>
+    </div>
+
+    <!-- BREAKDOWN -->
+    <div style="padding:20px 24px 16px;">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:2px;color:#aaa;text-transform:uppercase;margin-bottom:10px;">Charges Breakdown</div>
+      <table class="rz-table">
+        <tr><td class="rz-label">Base Rent</td><td>₹ ${fmt(d.baseRent)}</td></tr>
+        <tr><td class="rz-label">Water Charges</td><td>₹ ${fmt(d.chargedWater)}</td></tr>
+        <tr><td class="rz-label">Electricity Charges</td><td>₹ ${fmt(d.elec)}</td></tr>
+        ${miscRow}${prevRow}
+      </table>
+    </div>
+
+    <!-- QR + UPI SECTION -->
+    ${qrSection}
+
+    <!-- FOOTER -->
+    <div style="padding:10px 24px 16px;text-align:center;">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#ccc;letter-spacing:.5px;">Thank you! 🙏 — Generated by RentMgr</div>
+    </div>`;
 }
 
 function buildDetailedReceiptHTML(d){
