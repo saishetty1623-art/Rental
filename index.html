@@ -8,24 +8,22 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
-:root {
-  --bg:#0a0a0b; --bg2:#111114; --bg3:#18181d; --border:#2a2a32;
-  --amber:#f5a623; --amber2:#e8932a; --amber-dim:rgba(245,166,35,0.12); --amber-glow:rgba(245,166,35,0.25);
-  --green:#22c55e; --green-dim:rgba(34,197,94,0.12); --red:#ef4444;
-  --blue:#60a5fa; --purple:#a78bfa;
-  --text:#ffffff; --text2:#e8e8ec; --text3:#a0a0b0;
-  --font-head:'Rajdhani',sans-serif; --font-mono:'IBM Plex Mono',monospace; --font-body:'IBM Plex Sans',sans-serif;
-  --nav-h:60px; --safe-bottom:env(safe-area-inset-bottom,0px);
-  --radius:12px; --radius-lg:16px;
+/* ── TOKENS ── */
+:root{
+  --bg:#0a0a0b;--bg2:#111114;--bg3:#18181d;--border:#2a2a32;
+  --amber:#f5a623;--amber2:#e8932a;--amber-dim:rgba(245,166,35,0.12);--amber-glow:rgba(245,166,35,0.25);
+  --green:#22c55e;--green-dim:rgba(34,197,94,0.12);--red:#ef4444;--blue:#60a5fa;
+  --text:#ffffff;--text2:#e8e8ec;--text3:#a0a0b0;
+  --font-head:'Rajdhani',sans-serif;--font-mono:'IBM Plex Mono',monospace;--font-body:'IBM Plex Sans',sans-serif;
+  --nav-h:60px;--safe-bottom:env(safe-area-inset-bottom,0px);--r:12px;--rl:16px;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html{font-size:16px;}
 body{background:var(--bg);color:var(--text2);font-family:var(--font-body);min-height:100vh;overflow-x:hidden;-webkit-tap-highlight-color:transparent;padding-bottom:calc(var(--nav-h) + var(--safe-bottom) + 16px);}
-
 body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:.25;}
 
 /* ── TOP BAR ── */
-.topbar{position:sticky;top:0;z-index:100;background:rgba(17,17,20,0.95);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;backdrop-filter:blur(12px);}
+.topbar{position:sticky;top:0;z-index:100;background:rgba(17,17,20,.95);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;backdrop-filter:blur(12px);}
 .topbar-left{display:flex;align-items:center;gap:10px;}
 .logo-mark{width:28px;height:28px;background:var(--amber);border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .logo-mark svg{width:16px;height:16px;fill:#0a0a0b;}
@@ -33,21 +31,18 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .logo-text span{color:var(--amber);}
 .status-dot{width:6px;height:6px;background:var(--green);border-radius:50%;box-shadow:0 0 8px var(--green);animation:pulse 2.5s infinite;}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.85)}}
-.date-chip{font-family:var(--font-mono);font-size:10px;color:var(--text3);letter-spacing:.5px;}
+.date-chip{font-family:var(--font-mono);font-size:10px;color:var(--text3);}
 
 /* ── BOTTOM NAV ── */
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(17,17,20,0.97);border-top:1px solid var(--border);display:flex;height:calc(var(--nav-h) + var(--safe-bottom));padding-bottom:var(--safe-bottom);backdrop-filter:blur(12px);}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(17,17,20,.97);border-top:1px solid var(--border);display:flex;height:calc(var(--nav-h) + var(--safe-bottom));padding-bottom:var(--safe-bottom);backdrop-filter:blur(12px);}
 .nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;background:none;border:none;padding:8px 2px;color:var(--text3);font-family:var(--font-body);font-size:8px;font-weight:600;transition:color .15s;letter-spacing:.5px;text-transform:uppercase;position:relative;}
 .nav-btn.active{color:var(--amber);}
 .nav-btn.active .nav-icon-wrap{background:var(--amber-dim);border-color:rgba(245,166,35,.25);}
 .nav-icon-wrap{width:32px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:8px;border:1px solid transparent;transition:all .15s;margin-bottom:1px;}
 .nav-icon{font-size:15px;line-height:1;}
 
-/* Meter tab special amber glow */
-#nav-meter.active .nav-icon-wrap{background:rgba(245,166,35,.18);border-color:rgba(245,166,35,.35);box-shadow:0 0 10px rgba(245,166,35,.15);}
-
 /* ── CONTENT ── */
-.content{padding:14px 14px;max-width:600px;margin:0 auto;}
+.content{padding:14px;max-width:600px;margin:0 auto;}
 .view{display:none;}
 .view.active{display:block;}
 
@@ -60,7 +55,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 
 /* ── STAT GRID ── */
 .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;}
-.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px 14px 12px;position:relative;overflow:hidden;}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:14px;position:relative;overflow:hidden;}
 .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--amber),transparent);}
 .stat-label{font-family:var(--font-mono);font-size:9px;letter-spacing:1.5px;color:var(--text3);text-transform:uppercase;margin-bottom:8px;}
 .stat-value{font-family:var(--font-head);font-size:28px;font-weight:700;color:var(--amber);line-height:1;}
@@ -74,8 +69,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .section-label.amber{color:var(--amber);}
 
 /* ── BILL CARD ── */
-.bill-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px;margin-bottom:10px;transition:border-color .15s;}
-.bill-card:active{border-color:var(--amber);}
+.bill-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:14px;margin-bottom:10px;}
 .bill-card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
 .bill-unit{font-family:var(--font-head);font-size:20px;font-weight:700;color:var(--text);letter-spacing:.5px;}
 .bill-month-lbl{font-family:var(--font-mono);font-size:10px;color:var(--text3);margin-top:2px;}
@@ -91,21 +85,21 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .pill-paid{background:var(--green-dim);color:var(--green);border:1px solid rgba(34,197,94,.25);}
 
 /* ── TENANT HERO ── */
-.tenant-hero{background:linear-gradient(135deg,var(--bg2) 0%,#1a1a22 100%);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;margin-bottom:14px;position:relative;overflow:hidden;}
+.tenant-hero{background:linear-gradient(135deg,var(--bg2) 0%,#1a1a22 100%);border:1px solid var(--border);border-radius:var(--rl);padding:16px;margin-bottom:14px;position:relative;overflow:hidden;}
 .tenant-hero::before{content:'';position:absolute;top:-40px;right:-40px;width:120px;height:120px;background:var(--amber-dim);border-radius:50%;filter:blur(30px);}
-.hero-unit{font-family:var(--font-head);font-size:24px;font-weight:700;letter-spacing:1px;color:var(--text);}
+.hero-unit{font-family:var(--font-head);font-size:24px;font-weight:700;color:var(--text);}
 .hero-phone{font-family:var(--font-mono);font-size:11px;color:var(--text3);margin-top:3px;}
 .hero-rent{font-family:var(--font-head);font-size:20px;font-weight:700;color:var(--amber);}
 
 /* ── READING BAR ── */
-.reading-bar{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+.reading-bar{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
 .reading-lbl{font-family:var(--font-mono);font-size:9px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px;}
 .reading-val{font-family:var(--font-mono);font-size:15px;color:var(--text);font-weight:500;}
 
 /* ── FORM ── */
 .form-group{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;}
 .form-label{font-family:var(--font-mono);font-size:10px;letter-spacing:1.5px;color:var(--text3);text-transform:uppercase;}
-.form-input,.form-select{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:var(--font-body);font-size:16px;padding:13px 14px;outline:none;transition:border-color .15s;width:100%;-webkit-appearance:none;appearance:none;}
+.form-input,.form-select{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-family:var(--font-body);font-size:16px;padding:13px 14px;outline:none;transition:border-color .15s;width:100%;-webkit-appearance:none;appearance:none;}
 .form-input:focus,.form-select:focus{border-color:var(--amber);}
 .form-select option{background:var(--bg3);}
 .form-input::placeholder{color:var(--text3);}
@@ -114,18 +108,14 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .form-hint.warn{color:var(--amber);}
 .form-hint.ok{color:var(--green);}
 
-/* ── TWO-COL ROW ── */
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-
 /* ── WATER ROW ── */
 .water-row{display:flex;gap:8px;align-items:flex-end;}
 .water-row .form-input{flex:1;}
-.water-reset-btn{flex-shrink:0;background:var(--bg3);border:1px solid var(--amber);color:var(--amber);border-radius:var(--radius);padding:0 12px;height:50px;font-family:var(--font-mono);font-size:10px;cursor:pointer;transition:all .15s;display:none;letter-spacing:.5px;}
+.water-reset-btn{flex-shrink:0;background:var(--bg3);border:1px solid var(--amber);color:var(--amber);border-radius:var(--r);padding:0 12px;height:50px;font-family:var(--font-mono);font-size:10px;cursor:pointer;transition:all .15s;display:none;letter-spacing:.5px;}
 .water-reset-btn.show{display:flex;align-items:center;justify-content:center;}
-.water-reset-btn:active{background:var(--amber-dim);}
 
 /* ── CALC BOX ── */
-.calc-box{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:14px;}
+.calc-box{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:14px;}
 .calc-title{font-family:var(--font-mono);font-size:9px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-bottom:10px;}
 .calc-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;font-family:var(--font-mono);font-size:11px;color:var(--text3);border-bottom:1px solid rgba(42,42,50,.5);}
 .calc-row:last-child{border-bottom:none;}
@@ -133,8 +123,15 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .calc-val{color:var(--text2);}
 .calc-row.discount .calc-val{color:var(--green);}
 
+/* ── TWO COL ── */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
+/* ── MISC BLOCK ── */
+.misc-block{background:var(--bg3);border:1px dashed rgba(245,166,35,.3);border-radius:var(--r);padding:14px;margin-bottom:12px;}
+.misc-block-title{font-family:var(--font-mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--amber);margin-bottom:10px;}
+
 /* ── BUTTONS ── */
-.btn{font-family:var(--font-body);font-weight:600;font-size:14px;padding:13px 18px;border-radius:var(--radius);border:none;cursor:pointer;transition:all .15s;letter-spacing:.3px;display:flex;align-items:center;justify-content:center;gap:7px;width:100%;min-height:48px;}
+.btn{font-family:var(--font-body);font-weight:600;font-size:14px;padding:13px 16px;border-radius:var(--r);border:none;cursor:pointer;transition:all .15s;letter-spacing:.3px;display:flex;align-items:center;justify-content:center;gap:7px;width:100%;min-height:48px;}
 .btn-amber{background:var(--amber);color:#0a0a0b;}
 .btn-amber:active{background:var(--amber2);transform:scale(.98);}
 .btn-green{background:var(--green);color:#0a0a0b;}
@@ -143,13 +140,14 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .btn-ghost:active{border-color:var(--text3);}
 .btn-danger{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2);font-size:13px;}
 .btn-danger:active{background:rgba(239,68,68,.2);}
-.btn-sm{padding:7px 12px;font-size:11px;min-height:32px;width:auto;letter-spacing:.3px;}
+.btn-blue{background:rgba(96,165,250,.12);color:var(--blue);border:1px solid rgba(96,165,250,.25);font-size:13px;}
+.btn-sm{padding:7px 12px;font-size:11px;min-height:32px;width:auto;}
 .btn:disabled{opacity:.4;cursor:not-allowed;}
 .btn-row{display:flex;gap:10px;margin-top:10px;}
 .btn-row .btn{flex:1;}
 
 /* ── TOGGLE ── */
-.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:13px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:12px;cursor:pointer;}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:13px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);margin-bottom:12px;cursor:pointer;}
 .toggle-lbl{font-size:13px;color:var(--text);}
 .toggle-sub{font-family:var(--font-mono);font-size:9px;color:var(--text3);margin-top:2px;}
 .toggle{position:relative;width:42px;height:24px;background:var(--border);border-radius:12px;transition:background .2s;flex-shrink:0;}
@@ -158,15 +156,14 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .toggle.on::after{transform:translateX(18px);}
 
 /* ── CARD ── */
-.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:14px;}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;margin-bottom:14px;}
 .card-header{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg3);}
 .card-title{font-family:var(--font-mono);font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--text);}
 .card-body{padding:14px;}
 
-/* ── LEDGER FILTER ── */
-.filter-strip{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
-.filter-strip .form-input,.filter-strip .form-select{font-size:14px;}
-.filter-strip-row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:-4px;margin-bottom:14px;}
+/* ── LIBRARY FILTERS ── */
+.filter-strip{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}
+.filter-strip-row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
 
 /* ── DATA TABLE ── */
 .data-table{width:100%;border-collapse:collapse;}
@@ -178,44 +175,50 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .empty{padding:36px 20px;text-align:center;color:var(--text3);font-family:var(--font-mono);font-size:11px;letter-spacing:1px;line-height:1.8;}
 .empty-icon{font-size:28px;margin-bottom:10px;opacity:.6;}
 
-/* ── METER CAPTURE ── */
-.meter-unit-hero{background:linear-gradient(135deg,var(--bg2) 0%,#1c1a24 100%);border:1px solid rgba(245,166,35,.2);border-radius:var(--radius-lg);padding:16px;margin-bottom:14px;display:none;}
+/* ── METER TAB ── */
+.meter-unit-hero{background:linear-gradient(135deg,var(--bg2) 0%,#1c1a24 100%);border:1px solid rgba(245,166,35,.2);border-radius:var(--rl);padding:16px;margin-bottom:14px;display:none;}
 .meter-unit-hero.show{display:block;}
 .meter-hero-name{font-family:var(--font-head);font-size:22px;font-weight:700;color:var(--text);}
 .meter-hero-sub{font-family:var(--font-mono);font-size:10px;color:var(--text3);margin-top:3px;letter-spacing:1px;}
 
-/* Camera zone */
-.cam-zone{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:14px;position:relative;min-height:220px;display:flex;align-items:center;justify-content:center;}
+.cam-zone{background:var(--bg3);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;margin-bottom:14px;position:relative;min-height:220px;display:flex;align-items:center;justify-content:center;}
 .cam-zone video,.cam-zone img{width:100%;display:block;max-height:360px;object-fit:cover;}
 .cam-placeholder{text-align:center;padding:36px 20px;color:var(--text3);}
 .cam-placeholder-icon{font-size:40px;margin-bottom:12px;opacity:.4;}
 .cam-placeholder-text{font-family:var(--font-mono);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;}
-.cam-zone-badge{position:absolute;top:10px;left:10px;background:rgba(239,68,68,.85);color:#fff;font-family:var(--font-mono);font-size:9px;letter-spacing:1.5px;padding:3px 9px;border-radius:20px;text-transform:uppercase;display:none;}
-.cam-zone-badge.live{display:block;}
-.cam-zone-snapped-badge{position:absolute;top:10px;left:10px;background:rgba(34,197,94,.85);color:#fff;font-family:var(--font-mono);font-size:9px;letter-spacing:1.5px;padding:3px 9px;border-radius:20px;text-transform:uppercase;display:none;}
-.cam-zone-snapped-badge.show{display:block;}
+.cam-badge{position:absolute;top:10px;left:10px;font-family:var(--font-mono);font-size:9px;letter-spacing:1.5px;padding:3px 9px;border-radius:20px;text-transform:uppercase;display:none;}
+.cam-badge.live{display:block;background:rgba(239,68,68,.85);color:#fff;}
+.cam-badge.snapped{display:block;background:rgba(34,197,94,.85);color:#fff;}
 
-/* Reading confirm box */
-.reading-confirm-box{background:var(--bg3);border:1px solid rgba(245,166,35,.3);border-radius:var(--radius-lg);padding:16px;margin-bottom:14px;display:none;}
+/* Meter photo action buttons (below captured image) */
+.meter-photo-actions{display:none;gap:8px;margin-top:-6px;margin-bottom:14px;}
+.meter-photo-actions.show{display:flex;}
+
+.reading-confirm-box{background:var(--bg3);border:1px solid rgba(245,166,35,.3);border-radius:var(--rl);padding:16px;margin-bottom:14px;display:none;}
 .reading-confirm-box.show{display:block;}
 .rcb-title{font-family:var(--font-mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--amber);margin-bottom:12px;}
-.rcb-big-input{font-family:var(--font-head);font-size:32px;font-weight:700;background:var(--bg2);border:2px solid var(--amber);border-radius:var(--radius);color:var(--amber);padding:14px;text-align:center;outline:none;width:100%;letter-spacing:2px;}
+.rcb-big-input{font-family:var(--font-head);font-size:32px;font-weight:700;background:var(--bg2);border:2px solid var(--amber);border-radius:var(--r);color:var(--amber);padding:14px;text-align:center;outline:none;width:100%;letter-spacing:2px;}
 .rcb-big-input::placeholder{color:rgba(245,166,35,.35);font-size:20px;}
 .rcb-prev{font-family:var(--font-mono);font-size:10px;color:var(--text3);text-align:center;margin-top:8px;}
-.rcb-diff{font-family:var(--font-mono);font-size:11px;color:var(--green);text-align:center;margin-top:4px;min-height:16px;}
+.rcb-diff{font-family:var(--font-mono);font-size:11px;text-align:center;margin-top:4px;min-height:16px;}
 
-/* Meter history card */
-.meter-hist-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:10px;}
-.meter-hist-top{display:flex;align-items:stretch;gap:0;}
-.meter-hist-img{width:90px;flex-shrink:0;object-fit:cover;display:block;}
-.meter-hist-img-placeholder{width:90px;flex-shrink:0;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:22px;opacity:.3;}
+.meter-hist-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;margin-bottom:10px;}
+.meter-hist-top{display:flex;align-items:stretch;}
+.meter-hist-img{width:90px;flex-shrink:0;object-fit:cover;display:block;cursor:zoom-in;}
+.meter-hist-img-ph{width:90px;flex-shrink:0;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:22px;opacity:.3;}
 .meter-hist-body{padding:12px 14px;flex:1;}
 .meter-hist-unit{font-family:var(--font-head);font-size:17px;font-weight:700;color:var(--text);}
 .meter-hist-reading{font-family:var(--font-mono);font-size:20px;font-weight:500;color:var(--amber);margin-top:3px;}
 .meter-hist-meta{font-family:var(--font-mono);font-size:9px;color:var(--text3);margin-top:5px;letter-spacing:.5px;}
 
-/* Today badge on new-bill form */
-.today-reading-chip{display:inline-flex;align-items:center;gap:6px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);border-radius:20px;padding:4px 12px;font-family:var(--font-mono);font-size:10px;color:var(--green);letter-spacing:.5px;margin-bottom:10px;}
+/* Hidden file input for gallery */
+#gallery-file-input{display:none;}
+
+/* ── QR SETTINGS SECTION ── */
+.qr-preview-wrap{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:12px;text-align:center;}
+.qr-preview-img{max-width:160px;max-height:160px;border-radius:8px;border:2px solid var(--amber);margin-bottom:10px;display:block;margin-left:auto;margin-right:auto;}
+.qr-empty-placeholder{width:120px;height:120px;background:var(--bg2);border:2px dashed rgba(245,166,35,.3);border-radius:8px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:28px;opacity:.5;}
+#qr-file-input{display:none;}
 
 /* ── RECEIPT OVERLAY ── */
 #receipt-overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:500;display:none;flex-direction:column;overflow:hidden;backdrop-filter:blur(10px);}
@@ -227,26 +230,51 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .close-btn{background:var(--bg3);border:1px solid var(--border);color:var(--text2);width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;}
 .receipt-prev-wrap{padding:14px;}
 .receipt-img-loading{padding:40px;text-align:center;font-family:var(--font-mono);font-size:11px;color:var(--text3);}
-.receipt-img{width:100%;border-radius:var(--radius);display:block;box-shadow:0 4px 24px rgba(0,0,0,.4);}
+.receipt-img{width:100%;border-radius:var(--r);display:block;box-shadow:0 4px 24px rgba(0,0,0,.4);}
 .receipt-acts{padding:0 14px 14px;display:flex;flex-direction:column;gap:8px;}
 
-/* ── RECEIPT PRINT ZONE ── */
-#receipt-print-zone{position:fixed;left:-9999px;top:0;width:420px;background:#fff;color:#111;padding:36px 28px;font-family:'IBM Plex Sans',sans-serif;z-index:-1;}
-.rz-header{text-align:center;margin-bottom:22px;padding-bottom:18px;border-bottom:2px solid #111;}
-.rz-logo{font-family:'Rajdhani',sans-serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#999;margin-bottom:8px;}
-.rz-title{font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;color:#111;text-transform:uppercase;letter-spacing:1px;}
-.rz-for{font-family:'IBM Plex Mono',monospace;font-size:12px;color:#555;margin-top:6px;}
-.rz-date{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#bbb;margin-top:4px;}
-.rz-table{width:100%;border-collapse:collapse;margin-bottom:0;}
+/* ── OFF-SCREEN RECEIPT RENDER ZONES ── */
+/* ZONE A: Minimal receipt (home share) */
+#receipt-print-minimal{
+  position:fixed;left:-9999px;top:0;width:400px;
+  background:#fff;color:#111;padding:30px 24px 24px;
+  font-family:'IBM Plex Sans',sans-serif;z-index:-1;
+}
+/* ZONE B: Detailed receipt (library view) */
+#receipt-print-detailed{
+  position:fixed;left:-9999px;top:120px;width:400px;
+  background:#fff;color:#111;padding:30px 24px 24px;
+  font-family:'IBM Plex Sans',sans-serif;z-index:-1;
+}
+
+/* SHARED receipt styles (both zones inherit) */
+.rz-header{text-align:center;margin-bottom:18px;padding-bottom:14px;border-bottom:2px solid #111;}
+.rz-title{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;color:#111;text-transform:uppercase;letter-spacing:1px;}
+.rz-for{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#555;margin-top:4px;}
+.rz-unit{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#888;margin-top:2px;}
+.rz-date{font-family:'IBM Plex Mono',monospace;font-size:10px;color:#bbb;margin-top:3px;}
+.rz-table{width:100%;border-collapse:collapse;margin-bottom:4px;}
 .rz-table tr{border-bottom:1px solid #f0f0f0;}
 .rz-table tr:last-child{border-bottom:none;}
-.rz-table td{padding:11px 4px;font-size:14px;}
+.rz-table td{padding:9px 4px;font-size:13px;}
 .rz-table td:last-child{text-align:right;font-family:'IBM Plex Mono',monospace;font-weight:600;color:#111;}
 .rz-label{color:#555;font-weight:500;}
+.rz-sub-row td{color:#166534 !important;background:#f0fdf4;}
 .rz-total-row{border-top:2px solid #111 !important;border-bottom:none !important;}
-.rz-total-row td{padding-top:16px !important;font-family:'Rajdhani',sans-serif !important;font-size:22px !important;font-weight:700 !important;letter-spacing:.5px !important;}
+.rz-total-row td{padding-top:14px !important;font-family:'Rajdhani',sans-serif !important;font-size:20px !important;font-weight:700 !important;}
 .rz-total-row td:last-child{color:#f5a623 !important;}
-.rz-footer{text-align:center;font-size:11px;color:#bbb;font-family:'IBM Plex Mono',monospace;border-top:1px dashed #e0e0e0;padding-top:16px;margin-top:18px;}
+.rz-footer{text-align:center;font-size:10px;color:#bbb;font-family:'IBM Plex Mono',monospace;border-top:1px dashed #e0e0e0;padding-top:12px;margin-top:14px;}
+/* QR + UPI logos (minimal receipt only) */
+.rz-qr-section{text-align:center;margin-top:16px;padding-top:14px;border-top:1px dashed #e0e0e0;}
+.rz-qr-img{width:110px;height:110px;border-radius:6px;border:1px solid #e0e0e0;margin:0 auto 6px;display:block;}
+.rz-qr-label{font-family:'IBM Plex Mono',monospace;font-size:9px;color:#888;letter-spacing:.5px;margin-bottom:8px;}
+.rz-upi-logos{display:flex;justify-content:center;align-items:center;gap:8px;}
+/* Detailed-only styles */
+.rz-section-title{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#999;margin:14px 0 6px;border-bottom:1px solid #f0f0f0;padding-bottom:6px;}
+.rz-reading-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f5f5f5;}
+.rz-reading-row:last-child{border-bottom:none;}
+.rz-reading-key{font-size:12px;color:#555;}
+.rz-reading-val{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:#111;}
 
 /* ── PAY MODAL ── */
 #pay-modal{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:600;display:none;align-items:flex-end;backdrop-filter:blur(4px);}
@@ -254,21 +282,20 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .pay-sheet{background:var(--bg2);border:1px solid var(--border);border-radius:20px 20px 0 0;width:100%;padding:22px 16px calc(22px + var(--safe-bottom));animation:slideUp .25s ease;}
 .pay-sheet-title{font-family:var(--font-mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:14px;}
 
+/* ── PHOTO FULL VIEW ── */
+#photo-full-overlay{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:700;display:none;align-items:center;justify-content:center;padding:20px;}
+#photo-full-overlay.open{display:flex;}
+#photo-full-overlay img{max-width:100%;max-height:100%;border-radius:var(--r);}
+#photo-full-close{position:absolute;top:16px;right:16px;background:var(--bg2);border:1px solid var(--border);color:var(--text2);width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;}
+
 /* ── TOAST ── */
-#toast{position:fixed;bottom:calc(var(--nav-h) + 10px + var(--safe-bottom));right:14px;left:14px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;font-size:13px;color:var(--text);z-index:9000;transform:translateY(14px);opacity:0;transition:all .25s;display:flex;align-items:center;gap:8px;font-family:var(--font-body);}
+#toast{position:fixed;bottom:calc(var(--nav-h) + 10px + var(--safe-bottom));right:14px;left:14px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:12px 16px;font-size:13px;color:var(--text);z-index:9000;transform:translateY(14px);opacity:0;transition:all .25s;display:flex;align-items:center;gap:8px;font-family:var(--font-body);}
 #toast.show{transform:translateY(0);opacity:1;}
 #toast.success{border-color:var(--green);}
 #toast.error{border-color:var(--red);}
 
-/* ── MISC CHARGE BLOCK ── */
-.misc-block{background:var(--bg3);border:1px dashed rgba(245,166,35,.3);border-radius:var(--radius);padding:14px;margin-bottom:12px;}
-.misc-block-title{font-family:var(--font-mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--amber);margin-bottom:10px;}
-
-/* Photo full preview overlay */
-#photo-full-overlay{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:700;display:none;align-items:center;justify-content:center;padding:20px;}
-#photo-full-overlay.open{display:flex;}
-#photo-full-overlay img{max-width:100%;max-height:100%;border-radius:var(--radius);box-shadow:0 8px 40px rgba(0,0,0,.6);}
-#photo-full-close{position:absolute;top:16px;right:16px;background:var(--bg2);border:1px solid var(--border);color:var(--text2);width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;}
+.today-reading-chip{display:none;align-items:center;gap:6px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);border-radius:20px;padding:4px 12px;font-family:var(--font-mono);font-size:10px;color:var(--green);letter-spacing:.5px;margin-bottom:10px;}
+.today-reading-chip.show{display:flex;}
 
 @media(min-width:600px){
   .content{padding:18px 20px;}
@@ -284,6 +311,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
   <div class="loading-text" id="loading-text">PLEASE WAIT</div>
 </div>
 
+<!-- TOP BAR -->
 <div class="topbar">
   <div class="topbar-left">
     <div class="logo-mark">
@@ -300,26 +328,10 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
   <!-- ══ HOME ══ -->
   <div class="view active" id="view-dashboard">
     <div class="stat-grid">
-      <div class="stat-card">
-        <div class="stat-label">Monthly Rent</div>
-        <div class="stat-value" id="stat-rent">—</div>
-        <div class="stat-sub">All units</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Total Bills</div>
-        <div class="stat-value" id="stat-bills">—</div>
-        <div class="stat-sub">All time</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Pending</div>
-        <div class="stat-value" id="stat-unpaid" style="color:var(--red);">—</div>
-        <div class="stat-sub">Unpaid units</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Collected</div>
-        <div class="stat-value" id="stat-collected">—</div>
-        <div class="stat-sub">This month</div>
-      </div>
+      <div class="stat-card"><div class="stat-label">Monthly Rent</div><div class="stat-value" id="stat-rent">—</div><div class="stat-sub">All units</div></div>
+      <div class="stat-card"><div class="stat-label">Total Bills</div><div class="stat-value" id="stat-bills">—</div><div class="stat-sub">All time</div></div>
+      <div class="stat-card"><div class="stat-label">Pending</div><div class="stat-value" id="stat-unpaid" style="color:var(--red);">—</div><div class="stat-sub">Unpaid units</div></div>
+      <div class="stat-card"><div class="stat-label">Collected</div><div class="stat-value" id="stat-collected">—</div><div class="stat-sub">This month</div></div>
     </div>
     <div class="section-label red">Pending &amp; Partial</div>
     <div id="active-bills"></div>
@@ -330,21 +342,15 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
   <!-- ══ NEW BILL ══ -->
   <div class="view" id="view-new-bill">
     <input type="hidden" id="edit-bill-id" value=""/>
-
-    <div class="form-group" id="tenant-select-wrap">
+    <div class="form-group">
       <label class="form-label">Rental Unit</label>
       <select class="form-select" id="bill-tenant" onchange="onTenantSelect()">
         <option value="">— Choose unit —</option>
       </select>
     </div>
-
-    <!-- Today's meter reading chip (shown when a capture exists for today) -->
-    <div id="today-reading-chip" style="display:none;" class="today-reading-chip">
-      <span>📷</span>
-      <span id="today-reading-chip-text">Meter captured today</span>
-      <span style="cursor:pointer;opacity:.6;" onclick="showView('meter')">View →</span>
+    <div id="today-reading-chip" class="today-reading-chip">
+      <span>📷</span><span id="today-reading-chip-text">Meter captured today</span>
     </div>
-
     <div id="selected-tenant-pill" style="display:none;">
       <div class="tenant-hero">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;">
@@ -358,81 +364,58 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
           </div>
         </div>
         <div id="pill-cap-note" style="display:none;margin-top:10px;">
-          <span style="font-family:var(--font-mono);font-size:9px;background:var(--green-dim);color:var(--green);border:1px solid rgba(34,197,94,.3);padding:3px 10px;border-radius:20px;letter-spacing:1px;">Water Subsidy Cap Active</span>
+          <span style="font-family:var(--font-mono);font-size:9px;background:var(--green-dim);color:var(--green);border:1px solid rgba(34,197,94,.3);padding:3px 10px;border-radius:20px;letter-spacing:1px;">💧 Water Subsidy Cap Active</span>
         </div>
       </div>
     </div>
-
-    <div class="reading-bar" id="prev-reading-display">
-      <div>
-        <div class="reading-lbl">Previous Reading</div>
-        <div class="reading-val" id="prev-reading-val">—</div>
-      </div>
-      <div style="text-align:right;">
-        <div class="reading-lbl">Last Bill</div>
-        <div class="reading-val" id="prev-month-val">—</div>
-      </div>
+    <div class="reading-bar">
+      <div><div class="reading-lbl">Previous Reading</div><div class="reading-val" id="prev-reading-val">—</div></div>
+      <div style="text-align:right;"><div class="reading-lbl">Last Bill</div><div class="reading-val" id="prev-month-val">—</div></div>
     </div>
-
     <div class="form-group">
       <label class="form-label">Billing Month</label>
       <input type="month" class="form-input" id="bill-month" oninput="recalculate()"/>
     </div>
-
     <div class="form-group">
       <label class="form-label">Current Water Meter Reading (Units)</label>
       <input type="number" class="form-input" id="bill-water-new" placeholder="Read off the meter now" inputmode="numeric" oninput="recalculate()"/>
       <span class="form-hint" id="water-units-hint"></span>
     </div>
-
     <div class="form-group">
-      <label class="form-label">Water Charges (₹) &nbsp;<span style="color:var(--amber);font-size:9px;letter-spacing:1px;">AUTO · EDITABLE</span></label>
+      <label class="form-label">Water Charges (₹) &nbsp;<span style="color:var(--amber);font-size:9px;">AUTO · EDITABLE</span></label>
       <div class="water-row">
         <input type="number" class="form-input" id="bill-water-charges" placeholder="Auto-calculated" inputmode="decimal" oninput="onWaterChargesEdited()"/>
-        <button class="water-reset-btn" id="water-reset-btn" onclick="resetWaterCharges()">Reset</button>
+        <button class="water-reset-btn" id="water-reset-btn" onclick="resetWaterCharges()">↺ Reset</button>
       </div>
       <span class="form-hint" id="water-calc-hint"></span>
     </div>
-
     <div class="form-group">
       <label class="form-label">Electricity Charges (₹)</label>
       <input type="number" class="form-input" id="bill-elec" placeholder="0" inputmode="decimal" oninput="recalculate()"/>
     </div>
-
     <div class="misc-block">
       <div class="misc-block-title">Miscellaneous Charge (optional)</div>
       <div class="two-col">
-        <div class="form-group" style="margin-bottom:0;">
-          <label class="form-label">Label</label>
-          <input type="text" class="form-input" id="bill-misc-label" placeholder="e.g. Parking" oninput="recalculate()"/>
-        </div>
-        <div class="form-group" style="margin-bottom:0;">
-          <label class="form-label">Amount (₹)</label>
-          <input type="number" class="form-input" id="bill-misc-amount" placeholder="0" inputmode="decimal" oninput="recalculate()"/>
-        </div>
+        <div class="form-group" style="margin-bottom:0;"><label class="form-label">Label</label><input type="text" class="form-input" id="bill-misc-label" placeholder="e.g. Parking" oninput="recalculate()"/></div>
+        <div class="form-group" style="margin-bottom:0;"><label class="form-label">Amount (₹)</label><input type="number" class="form-input" id="bill-misc-amount" placeholder="0" inputmode="decimal" oninput="recalculate()"/></div>
       </div>
     </div>
-
     <div class="form-group">
       <label class="form-label">Previous Balance (₹)</label>
       <input type="number" class="form-input" id="bill-prev-balance" value="0" inputmode="decimal" oninput="recalculate()"/>
       <span class="form-hint" id="balance-hint"></span>
     </div>
-
     <div class="calc-box">
       <div class="calc-title">Live Breakdown</div>
       <div class="calc-row"><span>Rent</span><span class="calc-val" id="calc-rent">₹ —</span></div>
       <div class="calc-row"><span>Water (gross)</span><span class="calc-val" id="calc-water-raw">₹ —</span></div>
-      <div class="calc-row discount" id="calc-cap-row" style="display:none;">
-        <span>Water Subsidy</span><span class="calc-val" id="calc-subsidy">− ₹ 0</span>
-      </div>
+      <div class="calc-row discount" id="calc-cap-row" style="display:none;"><span id="calc-cap-lbl">Water Subsidy</span><span class="calc-val" id="calc-subsidy">− ₹ 0</span></div>
       <div class="calc-row"><span>Water Charged</span><span class="calc-val" id="calc-water">₹ —</span></div>
       <div class="calc-row"><span>Electricity</span><span class="calc-val" id="calc-elec">₹ —</span></div>
       <div class="calc-row" id="calc-misc-row" style="display:none;"><span id="calc-misc-lbl">Misc</span><span class="calc-val" id="calc-misc">₹ 0</span></div>
       <div class="calc-row"><span>Previous Balance</span><span class="calc-val" id="calc-prev">₹ 0</span></div>
       <div class="calc-row total"><span>Total Due</span><span id="calc-total">₹ 0</span></div>
     </div>
-
     <div style="display:flex;gap:10px;margin-bottom:10px;">
       <button class="btn btn-ghost" onclick="previewReceiptOnly()" style="flex:1;">Preview Receipt</button>
     </div>
@@ -441,16 +424,12 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 
   <!-- ══ METER CAPTURE ══ -->
   <div class="view" id="view-meter">
-
-    <!-- Unit selector -->
     <div class="form-group">
       <label class="form-label">Select Rental Unit</label>
       <select class="form-select" id="meter-unit-select" onchange="onMeterUnitSelect()">
         <option value="">— Choose unit —</option>
       </select>
     </div>
-
-    <!-- Unit hero (shown after selection) -->
     <div class="meter-unit-hero" id="meter-unit-hero">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;">
         <div>
@@ -458,81 +437,60 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
           <div class="meter-hero-sub" id="meter-hero-sub">Last reading: —</div>
         </div>
         <div style="text-align:right;flex-shrink:0;">
-          <div style="font-family:var(--font-mono);font-size:9px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;">Last captured</div>
+          <div style="font-family:var(--font-mono);font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;">Last captured</div>
           <div style="font-family:var(--font-mono);font-size:12px;color:var(--amber);margin-top:3px;" id="meter-hero-last-date">—</div>
         </div>
       </div>
     </div>
-
     <!-- Camera zone -->
     <div class="cam-zone" id="cam-zone">
       <div class="cam-placeholder" id="cam-placeholder">
         <div class="cam-placeholder-icon">📷</div>
         <div class="cam-placeholder-text">Select a unit &amp; tap Start Camera</div>
-        <div style="font-family:var(--font-mono);font-size:10px;color:var(--text3);margin-top:8px;">Point at meter display &amp; snap</div>
       </div>
       <video id="cam-video" autoplay playsinline style="display:none;width:100%;"></video>
       <img id="cam-snapshot" style="display:none;width:100%;" alt="Meter snapshot"/>
-      <div class="cam-zone-badge" id="cam-live-badge">● LIVE</div>
-      <div class="cam-zone-snapped-badge" id="cam-snapped-badge">✓ CAPTURED</div>
+      <div class="cam-badge" id="cam-live-badge">● LIVE</div>
+      <div class="cam-badge" id="cam-snapped-badge">✓ CAPTURED</div>
     </div>
-
-    <!-- Camera controls -->
+    <!-- Buttons shown after capture: Recapture + Edit/Gallery -->
+    <div class="meter-photo-actions" id="meter-photo-actions">
+      <button class="btn btn-ghost" onclick="retakePhoto()" style="flex:1;">↺ Recapture</button>
+      <button class="btn btn-blue" onclick="openGallery()" style="flex:1;">🖼 Change Photo</button>
+    </div>
+    <!-- Camera controls (while live) -->
     <div id="cam-controls" style="display:none;margin-bottom:14px;">
       <div style="display:flex;gap:10px;">
-        <button class="btn btn-amber" id="btn-snap" onclick="snapPhoto()" style="flex:2;">
-          <span style="font-size:18px;">⊙</span> Capture Reading
-        </button>
+        <button class="btn btn-amber" onclick="snapPhoto()" style="flex:2;"><span style="font-size:18px;">⊙</span> Capture</button>
         <button class="btn btn-danger" onclick="stopCamera()" style="flex:1;font-size:12px;">✕ Stop</button>
       </div>
     </div>
-
-    <div id="retake-controls" style="display:none;margin-bottom:14px;">
-      <button class="btn btn-ghost" onclick="retakePhoto()">↺ Retake Photo</button>
-    </div>
-
-    <!-- Start camera button (shown when unit selected, camera not started) -->
+    <!-- Start camera button -->
     <div id="start-cam-wrap">
-      <button class="btn btn-amber" id="btn-start-cam" onclick="startCamera()" disabled>
-        <span>📷</span> Start Camera
-      </button>
-      <div style="font-family:var(--font-mono);font-size:10px;color:var(--text3);text-align:center;margin-top:8px;letter-spacing:.5px;">
-        Use rear camera — point at meter display
-      </div>
+      <button class="btn btn-amber" id="btn-start-cam" onclick="startCamera()" disabled>📷 Start Camera</button>
+      <div style="font-family:var(--font-mono);font-size:10px;color:var(--text3);text-align:center;margin-top:8px;">Use rear camera · point at meter display</div>
     </div>
-
-    <!-- Reading confirm box (shown after snap) -->
+    <!-- Reading confirm box -->
     <div class="reading-confirm-box" id="reading-confirm-box">
       <div class="rcb-title">Enter Reading You See On Meter</div>
-      <input type="number" class="rcb-big-input" id="meter-reading-input"
-             placeholder="e.g. 1247" inputmode="numeric"
-             oninput="onMeterReadingInput()"/>
+      <input type="number" class="rcb-big-input" id="meter-reading-input" placeholder="e.g. 1247" inputmode="numeric" oninput="onMeterReadingInput()"/>
       <div class="rcb-prev" id="rcb-prev-text">Previous: — units</div>
       <div class="rcb-diff" id="rcb-diff-text"></div>
     </div>
-
-    <!-- Save button (shown after snap + reading entered) -->
+    <!-- Save meter reading -->
     <div id="meter-save-wrap" style="display:none;margin-bottom:14px;">
-      <button class="btn btn-green" onclick="saveMeterReading()">
-        <span>💾</span> Save Reading &amp; Photo
-      </button>
-      <div style="font-family:var(--font-mono);font-size:10px;color:var(--text3);text-align:center;margin-top:8px;letter-spacing:.5px;">
-        Photo uploaded to cloud · Reading saved to DB
-      </div>
+      <button class="btn btn-green" onclick="saveMeterReading()">💾 Save Reading &amp; Photo</button>
     </div>
-
-    <!-- Recent captures for all units -->
     <div class="section-label amber">Recent Captures</div>
     <div id="meter-history"></div>
-
+    <!-- Hidden file input for gallery -->
+    <input type="file" id="gallery-file-input" accept="image/*" onchange="onGalleryFileSelected(event)"/>
   </div>
 
   <!-- ══ LIBRARY ══ -->
   <div class="view" id="view-ledger">
     <div class="filter-strip">
-      <select class="form-select" id="filter-unit" onchange="loadLedger()">
-        <option value="">All Units</option>
-      </select>
+      <select class="form-select" id="filter-unit" onchange="loadLedger()"><option value="">All Units</option></select>
       <select class="form-select" id="filter-status" onchange="loadLedger()">
         <option value="all">All Status</option>
         <option value="unpaid">Unpaid</option>
@@ -542,31 +500,23 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     </div>
     <div class="filter-strip-row2">
       <input type="month" class="form-input" id="filter-month" onchange="loadLedger()" placeholder="Filter month"/>
-      <button class="btn btn-ghost" onclick="clearLedgerFilters()" style="font-size:12px;min-height:0;padding:0 10px;height:48px;">Clear Filters</button>
+      <button class="btn btn-ghost" onclick="clearLedgerFilters()" style="font-size:12px;min-height:0;padding:0 10px;height:48px;">Clear</button>
     </div>
     <div id="ledger-list"></div>
   </div>
 
-  <!-- ══ UNITS SETTINGS ══ -->
+  <!-- ══ UNITS + SETTINGS ══ -->
   <div class="view" id="view-settings">
+    <!-- Add/Edit Unit form -->
     <div class="card">
       <div class="card-header">
         <span class="card-title" id="tenant-form-title">Add / Edit Unit</span>
       </div>
       <div class="card-body">
         <input type="hidden" id="edit-tenant-id"/>
-        <div class="form-group">
-          <label class="form-label">Unit / House Label</label>
-          <input type="text" class="form-input" id="t-name" placeholder="e.g. 1B, Ground Floor"/>
-        </div>
-        <div class="form-group">
-          <label class="form-label">WhatsApp Number (with country code)</label>
-          <input type="text" class="form-input" id="t-phone" placeholder="91XXXXXXXXXX" inputmode="tel"/>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Base Rent (₹)</label>
-          <input type="number" class="form-input" id="t-rent" placeholder="Monthly rent" inputmode="numeric"/>
-        </div>
+        <div class="form-group"><label class="form-label">Unit / House Label</label><input type="text" class="form-input" id="t-name" placeholder="e.g. 1B, Ground Floor"/></div>
+        <div class="form-group"><label class="form-label">WhatsApp Number (with country code)</label><input type="text" class="form-input" id="t-phone" placeholder="91XXXXXXXXXX" inputmode="tel"/></div>
+        <div class="form-group"><label class="form-label">Base Rent (₹)</label><input type="number" class="form-input" id="t-rent" placeholder="Monthly rent" inputmode="numeric"/></div>
         <div class="form-group">
           <label class="form-label">Initial Water Reading (Units)</label>
           <input type="number" class="form-input" id="t-water-init" placeholder="Starting meter units" value="0" inputmode="numeric"/>
@@ -575,7 +525,8 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
         <div class="toggle-row" onclick="toggleWaterCap()">
           <div>
             <div class="toggle-lbl">Water Subsidy Cap (₹500)</div>
-            <div class="toggle-sub">If gross water cost &gt; ₹500, charge only the excess</div>
+            <!-- CHANGED: updated description to reflect new subsidy logic -->
+            <div class="toggle-sub">Water ≤ ₹500 → charged ₹0 · Water &gt; ₹500 → charged (amount − ₹500)</div>
           </div>
           <div class="toggle" id="water-cap-toggle"></div>
         </div>
@@ -585,6 +536,26 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
         </div>
       </div>
     </div>
+
+    <!-- ── QR CODE SECTION ── -->
+    <div class="card">
+      <div class="card-header"><span class="card-title">Payment QR Code (UPI)</span></div>
+      <div class="card-body">
+        <div class="qr-preview-wrap">
+          <div id="qr-empty-ph" class="qr-empty-placeholder">🔲</div>
+          <img id="qr-preview-img" class="qr-preview-img" style="display:none;" alt="Payment QR"/>
+          <div style="font-family:var(--font-mono);font-size:10px;color:var(--text3);letter-spacing:.5px;" id="qr-status-text">No QR uploaded yet</div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-amber" onclick="document.getElementById('qr-file-input').click()">⬆ Upload QR Image</button>
+          <button class="btn btn-danger" id="qr-remove-btn" onclick="removeQrCode()" style="display:none;">✕ Remove</button>
+        </div>
+        <div style="font-family:var(--font-mono);font-size:9px;color:var(--text3);margin-top:8px;text-align:center;letter-spacing:.5px;">QR code appears at bottom of every shared receipt</div>
+        <input type="file" id="qr-file-input" accept="image/*" onchange="uploadQrCode(event)" style="display:none;"/>
+      </div>
+    </div>
+
+    <!-- All Rental Units list -->
     <div class="card">
       <div class="card-header">
         <span class="card-title">All Rental Units</span>
@@ -599,24 +570,19 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 <!-- BOTTOM NAV -->
 <nav class="bottom-nav">
   <button class="nav-btn active" onclick="showView('dashboard')" id="nav-dashboard">
-    <div class="nav-icon-wrap"><span class="nav-icon">⌂</span></div>
-    <span>Home</span>
+    <div class="nav-icon-wrap"><span class="nav-icon">⌂</span></div><span>Home</span>
   </button>
   <button class="nav-btn" onclick="showView('new-bill');clearBillForm();" id="nav-new-bill">
-    <div class="nav-icon-wrap"><span class="nav-icon">+</span></div>
-    <span>New Bill</span>
+    <div class="nav-icon-wrap"><span class="nav-icon">+</span></div><span>New Bill</span>
   </button>
   <button class="nav-btn" onclick="showView('meter');loadMeterHistory();" id="nav-meter">
-    <div class="nav-icon-wrap"><span class="nav-icon">📷</span></div>
-    <span>Meter</span>
+    <div class="nav-icon-wrap"><span class="nav-icon">📷</span></div><span>Meter</span>
   </button>
   <button class="nav-btn" onclick="showView('ledger')" id="nav-ledger">
-    <div class="nav-icon-wrap"><span class="nav-icon">≡</span></div>
-    <span>Library</span>
+    <div class="nav-icon-wrap"><span class="nav-icon">≡</span></div><span>Library</span>
   </button>
   <button class="nav-btn" onclick="showView('settings')" id="nav-settings">
-    <div class="nav-icon-wrap"><span class="nav-icon">◎</span></div>
-    <span>Units</span>
+    <div class="nav-icon-wrap"><span class="nav-icon">◎</span></div><span>Units</span>
   </button>
 </nav>
 
@@ -625,7 +591,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
   <div style="flex:1;" onclick="closeReceipt()"></div>
   <div class="receipt-sheet">
     <div class="receipt-sheet-hdr">
-      <span class="receipt-hdr-title">Bill Receipt</span>
+      <span class="receipt-hdr-title" id="receipt-overlay-title">Bill Receipt</span>
       <button class="close-btn" onclick="closeReceipt()">✕</button>
     </div>
     <div class="receipt-prev-wrap">
@@ -635,8 +601,12 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
       </div>
       <img id="receipt-img" class="receipt-img" style="display:none;" alt="Receipt Preview"/>
     </div>
-    <div class="receipt-acts">
+    <div class="receipt-acts" id="receipt-acts-share">
       <button class="btn btn-green" onclick="shareReceiptImage()">Share via WhatsApp</button>
+      <button class="btn btn-ghost" onclick="downloadReceipt()">Download Image</button>
+      <button class="btn btn-ghost" onclick="closeReceipt()">Close</button>
+    </div>
+    <div class="receipt-acts" id="receipt-acts-view" style="display:none;">
       <button class="btn btn-ghost" onclick="downloadReceipt()">Download Image</button>
       <button class="btn btn-ghost" onclick="closeReceipt()">Close</button>
     </div>
@@ -668,53 +638,58 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
   <img id="photo-full-img" src="" alt="Meter photo"/>
 </div>
 
-<!-- OFF-SCREEN RECEIPT RENDER ZONE -->
-<div id="receipt-print-zone"></div>
+<!-- OFF-SCREEN RECEIPT RENDER ZONES -->
+<div id="receipt-print-minimal"></div>
+<div id="receipt-print-detailed"></div>
 
 <div id="toast"></div>
 
 <script>
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  SUPABASE
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  SUPABASE SETUP
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 const SUPABASE_URL  = 'https://fthknqhbnyrthfgruzgj.supabase.co';
 const SUPABASE_ANON = 'sb_publishable_GouLtjqj55gikMa7_2CU3w_PnTpeC9-';
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_ANON);
 
-const METER_BUCKET = 'meter-photos'; // Supabase Storage bucket name
+const METER_BUCKET = 'meter-photos';
+const QR_BUCKET    = 'payment-qr';
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  STATE
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-let tenants = [];
-let currentBillData = null;
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  GLOBAL STATE
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+let tenants              = [];
+let currentBillData      = null;
 let currentReceiptDataUrl = null;
-let waterManuallyEdited = false;
-let _prevReading = 0;
-let _prevReadingLabel = '—';
-let localCaps = {};
+let currentReceiptType   = 'minimal'; // 'minimal' | 'detailed'
+let waterManuallyEdited  = false;
+let _prevReading         = 0;
+let _prevReadingLabel    = '—';
+let localCaps            = {};
+let qrCodeUrl            = null; // loaded from DB / localStorage
 
-// Meter capture state
-let camStream = null;
-let meterSnapshotBlob = null;
-let meterSelectedTenant = null;
-let meterPrevReading = 0;
+// Meter state
+let camStream            = null;
+let meterSnapshotBlob    = null;
+let meterSelectedTenant  = null;
+let meterPrevReading     = 0;
+let _currentMeterRecordId = null; // ID of existing DB record being replaced
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //  HELPERS
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 const fmt = n => {
   if (n === undefined || n === null || n === '' || n === '—') return '0';
   return parseFloat(n).toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
 };
 const fmtK = n => {
   n = parseFloat(n) || 0;
-  return n >= 1000 ? (n / 1000).toFixed(1) + 'k' : n.toLocaleString('en-IN', { maximumFractionDigits: 0 });
+  return n >= 1000 ? (n/1000).toFixed(1)+'k' : n.toLocaleString('en-IN',{maximumFractionDigits:0});
 };
 const fmtMonth = s => {
   if (!s || s === '—') return '—';
-  try { return new Date((s.length === 7 ? s + '-01' : s) + 'T00:00:00').toLocaleDateString('en-IN', { month: 'long', year: 'numeric' }); }
+  try { return new Date((s.length===7?s+'-01':s)+'T00:00:00').toLocaleDateString('en-IN',{month:'long',year:'numeric'}); }
   catch { return s; }
 };
 const todayYMD = () => {
@@ -726,1239 +701,1252 @@ const isCapped = t => !!(t && (t.water_cap || localCaps[String(t.id)]));
 function getDefaultBillingMonth() {
   const now = new Date();
   if (now.getDate() < 10) now.setMonth(now.getMonth() - 1);
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
 }
 
-function showLoading(msg = 'PLEASE WAIT') {
-  document.getElementById('loading-text').textContent = msg;
-  document.getElementById('loading-overlay').classList.remove('hidden');
-}
-function hideLoading() { document.getElementById('loading-overlay').classList.add('hidden'); }
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  TOAST
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-function toast(msg, type = 'success') {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.className = 'show ' + type;
-  clearTimeout(el._t);
-  el._t = setTimeout(() => { el.className = ''; }, 3500);
-}
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  NAVIGATION
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-function showView(name) {
-  // Stop camera if leaving meter view
-  if (!document.getElementById('view-meter').classList.contains('active') === false &&
-       name !== 'meter') {
-    stopCamera();
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  *** CORRECTED SUBSIDY LOGIC ***
+//
+//  Rule (per tenant request):
+//    • rawCost ≤ ₹500  →  charged = 0   (owner absorbs everything)
+//    • rawCost > ₹500  →  charged = rawCost − 500  (tenant pays excess only)
+//
+//  Examples:
+//    ₹200  → ₹0      ₹500 → ₹0      ₹700 → ₹200      ₹1200 → ₹700
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function applyWaterSubsidy(rawCost, capActive) {
+  if (!capActive) return { charged: rawCost, subsidy: 0 };
+  if (rawCost <= 500) {
+    return { charged: 0, subsidy: rawCost };          // full subsidy
+  } else {
+    return { charged: rawCost - 500, subsidy: 500 };  // pay excess only
   }
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(n => n.classList.remove('active'));
-  document.getElementById('view-' + name).classList.add('active');
-  document.getElementById('nav-' + name)?.classList.add('active');
-  if (name === 'ledger')    loadLedger();
-  if (name === 'dashboard') loadDashboard();
-  if (name === 'meter')     loadMeterHistory();
 }
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  LOADING / TOAST
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function showLoading(msg='PLEASE WAIT'){ document.getElementById('loading-text').textContent=msg; document.getElementById('loading-overlay').classList.remove('hidden'); }
+function hideLoading(){ document.getElementById('loading-overlay').classList.add('hidden'); }
+
+function toast(msg, type='success'){
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.className='show '+type;
+  clearTimeout(el._t); el._t=setTimeout(()=>{ el.className=''; },3500);
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  NAVIGATION
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function showView(name){
+  if(!document.getElementById('view-meter').classList.contains('active') && name!=='meter') stopCamera();
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(n=>n.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+  document.getElementById('nav-'+name)?.classList.add('active');
+  if(name==='ledger')    loadLedger();
+  if(name==='dashboard') loadDashboard();
+  if(name==='meter')     loadMeterHistory();
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //  INIT
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('current-date').textContent =
-    new Date().toLocaleDateString('en-IN', { weekday: 'short', day: '2-digit', month: 'short' });
+    new Date().toLocaleDateString('en-IN',{weekday:'short',day:'2-digit',month:'short'});
   document.getElementById('bill-month').value = getDefaultBillingMonth();
   showLoading('LOADING');
   await loadTenants();
   await loadDashboard();
+  await loadQrCode();
   hideLoading();
 });
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  QR CODE – UPLOAD, LOAD, REMOVE
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+async function loadQrCode() {
+  // Immediate fallback from localStorage
+  qrCodeUrl = localStorage.getItem('rentmgr_qr_url') || null;
+  updateQrPreviewUI();
+
+  // Try fetching from Supabase app_settings table
+  try {
+    const { data } = await db.from('app_settings').select('value').eq('key','payment_qr_url').single();
+    if (data?.value) { qrCodeUrl = data.value; localStorage.setItem('rentmgr_qr_url', qrCodeUrl); updateQrPreviewUI(); }
+  } catch(_) { /* table may not exist yet — localStorage is the fallback */ }
+}
+
+function updateQrPreviewUI() {
+  const img   = document.getElementById('qr-preview-img');
+  const ph    = document.getElementById('qr-empty-ph');
+  const txt   = document.getElementById('qr-status-text');
+  const rmBtn = document.getElementById('qr-remove-btn');
+  if (qrCodeUrl) {
+    img.src = qrCodeUrl + '?t=' + Date.now(); // cache-bust
+    img.style.display = 'block';
+    ph.style.display  = 'none';
+    txt.textContent   = 'QR code uploaded ✓';
+    rmBtn.style.display = 'flex';
+  } else {
+    img.style.display = 'none';
+    ph.style.display  = 'flex';
+    txt.textContent   = 'No QR uploaded yet';
+    rmBtn.style.display = 'none';
+  }
+}
+
+async function uploadQrCode(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+  showLoading('UPLOADING QR…');
+  try {
+    const path = `qr/payment-qr-${Date.now()}.png`;
+    const { error: upErr } = await db.storage.from(QR_BUCKET).upload(path, file, { contentType: file.type, upsert: true });
+    if (upErr) throw upErr;
+    const { data: urlData } = db.storage.from(QR_BUCKET).getPublicUrl(path);
+    qrCodeUrl = urlData?.publicUrl || null;
+    if (qrCodeUrl) {
+      localStorage.setItem('rentmgr_qr_url', qrCodeUrl);
+      try { await db.from('app_settings').upsert({ key:'payment_qr_url', value: qrCodeUrl }); } catch(_) {}
+    }
+    updateQrPreviewUI();
+    toast('QR code uploaded!');
+  } catch(e) {
+    toast('Upload failed: '+e.message, 'error');
+    console.error('QR upload:', e);
+  } finally { hideLoading(); event.target.value = ''; }
+}
+
+async function removeQrCode() {
+  if (!confirm('Remove the QR code from receipts?')) return;
+  qrCodeUrl = null;
+  localStorage.removeItem('rentmgr_qr_url');
+  try { await db.from('app_settings').delete().eq('key','payment_qr_url'); } catch(_) {}
+  updateQrPreviewUI();
+  toast('QR code removed.');
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //  TENANTS
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 async function loadTenants() {
   const { data, error } = await db.from('tenants').select('*').order('house_name');
-  if (error) { toast('Failed to load units: ' + error.message, 'error'); return; }
+  if (error) { toast('Failed to load units: '+error.message,'error'); return; }
   tenants = data || [];
   populateTenantDropdowns();
   renderTenantList();
 }
 
 function populateTenantDropdowns() {
-  [
-    ['bill-tenant', '— Choose unit —'],
-    ['filter-unit', 'All Units'],
-    ['meter-unit-select', '— Choose unit —']
-  ].forEach(([id, def]) => {
-    const sel = document.getElementById(id);
-    if (!sel) return;
+  [['bill-tenant','— Choose unit —'],['filter-unit','All Units'],['meter-unit-select','— Choose unit —']].forEach(([id,def])=>{
+    const sel = document.getElementById(id); if(!sel) return;
     const cur = sel.value;
-    while (sel.options.length > 1) sel.remove(1);
-    tenants.forEach(t => sel.add(new Option(t.house_name, String(t.id))));
-    if (cur) sel.value = cur;
+    while(sel.options.length>1) sel.remove(1);
+    tenants.forEach(t=>sel.add(new Option(t.house_name, String(t.id))));
+    if(cur) sel.value=cur;
   });
 }
 
 function renderTenantList() {
   const el = document.getElementById('tenant-list-table');
-  if (!tenants.length) { el.innerHTML = '<div class="empty"><div class="empty-icon">□</div>No units yet</div>'; return; }
-  el.innerHTML = `<table class="data-table">
-    <thead><tr><th>Unit</th><th>Rent</th><th>Cap</th><th></th></tr></thead>
-    <tbody>${tenants.map(t => `<tr>
-      <td style="font-weight:600;color:var(--text);">${t.house_name}</td>
-      <td style="font-family:var(--font-mono);color:var(--amber);font-size:12px;">₹${fmt(t.base_rent)}</td>
-      <td style="font-size:11px;">${isCapped(t) ? '<span style="color:var(--green);">Yes</span>' : '<span style="color:var(--text3);">—</span>'}</td>
-      <td><button class="btn btn-ghost btn-sm" onclick="editTenant('${t.id}')">Edit</button></td>
-    </tr>`).join('')}</tbody></table>`;
+  if(!tenants.length){el.innerHTML='<div class="empty"><div class="empty-icon">□</div>No units yet</div>';return;}
+  el.innerHTML=`<table class="data-table"><thead><tr><th>Unit</th><th>Rent</th><th>Cap</th><th></th></tr></thead>
+  <tbody>${tenants.map(t=>`<tr>
+    <td style="font-weight:600;color:var(--text);">${t.house_name}</td>
+    <td style="font-family:var(--font-mono);color:var(--amber);font-size:12px;">₹${fmt(t.base_rent)}</td>
+    <td style="font-size:11px;">${isCapped(t)?'<span style="color:var(--green);">Yes</span>':'<span style="color:var(--text3);">—</span>'}</td>
+    <td><button class="btn btn-ghost btn-sm" onclick="editTenant('${t.id}')">Edit</button></td>
+  </tr>`).join('')}</tbody></table>`;
 }
 
 function editTenant(id) {
-  const t = tenants.find(x => String(x.id) === String(id));
-  if (!t) return;
-  document.getElementById('edit-tenant-id').value   = t.id;
-  document.getElementById('t-name').value           = t.house_name;
-  document.getElementById('t-phone').value          = t.phone_number || '';
-  document.getElementById('t-rent').value           = t.base_rent;
-  document.getElementById('t-water-init').value     = t.initial_water_reading || 0;
-  document.getElementById('water-cap-toggle').classList.toggle('on', isCapped(t));
-  document.getElementById('tenant-form-title').textContent = 'Edit — ' + t.house_name;
-  showView('settings');
-  window.scrollTo(0, 0);
+  const t=tenants.find(x=>String(x.id)===String(id)); if(!t) return;
+  document.getElementById('edit-tenant-id').value=t.id;
+  document.getElementById('t-name').value=t.house_name;
+  document.getElementById('t-phone').value=t.phone_number||'';
+  document.getElementById('t-rent').value=t.base_rent;
+  document.getElementById('t-water-init').value=t.initial_water_reading||0;
+  document.getElementById('water-cap-toggle').classList.toggle('on',isCapped(t));
+  document.getElementById('tenant-form-title').textContent='Edit — '+t.house_name;
+  showView('settings'); window.scrollTo(0,0);
 }
 
 function clearTenantForm() {
-  ['edit-tenant-id','t-name','t-phone','t-rent'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('t-water-init').value = '0';
+  ['edit-tenant-id','t-name','t-phone','t-rent'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('t-water-init').value='0';
   document.getElementById('water-cap-toggle').classList.remove('on');
-  document.getElementById('tenant-form-title').textContent = 'Add / Edit Unit';
+  document.getElementById('tenant-form-title').textContent='Add / Edit Unit';
 }
 
-function toggleWaterCap() { document.getElementById('water-cap-toggle').classList.toggle('on'); }
+function toggleWaterCap(){ document.getElementById('water-cap-toggle').classList.toggle('on'); }
 
 async function saveTenant() {
-  const id    = document.getElementById('edit-tenant-id').value;
-  const name  = document.getElementById('t-name').value.trim();
-  const phone = document.getElementById('t-phone').value.trim();
-  const rent  = parseFloat(document.getElementById('t-rent').value) || 0;
-  const wInit = parseFloat(document.getElementById('t-water-init').value) || 0;
-  const capOn = document.getElementById('water-cap-toggle').classList.contains('on');
-  if (!name) { toast('Unit name is required', 'error'); return; }
-
+  const id=document.getElementById('edit-tenant-id').value;
+  const name=document.getElementById('t-name').value.trim();
+  const phone=document.getElementById('t-phone').value.trim();
+  const rent=parseFloat(document.getElementById('t-rent').value)||0;
+  const wInit=parseFloat(document.getElementById('t-water-init').value)||0;
+  const capOn=document.getElementById('water-cap-toggle').classList.contains('on');
+  if(!name){toast('Unit name is required','error');return;}
   showLoading('SAVING…');
-  const base = { house_name: name, phone_number: phone, base_rent: rent, initial_water_reading: wInit };
-  const full = { ...base, water_cap: capOn };
-
+  const base={house_name:name,phone_number:phone,base_rent:rent,initial_water_reading:wInit};
+  const full={...base,water_cap:capOn};
   let error;
-  if (id) {
-    let r = await db.from('tenants').update(full).eq('id', id);
-    if (r.error?.message?.includes('water_cap')) { r = await db.from('tenants').update(base).eq('id', id); localCaps[String(id)] = capOn; }
-    error = r.error;
+  if(id){
+    let r=await db.from('tenants').update(full).eq('id',id);
+    if(r.error?.message?.includes('water_cap')){r=await db.from('tenants').update(base).eq('id',id);localCaps[String(id)]=capOn;}
+    error=r.error;
   } else {
-    let r = await db.from('tenants').insert(full);
-    if (r.error?.message?.includes('water_cap')) r = await db.from('tenants').insert(base);
-    error = r.error;
+    let r=await db.from('tenants').insert(full);
+    if(r.error?.message?.includes('water_cap')) r=await db.from('tenants').insert(base);
+    error=r.error;
   }
-
   hideLoading();
-  if (error) { toast('Save failed: ' + error.message, 'error'); return; }
-  toast(id ? 'Unit updated!' : 'Unit added!');
-  clearTenantForm();
-  await loadTenants();
+  if(error){toast('Save failed: '+error.message,'error');return;}
+  toast(id?'Unit updated!':'Unit added!');
+  clearTenantForm(); await loadTenants();
 }
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //  DASHBOARD
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 async function loadDashboard() {
-  const now = new Date();
-  const ym  = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-  const totalRent = tenants.reduce((s, t) => s + (parseFloat(t.base_rent) || 0), 0);
-  document.getElementById('stat-rent').textContent = '₹' + fmtK(totalRent);
+  const now=new Date();
+  const ym=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  const totalRent=tenants.reduce((s,t)=>s+(parseFloat(t.base_rent)||0),0);
+  document.getElementById('stat-rent').textContent='₹'+fmtK(totalRent);
 
-  const { data: allBills, error } = await db
-    .from('utility_bills')
+  const {data:allBills,error}=await db.from('utility_bills')
     .select('*, tenants(house_name,phone_number,base_rent,water_cap)')
-    .order('billing_month', { ascending: false });
+    .order('billing_month',{ascending:false});
+  if(error){toast('Dashboard error: '+error.message,'error');return;}
 
-  if (error) { toast('Dashboard error: ' + error.message, 'error'); return; }
-  const bills = allBills || [];
-  document.getElementById('stat-bills').textContent = bills.length;
+  const bills=allBills||[];
+  document.getElementById('stat-bills').textContent=bills.length;
+  const collected=bills.filter(b=>b.billing_month?.startsWith(ym)).reduce((s,b)=>s+(parseFloat(b.amount_paid)||0),0);
+  document.getElementById('stat-collected').textContent='₹'+fmtK(collected);
 
-  const collected = bills
-    .filter(b => b.billing_month?.startsWith(ym))
-    .reduce((s, b) => s + (parseFloat(b.amount_paid) || 0), 0);
-  document.getElementById('stat-collected').textContent = '₹' + fmtK(collected);
+  const latestMap={};
+  bills.forEach(b=>{if(!latestMap[b.tenant_id]) latestMap[b.tenant_id]=b;});
+  const latest=Object.values(latestMap);
+  const unpaidCount=latest.filter(b=>(parseFloat(b.amount_paid)||0)<(parseFloat(b.total_amount)||0)).length;
+  document.getElementById('stat-unpaid').textContent=unpaidCount;
 
-  const latestMap = {};
-  bills.forEach(b => { if (!latestMap[b.tenant_id]) latestMap[b.tenant_id] = b; });
-  const latest = Object.values(latestMap);
+  const activeEl=document.getElementById('active-bills');
+  const paidEl=document.getElementById('paid-bills');
+  activeEl.innerHTML=''; paidEl.innerHTML='';
 
-  const unpaidCount = latest.filter(b => {
-    const paid = parseFloat(b.amount_paid) || 0;
-    return paid < (parseFloat(b.total_amount) || 0);
-  }).length;
-  document.getElementById('stat-unpaid').textContent = unpaidCount;
-
-  const activeEl = document.getElementById('active-bills');
-  const paidEl   = document.getElementById('paid-bills');
-  activeEl.innerHTML = '';
-  paidEl.innerHTML   = '';
-
-  if (!latest.length) {
-    activeEl.innerHTML = '<div class="empty"><div class="empty-icon">□</div>No bills yet. Tap New Bill to start.</div>';
-    paidEl.innerHTML   = '<div class="empty"><div class="empty-icon">□</div>Nothing here yet.</div>';
+  if(!latest.length){
+    activeEl.innerHTML='<div class="empty"><div class="empty-icon">□</div>No bills yet. Tap New Bill to start.</div>';
+    paidEl.innerHTML='<div class="empty"><div class="empty-icon">□</div>Nothing here yet.</div>';
     return;
   }
 
-  latest.forEach(b => {
-    const amtPaid = parseFloat(b.amount_paid) || 0;
-    const total   = parseFloat(b.total_amount) || 0;
-    const balance = total - amtPaid;
-    const isPaid  = total > 0 && amtPaid >= total;
-    const isPartial = amtPaid > 0 && !isPaid;
+  latest.forEach(b=>{
+    const amtPaid=parseFloat(b.amount_paid)||0;
+    const total=parseFloat(b.total_amount)||0;
+    const balance=total-amtPaid;
+    const isPaid=total>0&&amtPaid>=total;
+    const isPartial=amtPaid>0&&!isPaid;
 
-    let pillHtml = '';
-    if (isPaid)         pillHtml = '<span class="pill pill-paid">Fully Paid</span>';
-    else if (isPartial) pillHtml = `<span class="pill pill-partial">Partial · ₹${fmt(amtPaid)} paid</span>`;
-    else                pillHtml = '<span class="pill pill-unpaid">Unpaid</span>';
+    let pill='';
+    if(isPaid)         pill='<span class="pill pill-paid">Fully Paid</span>';
+    else if(isPartial) pill=`<span class="pill pill-partial">Partial · ₹${fmt(amtPaid)} paid</span>`;
+    else               pill='<span class="pill pill-unpaid">Unpaid</span>';
 
-    const actions = isPaid
-      ? `<button class="btn btn-ghost btn-sm" onclick="viewBillReceipt('${b.id}')">Receipt</button>
-         <button class="btn btn-ghost btn-sm" onclick="editBill('${b.id}')">Edit</button>`
-      : `<button class="btn btn-green btn-sm" onclick="openPayModal('${b.id}',${total},${amtPaid})">Full Pay</button>
-         <button class="btn btn-ghost btn-sm" onclick="openPayModal('${b.id}',${total},${amtPaid},true)">Partial</button>
-         <button class="btn btn-ghost btn-sm" onclick="viewBillReceipt('${b.id}')">Share</button>
-         <button class="btn btn-ghost btn-sm" onclick="editBill('${b.id}')">Edit</button>`;
+    // Share from home → minimal receipt
+    const actions=isPaid
+      ?`<button class="btn btn-ghost btn-sm" onclick="viewBillReceipt('${b.id}','minimal')">Share</button>
+        <button class="btn btn-ghost btn-sm" onclick="editBill('${b.id}')">Edit</button>`
+      :`<button class="btn btn-green btn-sm" onclick="openPayModal('${b.id}',${total},${amtPaid})">Full Pay</button>
+        <button class="btn btn-ghost btn-sm" onclick="openPayModal('${b.id}',${total},${amtPaid},true)">Partial</button>
+        <button class="btn btn-ghost btn-sm" onclick="viewBillReceipt('${b.id}','minimal')">Share</button>
+        <button class="btn btn-ghost btn-sm" onclick="editBill('${b.id}')">Edit</button>`;
 
-    const card = `<div class="bill-card">
+    const card=`<div class="bill-card">
       <div class="bill-card-top">
         <div>
-          <div class="bill-unit">${b.tenants?.house_name || '—'}</div>
+          <div class="bill-unit">${b.tenants?.house_name||'—'}</div>
           <div class="bill-month-lbl">${fmtMonth(b.billing_month)}</div>
-          <div style="margin-top:8px;">${pillHtml}</div>
+          <div style="margin-top:8px;">${pill}</div>
         </div>
         <div>
           <div class="bill-total-amt">₹${fmt(total)}</div>
-          ${!isPaid ? `<div class="bill-balance-lbl">Balance: <span style="color:var(--red);">₹${fmt(balance)}</span></div>` : ''}
+          ${!isPaid?`<div class="bill-balance-lbl">Balance: <span style="color:var(--red);">₹${fmt(balance)}</span></div>`:''}
         </div>
       </div>
       <hr class="bill-divider"/>
       <div class="bill-actions">${actions}</div>
     </div>`;
 
-    if (isPaid) paidEl.innerHTML += card;
-    else        activeEl.innerHTML += card;
+    if(isPaid) paidEl.innerHTML+=card;
+    else       activeEl.innerHTML+=card;
   });
 
-  if (!activeEl.innerHTML) activeEl.innerHTML = '<div style="color:var(--green);font-family:var(--font-mono);font-size:11px;padding:10px 0;letter-spacing:1px;">All caught up. No pending bills.</div>';
-  if (!paidEl.innerHTML)   paidEl.innerHTML   = '<div class="empty"><div class="empty-icon">□</div>No fully paid bills yet.</div>';
+  if(!activeEl.innerHTML) activeEl.innerHTML='<div style="color:var(--green);font-family:var(--font-mono);font-size:11px;padding:10px 0;letter-spacing:1px;">All caught up. No pending bills.</div>';
+  if(!paidEl.innerHTML)   paidEl.innerHTML='<div class="empty"><div class="empty-icon">□</div>No fully paid bills yet.</div>';
 }
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //  PAYMENT MODAL
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-function openPayModal(billId, total, currentPaid, partialOnly = false) {
-  document.getElementById('pay-bill-id').value      = billId;
-  document.getElementById('pay-bill-total').value   = total;
-  document.getElementById('pay-current-paid').value = currentPaid;
-  const remaining = total - currentPaid;
-  document.getElementById('pay-amount').value = partialOnly ? '' : remaining;
-  document.getElementById('pay-hint').textContent =
-    `Total ₹${fmt(total)}  ·  Paid ₹${fmt(currentPaid)}  ·  Remaining ₹${fmt(remaining)}`;
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function openPayModal(billId,total,currentPaid,partialOnly=false){
+  document.getElementById('pay-bill-id').value=billId;
+  document.getElementById('pay-bill-total').value=total;
+  document.getElementById('pay-current-paid').value=currentPaid;
+  const rem=total-currentPaid;
+  document.getElementById('pay-amount').value=partialOnly?'':rem;
+  document.getElementById('pay-hint').textContent=`Total ₹${fmt(total)}  ·  Paid ₹${fmt(currentPaid)}  ·  Remaining ₹${fmt(rem)}`;
   document.getElementById('pay-modal').classList.add('open');
-  setTimeout(() => document.getElementById('pay-amount').focus(), 250);
+  setTimeout(()=>document.getElementById('pay-amount').focus(),250);
 }
-function closePayModal() { document.getElementById('pay-modal').classList.remove('open'); }
+function closePayModal(){ document.getElementById('pay-modal').classList.remove('open'); }
 
-async function submitPayment() {
-  const id      = document.getElementById('pay-bill-id').value;
-  const total   = parseFloat(document.getElementById('pay-bill-total').value) || 0;
-  const curPaid = parseFloat(document.getElementById('pay-current-paid').value) || 0;
-  const adding  = parseFloat(document.getElementById('pay-amount').value);
-  if (!adding || adding <= 0) { toast('Enter a valid amount', 'error'); return; }
-
-  const newPaid = Math.min(curPaid + adding, total);
+async function submitPayment(){
+  const id=document.getElementById('pay-bill-id').value;
+  const total=parseFloat(document.getElementById('pay-bill-total').value)||0;
+  const curPaid=parseFloat(document.getElementById('pay-current-paid').value)||0;
+  const adding=parseFloat(document.getElementById('pay-amount').value);
+  if(!adding||adding<=0){toast('Enter a valid amount','error');return;}
+  const newPaid=Math.min(curPaid+adding,total);
   showLoading('SAVING');
-  const { error } = await db.from('utility_bills').update({ amount_paid: newPaid }).eq('id', id);
+  const {error}=await db.from('utility_bills').update({amount_paid:newPaid}).eq('id',id);
   hideLoading();
-  if (error) { toast('Failed: ' + error.message, 'error'); return; }
-
-  const full = newPaid >= total;
-  toast(full ? 'Fully paid! Moved to Completed.' : `₹${fmt(adding)} recorded. Remaining: ₹${fmt(total - newPaid)}`);
-  closePayModal();
-  await loadDashboard();
+  if(error){toast('Failed: '+error.message,'error');return;}
+  toast(newPaid>=total?'Fully paid! Moved to Completed.':`₹${fmt(adding)} recorded. Remaining: ₹${fmt(total-newPaid)}`);
+  closePayModal(); await loadDashboard();
 }
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //  NEW BILL — FORM LOGIC
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-function clearBillForm() {
-  document.getElementById('edit-bill-id').value        = '';
-  document.getElementById('bill-tenant').value         = '';
-  document.getElementById('bill-month').value          = getDefaultBillingMonth();
-  document.getElementById('bill-water-new').value      = '';
-  document.getElementById('bill-water-charges').value  = '';
-  document.getElementById('bill-elec').value           = '';
-  document.getElementById('bill-misc-label').value     = '';
-  document.getElementById('bill-misc-amount').value    = '';
-  document.getElementById('bill-prev-balance').value   = '0';
-  document.getElementById('selected-tenant-pill').style.display = 'none';
-  document.getElementById('prev-reading-val').textContent  = '—';
-  document.getElementById('prev-month-val').textContent    = '—';
-  document.getElementById('save-btn').textContent          = 'Save & Generate Bill';
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function clearBillForm(){
+  document.getElementById('edit-bill-id').value='';
+  document.getElementById('bill-tenant').value='';
+  document.getElementById('bill-month').value=getDefaultBillingMonth();
+  document.getElementById('bill-water-new').value='';
+  document.getElementById('bill-water-charges').value='';
+  document.getElementById('bill-elec').value='';
+  document.getElementById('bill-misc-label').value='';
+  document.getElementById('bill-misc-amount').value='';
+  document.getElementById('bill-prev-balance').value='0';
+  document.getElementById('selected-tenant-pill').style.display='none';
+  document.getElementById('prev-reading-val').textContent='—';
+  document.getElementById('prev-month-val').textContent='—';
+  document.getElementById('save-btn').textContent='Save & Generate Bill';
   document.getElementById('water-reset-btn').classList.remove('show');
-  document.getElementById('water-calc-hint').textContent   = '';
-  document.getElementById('water-units-hint').textContent  = '';
-  document.getElementById('balance-hint').textContent      = '';
-  document.getElementById('balance-hint').className        = 'form-hint';
-  document.getElementById('today-reading-chip').style.display = 'none';
-  waterManuallyEdited = false;
-  _prevReading = 0; _prevReadingLabel = '—';
+  document.getElementById('water-calc-hint').textContent='';
+  document.getElementById('water-units-hint').textContent='';
+  document.getElementById('balance-hint').textContent='';
+  document.getElementById('balance-hint').className='form-hint';
+  document.getElementById('today-reading-chip').classList.remove('show');
+  waterManuallyEdited=false; _prevReading=0; _prevReadingLabel='—';
   resetCalcUI();
 }
 
-async function onTenantSelect() {
-  const id = document.getElementById('bill-tenant').value;
-  if (!id) return;
-  const t = tenants.find(x => String(x.id) === String(id));
-  if (!t) return;
+async function onTenantSelect(){
+  const id=document.getElementById('bill-tenant').value; if(!id) return;
+  const t=tenants.find(x=>String(x.id)===String(id)); if(!t) return;
 
-  document.getElementById('selected-tenant-pill').style.display = 'block';
-  document.getElementById('pill-name').textContent  = t.house_name;
-  document.getElementById('pill-phone').textContent = t.phone_number || 'No number';
-  document.getElementById('pill-rent').textContent  = '₹' + fmt(t.base_rent);
-  document.getElementById('pill-cap-note').style.display = isCapped(t) ? 'block' : 'none';
+  document.getElementById('selected-tenant-pill').style.display='block';
+  document.getElementById('pill-name').textContent=t.house_name;
+  document.getElementById('pill-phone').textContent=t.phone_number||'No number';
+  document.getElementById('pill-rent').textContent='₹'+fmt(t.base_rent);
+  document.getElementById('pill-cap-note').style.display=isCapped(t)?'block':'none';
 
-  const { data: pastBills } = await db.from('utility_bills')
-    .select('water_reading, billing_month, total_amount, amount_paid')
-    .eq('tenant_id', id)
-    .order('billing_month', { ascending: false })
-    .limit(1);
+  const {data:pastBills}=await db.from('utility_bills')
+    .select('water_reading,billing_month,total_amount,amount_paid')
+    .eq('tenant_id',id).order('billing_month',{ascending:false}).limit(1);
+  const last=pastBills?.[0]||null;
 
-  const last = pastBills?.[0] || null;
+  if(last){ _prevReading=parseFloat(last.water_reading)||0; _prevReadingLabel=fmtMonth(last.billing_month); }
+  else     { _prevReading=parseFloat(t.initial_water_reading)||0; _prevReadingLabel='Initial / Move-in'; }
+  document.getElementById('prev-reading-val').textContent=_prevReading+' units';
+  document.getElementById('prev-month-val').textContent=_prevReadingLabel;
 
-  if (last) {
-    _prevReading      = parseFloat(last.water_reading) || 0;
-    _prevReadingLabel = fmtMonth(last.billing_month);
-  } else {
-    _prevReading      = parseFloat(t.initial_water_reading) || 0;
-    _prevReadingLabel = 'Initial / Move-in';
-  }
-  document.getElementById('prev-reading-val').textContent = _prevReading + ' units';
-  document.getElementById('prev-month-val').textContent   = _prevReadingLabel;
-
-  // ── Check for today's meter capture ──
   await checkAndApplyTodayReading(id);
 
-  if (!document.getElementById('edit-bill-id').value) {
-    if (last) {
-      const lastTotal = parseFloat(last.total_amount) || 0;
-      const lastPaid  = parseFloat(last.amount_paid)  || 0;
-      const owed      = Math.max(0, lastTotal - lastPaid);
-      const dayOfMonth = new Date().getDate();
-      if (owed > 0 && dayOfMonth >= 10) {
-        document.getElementById('bill-prev-balance').value = owed;
-        document.getElementById('balance-hint').textContent = `Auto-carried ₹${fmt(owed)} unpaid from ${fmtMonth(last.billing_month)}`;
-        document.getElementById('balance-hint').className = 'form-hint warn';
-      } else if (owed > 0 && dayOfMonth < 10) {
-        document.getElementById('bill-prev-balance').value = 0;
-        document.getElementById('balance-hint').textContent = `₹${fmt(owed)} unpaid from last month — will auto-carry after the 10th`;
-        document.getElementById('balance-hint').className = 'form-hint info';
+  if(!document.getElementById('edit-bill-id').value){
+    if(last){
+      const owed=Math.max(0,(parseFloat(last.total_amount)||0)-(parseFloat(last.amount_paid)||0));
+      const day=new Date().getDate();
+      if(owed>0&&day>=10){
+        document.getElementById('bill-prev-balance').value=owed;
+        document.getElementById('balance-hint').textContent=`Auto-carried ₹${fmt(owed)} unpaid from ${fmtMonth(last.billing_month)}`;
+        document.getElementById('balance-hint').className='form-hint warn';
+      } else if(owed>0&&day<10){
+        document.getElementById('bill-prev-balance').value=0;
+        document.getElementById('balance-hint').textContent=`₹${fmt(owed)} unpaid from last month — will auto-carry after the 10th`;
+        document.getElementById('balance-hint').className='form-hint info';
       } else {
-        document.getElementById('bill-prev-balance').value = 0;
-        document.getElementById('balance-hint').textContent = 'No outstanding balance from last bill.';
-        document.getElementById('balance-hint').className = 'form-hint ok';
+        document.getElementById('bill-prev-balance').value=0;
+        document.getElementById('balance-hint').textContent='No outstanding balance from last bill.';
+        document.getElementById('balance-hint').className='form-hint ok';
       }
     } else {
-      document.getElementById('bill-prev-balance').value = 0;
-      document.getElementById('balance-hint').textContent = 'First bill for this unit.';
-      document.getElementById('balance-hint').className = 'form-hint ok';
+      document.getElementById('bill-prev-balance').value=0;
+      document.getElementById('balance-hint').textContent='First bill for this unit.';
+      document.getElementById('balance-hint').className='form-hint ok';
     }
   }
 
-  waterManuallyEdited = false;
+  waterManuallyEdited=false;
   document.getElementById('water-reset-btn').classList.remove('show');
-  document.getElementById('bill-water-charges').value = '';
+  document.getElementById('bill-water-charges').value='';
   recalculate();
 }
 
-// Auto-populate reading from today's meter capture
-async function checkAndApplyTodayReading(tenantId) {
-  try {
-    const today = todayYMD();
-    const { data } = await db
-      .from('meter_readings')
-      .select('reading_value, captured_at, photo_url')
-      .eq('tenant_id', tenantId)
-      .gte('captured_at', today + 'T00:00:00')
-      .order('captured_at', { ascending: false })
-      .limit(1);
-
-    const chip    = document.getElementById('today-reading-chip');
-    const chipTxt = document.getElementById('today-reading-chip-text');
-    const waterInput = document.getElementById('bill-water-new');
-
-    if (data && data.length > 0) {
-      const mr = data[0];
-      waterInput.value = mr.reading_value;
-      chip.style.display = 'flex';
-      chipTxt.textContent = `Meter captured today · ${mr.reading_value} units`;
+async function checkAndApplyTodayReading(tenantId){
+  try{
+    const today=todayYMD();
+    const {data}=await db.from('meter_readings').select('reading_value,captured_at')
+      .eq('tenant_id',tenantId).gte('captured_at',today+'T00:00:00')
+      .order('captured_at',{ascending:false}).limit(1);
+    const chip=document.getElementById('today-reading-chip');
+    if(data&&data.length>0){
+      document.getElementById('bill-water-new').value=data[0].reading_value;
+      document.getElementById('today-reading-chip-text').textContent=`Meter captured today · ${data[0].reading_value} units`;
+      chip.classList.add('show');
       recalculate();
-    } else {
-      chip.style.display = 'none';
-    }
-  } catch (e) {
-    // meter_readings table may not exist yet — silently ignore
-    document.getElementById('today-reading-chip').style.display = 'none';
-  }
+    } else { chip.classList.remove('show'); }
+  } catch(_){ document.getElementById('today-reading-chip').classList.remove('show'); }
 }
 
-function computeAutoWater() {
-  const id = document.getElementById('bill-tenant').value;
-  const t  = tenants.find(x => String(x.id) === String(id));
-  const nr = parseFloat(document.getElementById('bill-water-new').value);
-  if (!t || isNaN(nr)) return null;
-  const units    = Math.max(0, nr - _prevReading);
-  const liters   = units * 10;
-  const rawCost  = parseFloat((liters * 0.22).toFixed(2));
-  let charged    = rawCost, subsidy = 0;
-  if (isCapped(t) && rawCost > 500) { subsidy = 500; charged = parseFloat((rawCost - 500).toFixed(2)); }
+// ── Water charges auto-calc (uses corrected subsidy) ──
+function computeAutoWater(){
+  const id=document.getElementById('bill-tenant').value;
+  const t=tenants.find(x=>String(x.id)===String(id));
+  const nr=parseFloat(document.getElementById('bill-water-new').value);
+  if(!t||isNaN(nr)) return null;
+  const units=Math.max(0,nr-_prevReading);
+  const liters=units*10;
+  const rawCost=parseFloat((liters*0.22).toFixed(2));
+  // *** CORRECTED SUBSIDY APPLIED HERE ***
+  const { charged, subsidy } = applyWaterSubsidy(rawCost, isCapped(t));
   return { units, liters, rawCost, charged, subsidy };
 }
 
-function onWaterChargesEdited() {
-  waterManuallyEdited = true;
+function onWaterChargesEdited(){
+  waterManuallyEdited=true;
   document.getElementById('water-reset-btn').classList.add('show');
-  document.getElementById('water-calc-hint').textContent = 'Manual override active';
-  document.getElementById('water-calc-hint').className   = 'form-hint warn';
+  document.getElementById('water-calc-hint').textContent='Manual override active';
+  document.getElementById('water-calc-hint').className='form-hint warn';
   recalculate();
 }
 
-function resetWaterCharges() {
-  waterManuallyEdited = false;
+function resetWaterCharges(){
+  waterManuallyEdited=false;
   document.getElementById('water-reset-btn').classList.remove('show');
-  document.getElementById('bill-water-charges').value = '';
-  document.getElementById('water-calc-hint').textContent = '';
+  document.getElementById('bill-water-charges').value='';
+  document.getElementById('water-calc-hint').textContent='';
   recalculate();
 }
 
-function resetCalcUI() {
-  ['calc-rent','calc-water-raw','calc-water','calc-elec','calc-prev'].forEach(
-    id => document.getElementById(id).textContent = '₹ —'
-  );
-  document.getElementById('calc-total').textContent = '₹ 0';
-  document.getElementById('calc-cap-row').style.display = 'none';
-  document.getElementById('calc-misc-row').style.display = 'none';
+function resetCalcUI(){
+  ['calc-rent','calc-water-raw','calc-water','calc-elec','calc-prev'].forEach(id=>document.getElementById(id).textContent='₹ —');
+  document.getElementById('calc-total').textContent='₹ 0';
+  document.getElementById('calc-cap-row').style.display='none';
+  document.getElementById('calc-misc-row').style.display='none';
 }
 
-function recalculate() {
-  const id = document.getElementById('bill-tenant').value;
-  const t  = tenants.find(x => String(x.id) === String(id));
-  if (!t) { resetCalcUI(); return; }
+function recalculate(){
+  const id=document.getElementById('bill-tenant').value;
+  const t=tenants.find(x=>String(x.id)===String(id));
+  if(!t){resetCalcUI();return;}
 
-  const baseRent   = parseFloat(t.base_rent) || 0;
-  const elec       = parseFloat(document.getElementById('bill-elec').value) || 0;
-  const prevBal    = parseFloat(document.getElementById('bill-prev-balance').value) || 0;
-  const miscAmt    = parseFloat(document.getElementById('bill-misc-amount').value) || 0;
-  const miscLabel  = document.getElementById('bill-misc-label').value.trim() || 'Misc';
-  const nr         = parseFloat(document.getElementById('bill-water-new').value);
+  const baseRent=parseFloat(t.base_rent)||0;
+  const elec=parseFloat(document.getElementById('bill-elec').value)||0;
+  const prevBal=parseFloat(document.getElementById('bill-prev-balance').value)||0;
+  const miscAmt=parseFloat(document.getElementById('bill-misc-amount').value)||0;
+  const miscLabel=document.getElementById('bill-misc-label').value.trim()||'Misc';
+  const nr=parseFloat(document.getElementById('bill-water-new').value);
 
-  if (!isNaN(nr)) {
-    const u = Math.max(0, nr - _prevReading);
-    document.getElementById('water-units-hint').textContent =
-      nr < _prevReading
-        ? 'Reading is lower than previous!'
-        : `(${nr} − ${_prevReading}) = ${u} units → ${u * 10}L → gross ₹${fmt(u * 10 * 0.22)}`;
-    document.getElementById('water-units-hint').className =
-      nr < _prevReading ? 'form-hint warn' : 'form-hint';
+  if(!isNaN(nr)){
+    const u=Math.max(0,nr-_prevReading);
+    document.getElementById('water-units-hint').textContent=
+      nr<_prevReading?'Reading is lower than previous!'
+        :`(${nr} − ${_prevReading}) = ${u} units → ${u*10}L → gross ₹${fmt(u*10*0.22)}`;
+    document.getElementById('water-units-hint').className=nr<_prevReading?'form-hint warn':'form-hint';
+  } else { document.getElementById('water-units-hint').textContent=''; }
+
+  let rawWater=0,chargedWater=0,subsidy=0;
+  if(waterManuallyEdited){
+    chargedWater=parseFloat(document.getElementById('bill-water-charges').value)||0;
+    rawWater=chargedWater;
+    document.getElementById('calc-cap-row').style.display='none';
   } else {
-    document.getElementById('water-units-hint').textContent = '';
-  }
-
-  let rawWater = 0, chargedWater = 0, subsidy = 0;
-
-  if (waterManuallyEdited) {
-    chargedWater = parseFloat(document.getElementById('bill-water-charges').value) || 0;
-    rawWater     = chargedWater;
-    document.getElementById('calc-cap-row').style.display = 'none';
-  } else {
-    const auto = computeAutoWater();
-    if (auto) {
-      rawWater     = auto.rawCost;
-      chargedWater = auto.charged;
-      subsidy      = auto.subsidy;
-      document.getElementById('bill-water-charges').value = chargedWater.toFixed(2);
-      document.getElementById('water-calc-hint').textContent =
-        auto.subsidy > 0
-          ? `Gross ₹${fmt(auto.rawCost)} − cap ₹500 = ₹${fmt(auto.charged)}`
-          : `${auto.units} units × 10L × ₹0.22 = ₹${fmt(auto.rawCost)}`;
-      document.getElementById('water-calc-hint').className =
-        auto.subsidy > 0 ? 'form-hint ok' : 'form-hint';
+    const auto=computeAutoWater();
+    if(auto){
+      rawWater=auto.rawCost; chargedWater=auto.charged; subsidy=auto.subsidy;
+      document.getElementById('bill-water-charges').value=chargedWater.toFixed(2);
+      // *** CORRECTED hint text reflects new logic ***
+      if(auto.subsidy>0&&auto.rawCost<=500){
+        document.getElementById('water-calc-hint').textContent=`Gross ₹${fmt(auto.rawCost)} ≤ ₹500 → charged ₹0 (fully subsidised)`;
+        document.getElementById('water-calc-hint').className='form-hint ok';
+      } else if(auto.subsidy>0){
+        document.getElementById('water-calc-hint').textContent=`Gross ₹${fmt(auto.rawCost)} − ₹500 cap = ₹${fmt(auto.charged)}`;
+        document.getElementById('water-calc-hint').className='form-hint ok';
+      } else {
+        document.getElementById('water-calc-hint').textContent=`${auto.units} units × 10L × ₹0.22 = ₹${fmt(auto.rawCost)}`;
+        document.getElementById('water-calc-hint').className='form-hint';
+      }
     }
-    if (isCapped(t) && rawWater > 500) {
-      document.getElementById('calc-cap-row').style.display = 'flex';
-      document.getElementById('calc-subsidy').textContent   = `− ₹ ${fmt(subsidy)}`;
-    } else {
-      document.getElementById('calc-cap-row').style.display = 'none';
-    }
+    if(isCapped(t)&&rawWater>=0&&subsidy>0){
+      document.getElementById('calc-cap-row').style.display='flex';
+      // *** CORRECTED label in calc box ***
+      document.getElementById('calc-cap-lbl').textContent= rawWater<=500?'Water Subsidy (≤₹500 → free)':'Water Subsidy (₹500 cap)';
+      document.getElementById('calc-subsidy').textContent=`− ₹ ${fmt(subsidy)}`;
+    } else { document.getElementById('calc-cap-row').style.display='none'; }
   }
 
-  if (miscAmt > 0) {
-    document.getElementById('calc-misc-row').style.display = 'flex';
-    document.getElementById('calc-misc-lbl').textContent   = miscLabel;
-    document.getElementById('calc-misc').textContent       = `₹ ${fmt(miscAmt)}`;
-  } else {
-    document.getElementById('calc-misc-row').style.display = 'none';
-  }
+  if(miscAmt>0){
+    document.getElementById('calc-misc-row').style.display='flex';
+    document.getElementById('calc-misc-lbl').textContent=miscLabel;
+    document.getElementById('calc-misc').textContent=`₹ ${fmt(miscAmt)}`;
+  } else { document.getElementById('calc-misc-row').style.display='none'; }
 
-  const total = baseRent + chargedWater + elec + miscAmt + prevBal;
-  document.getElementById('calc-rent').textContent      = `₹ ${fmt(baseRent)}`;
-  document.getElementById('calc-water-raw').textContent = `₹ ${fmt(rawWater)}`;
-  document.getElementById('calc-water').textContent     = `₹ ${fmt(chargedWater)}`;
-  document.getElementById('calc-elec').textContent      = `₹ ${fmt(elec)}`;
-  document.getElementById('calc-prev').textContent      = `₹ ${fmt(prevBal)}`;
-  document.getElementById('calc-total').textContent     = `₹ ${fmt(total)}`;
+  const total=baseRent+chargedWater+elec+miscAmt+prevBal;
+  document.getElementById('calc-rent').textContent=`₹ ${fmt(baseRent)}`;
+  document.getElementById('calc-water-raw').textContent=`₹ ${fmt(rawWater)}`;
+  document.getElementById('calc-water').textContent=`₹ ${fmt(chargedWater)}`;
+  document.getElementById('calc-elec').textContent=`₹ ${fmt(elec)}`;
+  document.getElementById('calc-prev').textContent=`₹ ${fmt(prevBal)}`;
+  document.getElementById('calc-total').textContent=`₹ ${fmt(total)}`;
 }
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //  SAVE BILL
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-async function saveBill() {
-  const tenantId     = document.getElementById('bill-tenant').value;
-  const month        = document.getElementById('bill-month').value;
-  const waterNew     = parseFloat(document.getElementById('bill-water-new').value);
-  const elec         = parseFloat(document.getElementById('bill-elec').value) || 0;
-  const prevBal      = parseFloat(document.getElementById('bill-prev-balance').value) || 0;
-  const waterCharged = parseFloat(document.getElementById('bill-water-charges').value) || 0;
-  const miscLabel    = document.getElementById('bill-misc-label').value.trim();
-  const miscAmount   = parseFloat(document.getElementById('bill-misc-amount').value) || 0;
-  const editId       = document.getElementById('edit-bill-id').value;
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+async function saveBill(){
+  const tenantId=document.getElementById('bill-tenant').value;
+  const month=document.getElementById('bill-month').value;
+  const waterNew=parseFloat(document.getElementById('bill-water-new').value);
+  const elec=parseFloat(document.getElementById('bill-elec').value)||0;
+  const prevBal=parseFloat(document.getElementById('bill-prev-balance').value)||0;
+  const waterCharged=parseFloat(document.getElementById('bill-water-charges').value)||0;
+  const miscLabel=document.getElementById('bill-misc-label').value.trim();
+  const miscAmount=parseFloat(document.getElementById('bill-misc-amount').value)||0;
+  const editId=document.getElementById('edit-bill-id').value;
 
-  if (!tenantId) { toast('Please select a unit', 'error'); return; }
-  if (!month)    { toast('Select a billing month', 'error'); return; }
-  if (isNaN(waterNew)) { toast('Enter the current water meter reading', 'error'); return; }
-  if (waterNew < _prevReading) {
-    if (!confirm(`Reading ${waterNew} is below previous ${_prevReading}. Continue?`)) return;
-  }
+  if(!tenantId){toast('Please select a unit','error');return;}
+  if(!month){toast('Select a billing month','error');return;}
+  if(isNaN(waterNew)){toast('Enter the current water meter reading','error');return;}
+  if(waterNew<_prevReading&&!confirm(`Reading ${waterNew} is below previous ${_prevReading}. Continue?`)) return;
 
-  const t        = tenants.find(x => String(x.id) === String(tenantId));
-  const baseRent = parseFloat(t?.base_rent) || 0;
-  const total    = parseFloat((baseRent + waterCharged + elec + miscAmount + prevBal).toFixed(2));
+  const t=tenants.find(x=>String(x.id)===String(tenantId));
+  const baseRent=parseFloat(t?.base_rent)||0;
+  const total=parseFloat((baseRent+waterCharged+elec+miscAmount+prevBal).toFixed(2));
 
   showLoading('SAVING BILL…');
-  document.getElementById('save-btn').disabled = true;
+  document.getElementById('save-btn').disabled=true;
 
-  try {
-    let savedId = null;
-    const fullRecord = {
-      tenant_id: tenantId, billing_month: month + '-01',
-      water_reading: waterNew, elec_charges: elec, previous_balance: prevBal,
-      total_amount: total, is_sent: false,
-      misc_label: miscLabel || null, misc_amount: miscAmount || null
-    };
-    const baseRecord = {
-      tenant_id: tenantId, billing_month: month + '-01',
-      water_reading: waterNew, elec_charges: elec, previous_balance: prevBal,
-      total_amount: total, is_sent: false
-    };
+  try{
+    let savedId=null;
+    const fullRec={tenant_id:tenantId,billing_month:month+'-01',water_reading:waterNew,
+      elec_charges:elec,previous_balance:prevBal,total_amount:total,is_sent:false,
+      misc_label:miscLabel||null,misc_amount:miscAmount||null};
+    const baseRec={tenant_id:tenantId,billing_month:month+'-01',water_reading:waterNew,
+      elec_charges:elec,previous_balance:prevBal,total_amount:total,is_sent:false};
 
-    if (editId) {
-      let r = await db.from('utility_bills').update(fullRecord).eq('id', editId).select('id').single();
-      if (r.error?.message?.includes('misc')) {
-        r = await db.from('utility_bills').update(baseRecord).eq('id', editId).select('id').single();
-      }
-      if (r.error) throw r.error;
-      savedId = r.data?.id || editId;
+    if(editId){
+      let r=await db.from('utility_bills').update(fullRec).eq('id',editId).select('id').single();
+      if(r.error?.message?.includes('misc')) r=await db.from('utility_bills').update(baseRec).eq('id',editId).select('id').single();
+      if(r.error) throw r.error;
+      savedId=r.data?.id||editId;
     } else {
-      let r = await db.from('utility_bills').insert(fullRecord).select('id').single();
-      if (r.error?.message?.includes('misc')) {
-        r = await db.from('utility_bills').insert({ ...baseRecord, amount_paid: 0 }).select('id').single();
-      }
-      if (r.error) throw r.error;
-      if (!r.data?.id) throw new Error('No ID returned — check Supabase RLS policies');
-      savedId = r.data.id;
+      let r=await db.from('utility_bills').insert({...fullRec,amount_paid:0}).select('id').single();
+      if(r.error?.message?.includes('misc')) r=await db.from('utility_bills').insert({...baseRec,amount_paid:0}).select('id').single();
+      if(r.error) throw r.error;
+      if(!r.data?.id) throw new Error('No ID returned — check Supabase RLS policies');
+      savedId=r.data.id;
     }
 
     hideLoading();
-    document.getElementById('save-btn').disabled = false;
+    document.getElementById('save-btn').disabled=false;
     toast('Bill saved!');
 
-    currentBillData = {
-      id: savedId, tenant: t, month,
-      waterNew, prevReading: _prevReading,
-      units: Math.max(0, waterNew - _prevReading),
-      chargedWater: waterCharged,
-      rawWater: computeAutoWater()?.rawCost ?? waterCharged,
-      subsidy: computeAutoWater()?.subsidy ?? 0,
-      elec, prevBal, baseRent, total,
-      miscLabel, miscAmount
+    const auto=computeAutoWater();
+    currentBillData={
+      id:savedId,tenant:t,month,waterNew,prevReading:_prevReading,
+      units:Math.max(0,waterNew-_prevReading),
+      chargedWater:waterCharged,
+      rawWater:auto?.rawCost??waterCharged,
+      subsidy:auto?.subsidy??0,
+      elec,prevBal,baseRent,total,miscLabel,miscAmount
     };
-    buildReceiptHTML(currentBillData);
-    await openReceiptPreview();
+    // After save → show minimal receipt for sharing
+    await showReceipt(currentBillData,'minimal');
     clearBillForm();
     showView('dashboard');
 
-  } catch (err) {
+  } catch(err){
     hideLoading();
-    document.getElementById('save-btn').disabled = false;
-    toast('Save failed: ' + err.message, 'error');
-    console.error('saveBill error:', err);
+    document.getElementById('save-btn').disabled=false;
+    toast('Save failed: '+err.message,'error');
+    console.error('saveBill error:',err);
   }
 }
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //  EDIT BILL
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-async function editBill(id) {
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+async function editBill(id){
   showLoading('LOADING');
-  const { data: b, error } = await db.from('utility_bills').select('*').eq('id', id).single();
-  hideLoading();
-  if (error || !b) { toast('Could not load bill', 'error'); return; }
+  const {data:b,error}=await db.from('utility_bills').select('*').eq('id',id).single();
+  hideLoading(); if(error||!b){toast('Could not load bill','error');return;}
 
-  const { data: past } = await db.from('utility_bills')
-    .select('water_reading, billing_month')
-    .eq('tenant_id', b.tenant_id)
-    .lt('billing_month', b.billing_month)
-    .order('billing_month', { ascending: false })
-    .limit(1);
+  const {data:past}=await db.from('utility_bills')
+    .select('water_reading,billing_month').eq('tenant_id',b.tenant_id)
+    .lt('billing_month',b.billing_month).order('billing_month',{ascending:false}).limit(1);
+  const t=tenants.find(x=>String(x.id)===String(b.tenant_id));
+  _prevReading=parseFloat(past?.[0]?.water_reading)||parseFloat(t?.initial_water_reading)||0;
+  _prevReadingLabel=past?.[0]?fmtMonth(past[0].billing_month):'Initial';
 
-  const t = tenants.find(x => String(x.id) === String(b.tenant_id));
-  _prevReading      = parseFloat(past?.[0]?.water_reading) || parseFloat(t?.initial_water_reading) || 0;
-  _prevReadingLabel = past?.[0] ? fmtMonth(past[0].billing_month) : 'Initial';
+  document.getElementById('edit-bill-id').value=b.id;
+  document.getElementById('bill-tenant').value=String(b.tenant_id);
+  document.getElementById('bill-month').value=b.billing_month.slice(0,7);
+  document.getElementById('bill-water-new').value=b.water_reading;
+  document.getElementById('bill-elec').value=b.elec_charges;
+  document.getElementById('bill-misc-label').value=b.misc_label||'';
+  document.getElementById('bill-misc-amount').value=b.misc_amount||'';
+  document.getElementById('bill-prev-balance').value=b.previous_balance;
+  document.getElementById('prev-reading-val').textContent=_prevReading+' units';
+  document.getElementById('prev-month-val').textContent=_prevReadingLabel;
+  document.getElementById('balance-hint').textContent='Editing mode';
+  document.getElementById('balance-hint').className='form-hint info';
+  document.getElementById('save-btn').textContent='Update Bill';
 
-  document.getElementById('edit-bill-id').value        = b.id;
-  document.getElementById('bill-tenant').value         = String(b.tenant_id);
-  document.getElementById('bill-month').value          = b.billing_month.slice(0, 7);
-  document.getElementById('bill-water-new').value      = b.water_reading;
-  document.getElementById('bill-elec').value           = b.elec_charges;
-  document.getElementById('bill-misc-label').value     = b.misc_label || '';
-  document.getElementById('bill-misc-amount').value    = b.misc_amount || '';
-  document.getElementById('bill-prev-balance').value   = b.previous_balance;
-  document.getElementById('prev-reading-val').textContent = _prevReading + ' units';
-  document.getElementById('prev-month-val').textContent   = _prevReadingLabel;
-  document.getElementById('balance-hint').textContent     = 'Editing mode';
-  document.getElementById('balance-hint').className       = 'form-hint info';
-  document.getElementById('save-btn').textContent         = 'Update Bill';
-
-  if (t) {
-    document.getElementById('selected-tenant-pill').style.display = 'block';
-    document.getElementById('pill-name').textContent  = t.house_name;
-    document.getElementById('pill-phone').textContent = t.phone_number || '—';
-    document.getElementById('pill-rent').textContent  = '₹' + fmt(t.base_rent);
-    document.getElementById('pill-cap-note').style.display = isCapped(t) ? 'block' : 'none';
+  if(t){
+    document.getElementById('selected-tenant-pill').style.display='block';
+    document.getElementById('pill-name').textContent=t.house_name;
+    document.getElementById('pill-phone').textContent=t.phone_number||'—';
+    document.getElementById('pill-rent').textContent='₹'+fmt(t.base_rent);
+    document.getElementById('pill-cap-note').style.display=isCapped(t)?'block':'none';
   }
-
-  waterManuallyEdited = false;
-  recalculate();
-  showView('new-bill');
+  waterManuallyEdited=false; recalculate(); showView('new-bill');
 }
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  RECEIPT
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-function buildReceiptHTML(d) {
-  const monthLabel = fmtMonth(d.month);
-  const dateStr    = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
-  const miscRow    = (d.miscAmount && parseFloat(d.miscAmount) > 0)
-    ? `<tr><td class="rz-label">${d.miscLabel || 'Miscellaneous'}</td><td>₹ ${fmt(d.miscAmount)}</td></tr>` : '';
-  const prevRow    = parseFloat(d.prevBal) > 0
-    ? `<tr><td class="rz-label">Previous Balance</td><td>₹ ${fmt(d.prevBal)}</td></tr>` : '';
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  RECEIPT — TWO VERSIONS
+//  'minimal' = home share (clean, no RENTMGR text, + QR)
+//  'detailed' = library view (full readings + breakdown)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  document.getElementById('receipt-print-zone').innerHTML = `
+// ── SVG logos for UPI apps (inline, no external deps) ──
+function upiLogos(){
+  const gpay=`<svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+    <circle cx="14" cy="14" r="14" fill="#4285F4"/>
+    <text x="14" y="18" text-anchor="middle" font-family="sans-serif" font-weight="700" font-size="11" fill="white">G</text>
+  </svg>`;
+  const phonepe=`<svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+    <circle cx="14" cy="14" r="14" fill="#5F259F"/>
+    <text x="14" y="18" text-anchor="middle" font-family="sans-serif" font-weight="700" font-size="11" fill="white">P</text>
+  </svg>`;
+  const bhim=`<svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+    <circle cx="14" cy="14" r="14" fill="#00B0FF"/>
+    <text x="14" y="18" text-anchor="middle" font-family="sans-serif" font-weight="700" font-size="9" fill="white">BHIM</text>
+  </svg>`;
+  return `<div style="display:flex;justify-content:center;align-items:center;gap:10px;">
+    ${[gpay,phonepe,bhim].map(svg=>`<div style="display:flex;flex-direction:column;align-items:center;gap:2px;">${svg}</div>`).join('')}
+  </div>`;
+}
+
+function buildMinimalReceiptHTML(d){
+  const monthLabel=fmtMonth(d.month);
+  const dateStr=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+  const miscRow=d.miscAmount&&parseFloat(d.miscAmount)>0
+    ?`<tr><td class="rz-label">${d.miscLabel||'Miscellaneous'}</td><td>₹ ${fmt(d.miscAmount)}</td></tr>`:'';
+  const prevRow=parseFloat(d.prevBal)>0
+    ?`<tr><td class="rz-label">Previous Balance</td><td>₹ ${fmt(d.prevBal)}</td></tr>`:'';
+
+  // QR section (shown only if qrCodeUrl is set)
+  const qrSection=qrCodeUrl
+    ?`<div class="rz-qr-section">
+        <img class="rz-qr-img" src="${qrCodeUrl}?t=${Date.now()}" crossorigin="anonymous" alt="Payment QR"/>
+        <div class="rz-qr-label">Scan to Pay · All UPI apps accepted</div>
+        ${upiLogos()}
+      </div>`:'';
+
+  document.getElementById('receipt-print-minimal').innerHTML=`
     <div class="rz-header">
-      <div class="rz-logo">RentMgr</div>
       <div class="rz-title">Rent Receipt</div>
       <div class="rz-for">${monthLabel}</div>
+      <div class="rz-unit">${d.tenant?.house_name||'—'}</div>
       <div class="rz-date">Generated: ${dateStr}</div>
     </div>
     <table class="rz-table">
-      <tr><td class="rz-label">Rent</td><td>₹ ${fmt(d.baseRent)}</td></tr>
+      <tr><td class="rz-label">Base Rent</td><td>₹ ${fmt(d.baseRent)}</td></tr>
       <tr><td class="rz-label">Water Charges</td><td>₹ ${fmt(d.chargedWater)}</td></tr>
       <tr><td class="rz-label">Electricity Charges</td><td>₹ ${fmt(d.elec)}</td></tr>
       ${miscRow}${prevRow}
       <tr class="rz-total-row"><td>Total Due</td><td>₹ ${fmt(d.total)}</td></tr>
     </table>
-    <div class="rz-footer">Kindly pay by the 25th. Thank you.</div>`;
+    <div class="rz-footer">Kindly pay by the 5th. Thank you! 🙏</div>
+    ${qrSection}`;
 }
 
-async function openReceiptPreview() {
+function buildDetailedReceiptHTML(d){
+  const monthLabel=fmtMonth(d.month);
+  const dateStr=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+  const units=typeof d.units==='number'?d.units:'—';
+  const liters=typeof d.units==='number'?d.units*10:'—';
+  const rawWater=d.rawWater??d.chargedWater;
+  const subsidy=d.subsidy??0;
+  const miscRow=d.miscAmount&&parseFloat(d.miscAmount)>0
+    ?`<tr><td class="rz-label">${d.miscLabel||'Misc'}</td><td>₹ ${fmt(d.miscAmount)}</td></tr>`:'';
+  const prevRow=parseFloat(d.prevBal)>0
+    ?`<tr><td class="rz-label">Previous Balance</td><td>₹ ${fmt(d.prevBal)}</td></tr>`:'';
+
+  // *** CORRECTED subsidy row label for detailed receipt ***
+  let subRow='';
+  if(subsidy>0){
+    const subLabel=rawWater<=500?'Water Subsidy (≤₹500 → free)':'Water Subsidy (₹500 cap → pay excess)';
+    subRow=`<tr class="rz-sub-row"><td class="rz-label">${subLabel}</td><td>− ₹ ${fmt(subsidy)}</td></tr>`;
+  }
+
+  document.getElementById('receipt-print-detailed').innerHTML=`
+    <div class="rz-header">
+      <div class="rz-title">Rent Receipt</div>
+      <div class="rz-for">${monthLabel}</div>
+      <div class="rz-unit">${d.tenant?.house_name||'—'}</div>
+      <div class="rz-date">Generated: ${dateStr}</div>
+    </div>
+
+    <div class="rz-section-title">Water Meter Readings</div>
+    <div class="rz-reading-row"><span class="rz-reading-key">Previous Reading</span><span class="rz-reading-val">${d.prevReading} units</span></div>
+    <div class="rz-reading-row"><span class="rz-reading-key">Present Reading</span><span class="rz-reading-val">${d.waterNew} units</span></div>
+    <div class="rz-reading-row"><span class="rz-reading-key">Consumed</span><span class="rz-reading-val">${units} units (${liters} L)</span></div>
+    <div class="rz-reading-row"><span class="rz-reading-key">Gross Water Cost</span><span class="rz-reading-val">₹ ${fmt(rawWater)}</span></div>
+
+    <div class="rz-section-title">Charges Breakdown</div>
+    <table class="rz-table">
+      <tr><td class="rz-label">Base Rent</td><td>₹ ${fmt(d.baseRent)}</td></tr>
+      <tr style="background:#f8f8f8;"><td class="rz-label">Gross Water (${units}u × 10L × ₹0.22)</td><td>₹ ${fmt(rawWater)}</td></tr>
+      ${subRow}
+      <tr><td class="rz-label">Water Charged</td><td>₹ ${fmt(d.chargedWater)}</td></tr>
+      <tr><td class="rz-label">Electricity Charges</td><td>₹ ${fmt(d.elec)}</td></tr>
+      ${miscRow}${prevRow}
+      <tr class="rz-total-row"><td>Total Due</td><td>₹ ${fmt(d.total)}</td></tr>
+    </table>
+    <div class="rz-footer">Kindly pay by the 5th. Thank you! 🙏</div>`;
+}
+
+// ── Show receipt overlay with correct type ──
+async function showReceipt(d, type='minimal'){
+  currentReceiptType=type;
+  currentBillData=d;
+
+  // Configure overlay UI
+  document.getElementById('receipt-overlay-title').textContent=
+    type==='detailed'?'Detailed Receipt':'Share Receipt';
+  document.getElementById('receipt-acts-share').style.display=type==='minimal'?'flex':'none';
+  document.getElementById('receipt-acts-view').style.display=type==='detailed'?'flex':'none';
+
+  // Build HTML into correct zone
+  if(type==='detailed') buildDetailedReceiptHTML(d);
+  else                  buildMinimalReceiptHTML(d);
+
+  const zone=document.getElementById(type==='detailed'?'receipt-print-detailed':'receipt-print-minimal');
+
   document.getElementById('receipt-overlay').classList.add('open');
-  document.getElementById('receipt-img').style.display         = 'none';
-  document.getElementById('receipt-img-loading').style.display = 'block';
-  currentReceiptDataUrl = null;
-  await new Promise(r => setTimeout(r, 400));
-  try {
-    const zone   = document.getElementById('receipt-print-zone');
-    const canvas = await html2canvas(zone, { scale: 3, backgroundColor: '#ffffff', useCORS: true, logging: false });
-    currentReceiptDataUrl = canvas.toDataURL('image/png');
-    document.getElementById('receipt-img').src = currentReceiptDataUrl;
-    document.getElementById('receipt-img').style.display         = 'block';
-    document.getElementById('receipt-img-loading').style.display = 'none';
-  } catch (e) {
-    document.getElementById('receipt-img-loading').textContent = 'Preview unavailable. You can still download.';
+  document.getElementById('receipt-img').style.display='none';
+  document.getElementById('receipt-img-loading').style.display='block';
+  currentReceiptDataUrl=null;
+
+  // Wait for QR image to load if minimal
+  if(type==='minimal'&&qrCodeUrl){
+    await new Promise(r=>setTimeout(r,500));
+  } else {
+    await new Promise(r=>setTimeout(r,350));
+  }
+
+  try{
+    const canvas=await html2canvas(zone,{scale:3,backgroundColor:'#ffffff',useCORS:true,logging:false});
+    currentReceiptDataUrl=canvas.toDataURL('image/png');
+    document.getElementById('receipt-img').src=currentReceiptDataUrl;
+    document.getElementById('receipt-img').style.display='block';
+    document.getElementById('receipt-img-loading').style.display='none';
+  } catch(e){
+    document.getElementById('receipt-img-loading').textContent='Preview unavailable. You can still download.';
+    console.error('html2canvas:',e);
   }
 }
 
-function previewReceiptOnly() {
-  const id = document.getElementById('bill-tenant').value;
-  const t  = tenants.find(x => String(x.id) === String(id));
-  if (!t) { toast('Select a unit first', 'error'); return; }
-  const nr           = parseFloat(document.getElementById('bill-water-new').value) || 0;
-  const elec         = parseFloat(document.getElementById('bill-elec').value) || 0;
-  const prevBal      = parseFloat(document.getElementById('bill-prev-balance').value) || 0;
-  const waterCharged = parseFloat(document.getElementById('bill-water-charges').value) || 0;
-  const miscLabel    = document.getElementById('bill-misc-label').value.trim();
-  const miscAmount   = parseFloat(document.getElementById('bill-misc-amount').value) || 0;
-  const auto         = computeAutoWater();
-  currentBillData    = {
-    tenant: t, month: document.getElementById('bill-month').value,
-    waterNew: nr, prevReading: _prevReading, units: Math.max(0, nr - _prevReading),
-    chargedWater: waterCharged, rawWater: auto?.rawCost ?? waterCharged,
-    subsidy: auto?.subsidy ?? 0, elec, prevBal,
-    baseRent: parseFloat(t.base_rent) || 0,
-    total: (parseFloat(t.base_rent) || 0) + waterCharged + elec + miscAmount + prevBal,
-    miscLabel, miscAmount
+function previewReceiptOnly(){
+  const id=document.getElementById('bill-tenant').value;
+  const t=tenants.find(x=>String(x.id)===String(id));
+  if(!t){toast('Select a unit first','error');return;}
+  const nr=parseFloat(document.getElementById('bill-water-new').value)||0;
+  const elec=parseFloat(document.getElementById('bill-elec').value)||0;
+  const prevBal=parseFloat(document.getElementById('bill-prev-balance').value)||0;
+  const waterCharged=parseFloat(document.getElementById('bill-water-charges').value)||0;
+  const miscLabel=document.getElementById('bill-misc-label').value.trim();
+  const miscAmount=parseFloat(document.getElementById('bill-misc-amount').value)||0;
+  const auto=computeAutoWater();
+  const d={
+    tenant:t,month:document.getElementById('bill-month').value,
+    waterNew:nr,prevReading:_prevReading,units:Math.max(0,nr-_prevReading),
+    chargedWater:waterCharged,rawWater:auto?.rawCost??waterCharged,
+    subsidy:auto?.subsidy??0,elec,prevBal,
+    baseRent:parseFloat(t.base_rent)||0,
+    total:(parseFloat(t.base_rent)||0)+waterCharged+elec+miscAmount+prevBal,
+    miscLabel,miscAmount
   };
-  buildReceiptHTML(currentBillData);
-  openReceiptPreview();
+  showReceipt(d,'minimal');
 }
 
-async function viewBillReceipt(billId) {
+// Called from Library → shows detailed receipt
+async function viewBillReceipt(billId, type='detailed'){
   showLoading('LOADING');
-  const { data, error } = await db.from('utility_bills').select('*, tenants(*)').eq('id', billId).single();
-  if (error || !data) { hideLoading(); toast('Could not load bill', 'error'); return; }
+  const {data,error}=await db.from('utility_bills').select('*, tenants(*)').eq('id',billId).single();
+  if(error||!data){hideLoading();toast('Could not load bill','error');return;}
 
-  const { data: past } = await db.from('utility_bills')
-    .select('water_reading')
-    .eq('tenant_id', data.tenant_id)
-    .lt('billing_month', data.billing_month)
-    .order('billing_month', { ascending: false })
-    .limit(1);
-
+  const {data:past}=await db.from('utility_bills')
+    .select('water_reading').eq('tenant_id',data.tenant_id)
+    .lt('billing_month',data.billing_month).order('billing_month',{ascending:false}).limit(1);
   hideLoading();
-  const t        = data.tenants;
-  const prevR    = parseFloat(past?.[0]?.water_reading) || parseFloat(t?.initial_water_reading) || 0;
-  const units    = Math.max(0, parseFloat(data.water_reading) - prevR);
-  const rawWater = parseFloat((units * 10 * 0.22).toFixed(2));
-  const subsidy  = isCapped(t) && rawWater > 500 ? 500 : 0;
-  const chargedWater = Math.max(0, rawWater - subsidy);
 
-  currentBillData = {
-    id: billId, tenant: t, month: data.billing_month?.slice(0, 7),
-    waterNew: data.water_reading, prevReading: prevR, units,
-    chargedWater, rawWater, subsidy,
-    elec: data.elec_charges, prevBal: data.previous_balance,
-    baseRent: t?.base_rent || 0, total: data.total_amount,
-    miscLabel: data.misc_label || '', miscAmount: data.misc_amount || 0
+  const t=data.tenants;
+  const prevR=parseFloat(past?.[0]?.water_reading)||parseFloat(t?.initial_water_reading)||0;
+  const units=Math.max(0,parseFloat(data.water_reading)-prevR);
+  const rawWater=parseFloat((units*10*0.22).toFixed(2));
+  // *** CORRECTED SUBSIDY APPLIED when loading from DB ***
+  const { charged: chargedWater, subsidy } = applyWaterSubsidy(rawWater, isCapped(t));
+
+  const d={
+    id:billId,tenant:t,month:data.billing_month?.slice(0,7),
+    waterNew:data.water_reading,prevReading:prevR,units,
+    chargedWater,rawWater,subsidy,
+    elec:data.elec_charges,prevBal:data.previous_balance,
+    baseRent:t?.base_rent||0,total:data.total_amount,
+    miscLabel:data.misc_label||'',miscAmount:data.misc_amount||0
   };
-  buildReceiptHTML(currentBillData);
-  await openReceiptPreview();
 
-  if (!data.is_sent) {
-    db.from('utility_bills').update({ is_sent: true }).eq('id', billId).then(() => loadDashboard());
+  await showReceipt(d, type);
+
+  if(!data.is_sent){
+    db.from('utility_bills').update({is_sent:true}).eq('id',billId).then(()=>loadDashboard());
   }
 }
 
-function closeReceipt() { document.getElementById('receipt-overlay').classList.remove('open'); }
+function closeReceipt(){ document.getElementById('receipt-overlay').classList.remove('open'); }
 
-async function downloadReceipt() {
-  if (!currentReceiptDataUrl) { toast('Receipt not ready yet', 'error'); return; }
-  const a = document.createElement('a');
-  a.download = `RentBill_${currentBillData?.tenant?.house_name || 'unit'}_${currentBillData?.month || 'bill'}.png`;
-  a.href = currentReceiptDataUrl;
-  a.click();
-  toast('Downloaded!');
+async function downloadReceipt(){
+  if(!currentReceiptDataUrl){toast('Receipt not ready yet','error');return;}
+  const a=document.createElement('a');
+  a.download=`RentBill_${currentBillData?.tenant?.house_name||'unit'}_${currentBillData?.month||'bill'}.png`;
+  a.href=currentReceiptDataUrl; a.click(); toast('Downloaded!');
 }
 
-async function shareReceiptImage() {
-  if (!currentReceiptDataUrl) { toast('Receipt image not ready', 'error'); return; }
-  if (currentBillData?.id) {
-    db.from('utility_bills').update({ is_sent: true }).eq('id', currentBillData.id).then(() => loadDashboard());
+async function shareReceiptImage(){
+  if(!currentReceiptDataUrl){toast('Receipt image not ready','error');return;}
+  if(currentBillData?.id){
+    db.from('utility_bills').update({is_sent:true}).eq('id',currentBillData.id).then(()=>loadDashboard());
   }
-  const blob = await (await fetch(currentReceiptDataUrl)).blob();
-  const file = new File([blob], 'RentBill.png', { type: 'image/png' });
-  if (navigator.canShare && navigator.canShare({ files: [file] })) {
-    try { await navigator.share({ files: [file], title: 'Rent Bill' }); return; } catch {}
+  const blob=await(await fetch(currentReceiptDataUrl)).blob();
+  const file=new File([blob],'RentBill.png',{type:'image/png'});
+  if(navigator.canShare&&navigator.canShare({files:[file]})){
+    try{await navigator.share({files:[file],title:'Rent Bill'});return;}catch(_){}
   }
-  try {
-    await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+  try{
+    await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]);
     toast('Image copied! Paste into WhatsApp Web.');
   } catch {
-    downloadReceipt();
-    toast('Downloaded — attach it in WhatsApp.');
+    downloadReceipt(); toast('Downloaded — attach it in WhatsApp.');
   }
 }
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //  LIBRARY / LEDGER
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-function clearLedgerFilters() {
-  document.getElementById('filter-unit').value   = '';
-  document.getElementById('filter-month').value  = '';
-  document.getElementById('filter-status').value = 'all';
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function clearLedgerFilters(){
+  document.getElementById('filter-unit').value='';
+  document.getElementById('filter-month').value='';
+  document.getElementById('filter-status').value='all';
   loadLedger();
 }
 
-async function loadLedger() {
-  const el = document.getElementById('ledger-list');
-  el.innerHTML = '<div class="empty"><div class="spinner" style="margin:0 auto 12px;"></div></div>';
+async function loadLedger(){
+  const el=document.getElementById('ledger-list');
+  el.innerHTML='<div class="empty"><div class="spinner" style="margin:0 auto 12px;"></div></div>';
+  const unitF=document.getElementById('filter-unit').value;
+  const monthF=document.getElementById('filter-month').value;
+  const statusF=document.getElementById('filter-status').value;
 
-  const unitFilter   = document.getElementById('filter-unit').value;
-  const monthFilter  = document.getElementById('filter-month').value;
-  const statusFilter = document.getElementById('filter-status').value;
-
-  try {
-    let query = db
-      .from('utility_bills')
-      .select('id, tenant_id, billing_month, total_amount, amount_paid, is_sent, tenants(house_name, phone_number)')
-      .order('billing_month', { ascending: false });
-
-    if (unitFilter) query = query.eq('tenant_id', unitFilter);
-    if (monthFilter) {
-      const startDate = monthFilter + '-01';
-      const [yr, mo] = monthFilter.split('-').map(Number);
-      const nextMonth = mo === 12 ? `${yr + 1}-01-01` : `${yr}-${String(mo + 1).padStart(2, '0')}-01`;
-      query = query.gte('billing_month', startDate).lt('billing_month', nextMonth);
+  try{
+    let q=db.from('utility_bills')
+      .select('id,tenant_id,billing_month,total_amount,amount_paid,is_sent,tenants(house_name,phone_number,water_cap)')
+      .order('billing_month',{ascending:false});
+    if(unitF) q=q.eq('tenant_id',unitF);
+    if(monthF){
+      const [yr,mo]=monthF.split('-').map(Number);
+      const next=mo===12?`${yr+1}-01-01`:`${yr}-${String(mo+1).padStart(2,'0')}-01`;
+      q=q.gte('billing_month',monthF+'-01').lt('billing_month',next);
     }
+    const {data,error}=await q.limit(300);
+    if(error) throw error;
+    if(!data?.length){el.innerHTML='<div class="empty"><div class="empty-icon">□</div>No bills found.</div>';return;}
 
-    const { data, error } = await query.limit(300);
-
-    if (error) { el.innerHTML = `<div class="empty">Error loading bills.<br><span style="color:var(--red);font-size:10px;">${error.message}</span></div>`; return; }
-    if (!data || data.length === 0) { el.innerHTML = '<div class="empty"><div class="empty-icon">□</div>No bills found.</div>'; return; }
-
-    const filtered = data.filter(b => {
-      if (statusFilter === 'all') return true;
-      const amtPaid = parseFloat(b.amount_paid) || 0;
-      const total   = parseFloat(b.total_amount) || 0;
-      if (statusFilter === 'paid')    return total > 0 && amtPaid >= total;
-      if (statusFilter === 'partial') return amtPaid > 0 && amtPaid < total;
-      if (statusFilter === 'unpaid')  return amtPaid <= 0;
+    const filtered=data.filter(b=>{
+      if(statusF==='all') return true;
+      const paid=parseFloat(b.amount_paid)||0,total=parseFloat(b.total_amount)||0;
+      if(statusF==='paid')    return total>0&&paid>=total;
+      if(statusF==='partial') return paid>0&&paid<total;
+      if(statusF==='unpaid')  return paid<=0;
       return true;
     });
+    if(!filtered.length){el.innerHTML='<div class="empty"><div class="empty-icon">□</div>No bills match this filter.</div>';return;}
 
-    if (filtered.length === 0) { el.innerHTML = '<div class="empty"><div class="empty-icon">□</div>No bills match this filter.</div>'; return; }
-
-    let html = '';
-    filtered.forEach(b => {
-      const amtPaid = parseFloat(b.amount_paid) || 0;
-      const total   = parseFloat(b.total_amount) || 0;
-      let statusKey = 'unpaid';
-      if (total > 0 && amtPaid >= total) statusKey = 'paid';
-      else if (amtPaid > 0)              statusKey = 'partial';
-      const pillMap = {
-        paid:    '<span class="pill pill-paid">Paid</span>',
-        partial: `<span class="pill pill-partial">Partial · ₹${fmt(amtPaid)}</span>`,
-        unpaid:  '<span class="pill pill-unpaid">Unpaid</span>'
+    let html='';
+    filtered.forEach(b=>{
+      const amtPaid=parseFloat(b.amount_paid)||0,total=parseFloat(b.total_amount)||0;
+      let sk='unpaid';
+      if(total>0&&amtPaid>=total) sk='paid';
+      else if(amtPaid>0)         sk='partial';
+      const pillMap={
+        paid:`<span class="pill pill-paid">Paid</span>`,
+        partial:`<span class="pill pill-partial">Partial · ₹${fmt(amtPaid)}</span>`,
+        unpaid:`<span class="pill pill-unpaid">Unpaid</span>`
       };
-      html += `<div class="bill-card">
+      html+=`<div class="bill-card">
         <div class="bill-card-top">
           <div>
-            <div class="bill-unit">${b.tenants?.house_name || '—'}</div>
+            <div class="bill-unit">${b.tenants?.house_name||'—'}</div>
             <div class="bill-month-lbl">${fmtMonth(b.billing_month)}</div>
-            <div style="margin-top:8px;">${pillMap[statusKey]}</div>
+            <div style="margin-top:8px;">${pillMap[sk]}</div>
           </div>
           <div>
             <div class="bill-total-amt">₹${fmt(total)}</div>
-            ${statusKey !== 'paid' ? `<div class="bill-balance-lbl">Balance: <span style="color:var(--red);">₹${fmt(total - amtPaid)}</span></div>` : ''}
+            ${sk!=='paid'?`<div class="bill-balance-lbl">Balance: <span style="color:var(--red);">₹${fmt(total-amtPaid)}</span></div>`:''}
           </div>
         </div>
         <hr class="bill-divider"/>
         <div class="bill-actions">
-          <button class="btn btn-ghost btn-sm" onclick="viewBillReceipt('${b.id}')">View</button>
-          ${statusKey !== 'paid' ? `<button class="btn btn-ghost btn-sm" onclick="openPayModal('${b.id}',${total},${amtPaid})">Pay</button>` : ''}
+          <button class="btn btn-ghost btn-sm" onclick="viewBillReceipt('${b.id}','detailed')">Detailed</button>
+          <button class="btn btn-ghost btn-sm" onclick="viewBillReceipt('${b.id}','minimal')">Share</button>
+          ${sk!=='paid'?`<button class="btn btn-ghost btn-sm" onclick="openPayModal('${b.id}',${total},${amtPaid})">Pay</button>`:''}
           <button class="btn btn-danger btn-sm" onclick="deleteBill('${b.id}')">Delete</button>
         </div>
       </div>`;
     });
-    el.innerHTML = html;
-  } catch (err) {
-    el.innerHTML = `<div class="empty">Unexpected error.<br><span style="color:var(--red);font-size:10px;">${err.message}</span></div>`;
+    el.innerHTML=html;
+  } catch(err){
+    el.innerHTML=`<div class="empty">Error: ${err.message}</div>`;
   }
 }
 
-async function deleteBill(id) {
-  if (!confirm('Delete this bill permanently?')) return;
+async function deleteBill(id){
+  if(!confirm('Delete this bill permanently?')) return;
   showLoading('DELETING');
-  const { error } = await db.from('utility_bills').delete().eq('id', id);
+  const {error}=await db.from('utility_bills').delete().eq('id',id);
   hideLoading();
-  if (error) { toast('Delete failed: ' + error.message, 'error'); return; }
-  toast('Bill deleted.');
-  loadLedger();
-  loadDashboard();
+  if(error){toast('Delete failed: '+error.message,'error');return;}
+  toast('Bill deleted.'); loadLedger(); loadDashboard();
 }
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  METER CAPTURE — CAMERA
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  METER — UNIT SELECTION
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function onMeterUnitSelect(){
+  const id=document.getElementById('meter-unit-select').value;
+  const t=tenants.find(x=>String(x.id)===String(id));
+  meterSelectedTenant=t||null; meterSnapshotBlob=null; meterPrevReading=0; _currentMeterRecordId=null;
 
-function onMeterUnitSelect() {
-  const id = document.getElementById('meter-unit-select').value;
-  const t  = tenants.find(x => String(x.id) === String(id));
-  meterSelectedTenant  = t || null;
-  meterSnapshotBlob    = null;
-  meterPrevReading     = 0;
-
-  // Reset UI
   stopCamera();
-  document.getElementById('cam-snapshot').style.display         = 'none';
-  document.getElementById('cam-video').style.display            = 'none';
-  document.getElementById('cam-placeholder').style.display      = 'flex';
-  document.getElementById('cam-placeholder').style.flexDirection= 'column';
-  document.getElementById('cam-placeholder').style.alignItems   = 'center';
-  document.getElementById('cam-live-badge').classList.remove('live');
-  document.getElementById('cam-snapped-badge').classList.remove('show');
-  document.getElementById('reading-confirm-box').classList.remove('show');
-  document.getElementById('meter-save-wrap').style.display      = 'none';
-  document.getElementById('retake-controls').style.display      = 'none';
-  document.getElementById('cam-controls').style.display         = 'none';
-  document.getElementById('meter-reading-input').value          = '';
-  document.getElementById('rcb-diff-text').textContent          = '';
-  document.getElementById('btn-start-cam').disabled             = !t;
+  resetMeterCapUI();
+  document.getElementById('btn-start-cam').disabled=!t;
 
-  if (!t) {
-    document.getElementById('meter-unit-hero').classList.remove('show');
-    return;
-  }
-
-  // Show unit hero
+  if(!t){ document.getElementById('meter-unit-hero').classList.remove('show'); return; }
   document.getElementById('meter-unit-hero').classList.add('show');
-  document.getElementById('meter-hero-name').textContent = t.house_name;
-
-  // Load last reading for this tenant
+  document.getElementById('meter-hero-name').textContent=t.house_name;
   loadLastMeterReading(id);
 }
 
-async function loadLastMeterReading(tenantId) {
-  try {
-    const { data } = await db
-      .from('meter_readings')
-      .select('reading_value, captured_at')
-      .eq('tenant_id', tenantId)
-      .order('captured_at', { ascending: false })
-      .limit(1);
-
-    if (data && data.length > 0) {
-      const mr = data[0];
-      meterPrevReading = parseFloat(mr.reading_value) || 0;
-      const capDate = new Date(mr.captured_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
-      document.getElementById('meter-hero-sub').textContent     = `Last reading: ${mr.reading_value} units`;
-      document.getElementById('meter-hero-last-date').textContent = capDate;
-    } else {
-      // Fall back to initial_water_reading
-      const t = tenants.find(x => String(x.id) === String(tenantId));
-      meterPrevReading = parseFloat(t?.initial_water_reading) || 0;
-      document.getElementById('meter-hero-sub').textContent     = `Last reading: ${meterPrevReading} units (initial)`;
-      document.getElementById('meter-hero-last-date').textContent = 'No capture yet';
-    }
-    document.getElementById('rcb-prev-text').textContent = `Previous: ${meterPrevReading} units`;
-  } catch (e) {
-    // meter_readings table may not exist yet
-    document.getElementById('meter-hero-sub').textContent = 'No previous capture';
-  }
-}
-
-async function startCamera() {
-  if (!meterSelectedTenant) { toast('Select a unit first', 'error'); return; }
-
-  try {
-    camStream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1080 } },
-      audio: false
-    });
-    const video = document.getElementById('cam-video');
-    video.srcObject = camStream;
-    video.style.display = 'block';
-    document.getElementById('cam-placeholder').style.display  = 'none';
-    document.getElementById('cam-snapshot').style.display     = 'none';
-    document.getElementById('cam-live-badge').classList.add('live');
-    document.getElementById('cam-snapped-badge').classList.remove('show');
-    document.getElementById('cam-controls').style.display     = 'flex';
-    document.getElementById('start-cam-wrap').style.display   = 'none';
-    document.getElementById('retake-controls').style.display  = 'none';
-    document.getElementById('reading-confirm-box').classList.remove('show');
-    document.getElementById('meter-save-wrap').style.display  = 'none';
-  } catch (err) {
-    toast('Camera access denied: ' + err.message, 'error');
-    console.error('Camera error:', err);
-  }
-}
-
-function stopCamera() {
-  if (camStream) {
-    camStream.getTracks().forEach(track => track.stop());
-    camStream = null;
-  }
-  const video = document.getElementById('cam-video');
-  if (video) { video.srcObject = null; video.style.display = 'none'; }
-  document.getElementById('cam-live-badge')?.classList.remove('live');
-  document.getElementById('cam-controls').style.display    = 'none';
-  document.getElementById('start-cam-wrap').style.display  = 'block';
-  if (meterSelectedTenant) {
-    document.getElementById('btn-start-cam').disabled = false;
-  }
-}
-
-function snapPhoto() {
-  const video = document.getElementById('cam-video');
-  if (!video || !camStream) { toast('Camera not active', 'error'); return; }
-
-  const canvas = document.createElement('canvas');
-  canvas.width  = video.videoWidth  || 1280;
-  canvas.height = video.videoHeight || 720;
-  canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
-
-  // Convert to blob
-  canvas.toBlob(blob => {
-    meterSnapshotBlob = blob;
-
-    // Show snapshot image
-    const snapImg = document.getElementById('cam-snapshot');
-    snapImg.src             = URL.createObjectURL(blob);
-    snapImg.style.display   = 'block';
-    video.style.display     = 'none';
-
-    document.getElementById('cam-snapped-badge').classList.add('show');
-    document.getElementById('cam-live-badge').classList.remove('live');
-    document.getElementById('cam-controls').style.display   = 'none';
-    document.getElementById('retake-controls').style.display = 'flex';
-    document.getElementById('start-cam-wrap').style.display  = 'none';
-
-    // Show reading input
-    document.getElementById('reading-confirm-box').classList.add('show');
-    setTimeout(() => document.getElementById('meter-reading-input').focus(), 300);
-
-    stopCamera();
-  }, 'image/jpeg', 0.92);
-}
-
-function retakePhoto() {
-  meterSnapshotBlob = null;
-  document.getElementById('cam-snapshot').style.display     = 'none';
-  document.getElementById('cam-snapped-badge').classList.remove('show');
-  document.getElementById('retake-controls').style.display  = 'none';
+function resetMeterCapUI(){
+  document.getElementById('cam-snapshot').style.display='none';
+  document.getElementById('cam-video').style.display='none';
+  document.getElementById('cam-placeholder').style.display='flex';
+  document.getElementById('cam-live-badge').className='cam-badge';
+  document.getElementById('cam-snapped-badge').className='cam-badge';
   document.getElementById('reading-confirm-box').classList.remove('show');
-  document.getElementById('meter-save-wrap').style.display  = 'none';
-  document.getElementById('start-cam-wrap').style.display   = 'block';
-  document.getElementById('btn-start-cam').disabled         = false;
-  document.getElementById('cam-placeholder').style.display  = 'block';
+  document.getElementById('meter-save-wrap').style.display='none';
+  document.getElementById('cam-controls').style.display='none';
+  document.getElementById('meter-photo-actions').classList.remove('show');
+  document.getElementById('start-cam-wrap').style.display='block';
+  document.getElementById('meter-reading-input').value='';
+  document.getElementById('rcb-diff-text').textContent='';
+}
+
+async function loadLastMeterReading(tenantId){
+  try{
+    const {data}=await db.from('meter_readings').select('id,reading_value,captured_at')
+      .eq('tenant_id',tenantId).order('captured_at',{ascending:false}).limit(1);
+    if(data&&data.length>0){
+      const mr=data[0];
+      _currentMeterRecordId=mr.id;
+      meterPrevReading=parseFloat(mr.reading_value)||0;
+      const capDate=new Date(mr.captured_at).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+      document.getElementById('meter-hero-sub').textContent=`Last reading: ${mr.reading_value} units`;
+      document.getElementById('meter-hero-last-date').textContent=capDate;
+    } else {
+      const t=tenants.find(x=>String(x.id)===String(tenantId));
+      meterPrevReading=parseFloat(t?.initial_water_reading)||0;
+      _currentMeterRecordId=null;
+      document.getElementById('meter-hero-sub').textContent=`Last reading: ${meterPrevReading} units (initial)`;
+      document.getElementById('meter-hero-last-date').textContent='No capture yet';
+    }
+    document.getElementById('rcb-prev-text').textContent=`Previous: ${meterPrevReading} units`;
+  } catch(_){
+    document.getElementById('meter-hero-sub').textContent='No previous capture';
+  }
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  METER — CAMERA
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+async function startCamera(){
+  if(!meterSelectedTenant){toast('Select a unit first','error');return;}
+  try{
+    camStream=await navigator.mediaDevices.getUserMedia({
+      video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080}},audio:false});
+    const vid=document.getElementById('cam-video');
+    vid.srcObject=camStream; vid.style.display='block';
+    document.getElementById('cam-placeholder').style.display='none';
+    document.getElementById('cam-snapshot').style.display='none';
+    document.getElementById('cam-live-badge').className='cam-badge live';
+    document.getElementById('cam-snapped-badge').className='cam-badge';
+    document.getElementById('cam-controls').style.display='flex';
+    document.getElementById('start-cam-wrap').style.display='none';
+    document.getElementById('meter-photo-actions').classList.remove('show');
+    document.getElementById('reading-confirm-box').classList.remove('show');
+    document.getElementById('meter-save-wrap').style.display='none';
+  } catch(err){
+    toast('Camera access denied: '+err.message,'error');
+  }
+}
+
+function stopCamera(){
+  if(camStream){ camStream.getTracks().forEach(t=>t.stop()); camStream=null; }
+  const vid=document.getElementById('cam-video');
+  if(vid){ vid.srcObject=null; vid.style.display='none'; }
+  document.getElementById('cam-live-badge')?.classList.remove('live');
+  document.getElementById('cam-controls').style.display='none';
+  if(meterSelectedTenant) document.getElementById('btn-start-cam').disabled=false;
+}
+
+function snapPhoto(){
+  const vid=document.getElementById('cam-video');
+  if(!vid||!camStream){toast('Camera not active','error');return;}
+  const canvas=document.createElement('canvas');
+  canvas.width=vid.videoWidth||1280; canvas.height=vid.videoHeight||720;
+  canvas.getContext('2d').drawImage(vid,0,0,canvas.width,canvas.height);
+  canvas.toBlob(blob=>{
+    meterSnapshotBlob=blob;
+    const snap=document.getElementById('cam-snapshot');
+    // *** FIX: revoke any old object URL before creating new one ***
+    if(snap._objUrl) URL.revokeObjectURL(snap._objUrl);
+    snap._objUrl=URL.createObjectURL(blob);
+    snap.src=snap._objUrl;
+    snap.style.display='block';
+    document.getElementById('cam-video').style.display='none';
+    document.getElementById('cam-live-badge').className='cam-badge';
+    document.getElementById('cam-snapped-badge').className='cam-badge snapped';
+    document.getElementById('cam-controls').style.display='none';
+    // Show the Recapture + Change Photo buttons
+    document.getElementById('meter-photo-actions').classList.add('show');
+    document.getElementById('start-cam-wrap').style.display='none';
+    document.getElementById('reading-confirm-box').classList.add('show');
+    setTimeout(()=>document.getElementById('meter-reading-input').focus(),300);
+    stopCamera();
+  },'image/jpeg',0.92);
+}
+
+// ── Recapture (camera again) ──
+function retakePhoto(){
+  meterSnapshotBlob=null;
+  const snap=document.getElementById('cam-snapshot');
+  if(snap._objUrl){ URL.revokeObjectURL(snap._objUrl); snap._objUrl=null; }
+  snap.style.display='none';
+  document.getElementById('cam-snapped-badge').className='cam-badge';
+  document.getElementById('meter-photo-actions').classList.remove('show');
+  document.getElementById('reading-confirm-box').classList.remove('show');
+  document.getElementById('meter-save-wrap').style.display='none';
+  document.getElementById('cam-placeholder').style.display='block';
+  document.getElementById('start-cam-wrap').style.display='block';
+  document.getElementById('btn-start-cam').disabled=false;
   startCamera();
 }
 
-function onMeterReadingInput() {
-  const val  = parseFloat(document.getElementById('meter-reading-input').value);
-  const diff = document.getElementById('rcb-diff-text');
-  const saveWrap = document.getElementById('meter-save-wrap');
-
-  if (!isNaN(val) && meterSnapshotBlob) {
-    saveWrap.style.display = 'block';
-    if (val > meterPrevReading) {
-      const u = val - meterPrevReading;
-      diff.textContent = `▲ ${u} units used since last capture`;
-      diff.style.color = 'var(--green)';
-    } else if (val === meterPrevReading) {
-      diff.textContent = 'Same as previous reading';
-      diff.style.color = 'var(--amber)';
-    } else {
-      diff.textContent = '⚠ Reading is lower than previous!';
-      diff.style.color = 'var(--red)';
-    }
-  } else {
-    saveWrap.style.display = 'none';
-    diff.textContent = '';
-  }
+// ── Change Photo (from gallery) ──
+function openGallery(){
+  document.getElementById('gallery-file-input').click();
 }
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  METER CAPTURE — SAVE
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-async function saveMeterReading() {
-  if (!meterSelectedTenant) { toast('No unit selected', 'error'); return; }
-  if (!meterSnapshotBlob)   { toast('No photo captured', 'error'); return; }
+function onGalleryFileSelected(event){
+  const file=event.target.files?.[0]; if(!file) return;
+  meterSnapshotBlob=file;
+  const snap=document.getElementById('cam-snapshot');
+  if(snap._objUrl) URL.revokeObjectURL(snap._objUrl);
+  snap._objUrl=URL.createObjectURL(file);
+  snap.src=snap._objUrl;
+  snap.style.display='block';
+  document.getElementById('cam-placeholder').style.display='none';
+  document.getElementById('cam-snapped-badge').className='cam-badge snapped';
+  document.getElementById('meter-photo-actions').classList.add('show');
+  document.getElementById('reading-confirm-box').classList.add('show');
+  document.getElementById('meter-save-wrap').style.display='none';
+  event.target.value='';
+  setTimeout(()=>document.getElementById('meter-reading-input').focus(),300);
+}
 
-  const readingVal = parseFloat(document.getElementById('meter-reading-input').value);
-  if (isNaN(readingVal)) { toast('Enter the meter reading', 'error'); return; }
+function onMeterReadingInput(){
+  const val=parseFloat(document.getElementById('meter-reading-input').value);
+  const diff=document.getElementById('rcb-diff-text');
+  const saveWrap=document.getElementById('meter-save-wrap');
+  if(!isNaN(val)&&meterSnapshotBlob){
+    saveWrap.style.display='block';
+    if(val>meterPrevReading){diff.textContent=`▲ ${val-meterPrevReading} units used`;diff.style.color='var(--green)';}
+    else if(val===meterPrevReading){diff.textContent='Same as previous';diff.style.color='var(--amber)';}
+    else{diff.textContent='⚠ Reading lower than previous!';diff.style.color='var(--red)';}
+  } else { saveWrap.style.display='none'; diff.textContent=''; }
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  METER — SAVE (with cache-bust fix on upload URL)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+async function saveMeterReading(){
+  if(!meterSelectedTenant){toast('No unit selected','error');return;}
+  if(!meterSnapshotBlob){toast('No photo captured','error');return;}
+  const readingVal=parseFloat(document.getElementById('meter-reading-input').value);
+  if(isNaN(readingVal)){toast('Enter the meter reading','error');return;}
 
   showLoading('UPLOADING PHOTO…');
+  try{
+    const tenantId=String(meterSelectedTenant.id);
+    const now=new Date();
+    // *** FIX: use timestamp in filename → guarantees a fresh URL every capture ***
+    const newPath=`${tenantId}/${now.getTime()}.jpg`;
 
-  try {
-    const tenantId = String(meterSelectedTenant.id);
-    const now      = new Date();
-    const ym       = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
-    const newPath  = `${tenantId}/${ym}.jpg`;
-
-    // ── 1. Find & delete previous photo from storage ──
-    let existingPhotoPath = null;
-    try {
-      const { data: existing } = await db
-        .from('meter_readings')
-        .select('id, photo_path')
-        .eq('tenant_id', tenantId)
-        .order('captured_at', { ascending: false })
-        .limit(1);
-
-      if (existing && existing.length > 0 && existing[0].photo_path) {
-        existingPhotoPath = existing[0].photo_path;
-        // Delete old photo from storage
-        await db.storage.from(METER_BUCKET).remove([existingPhotoPath]);
-        // Delete old DB record
-        await db.from('meter_readings').delete().eq('id', existing[0].id);
+    // 1. Delete old photo from storage (if any)
+    try{
+      const {data:existing}=await db.from('meter_readings').select('id,photo_path')
+        .eq('tenant_id',tenantId).order('captured_at',{ascending:false}).limit(1);
+      if(existing?.[0]?.photo_path){
+        await db.storage.from(METER_BUCKET).remove([existing[0].photo_path]);
+        await db.from('meter_readings').delete().eq('id',existing[0].id);
       }
-    } catch (e) {
-      console.warn('Could not remove old reading (table may not exist yet):', e);
+    } catch(e){ console.warn('Remove old reading:',e); }
+
+    // 2. Upload new photo
+    let photoUrl=null;
+    const {error:upErr}=await db.storage.from(METER_BUCKET).upload(newPath,meterSnapshotBlob,
+      {contentType:'image/jpeg',upsert:true});
+    if(upErr){ console.warn('Upload failed:',upErr.message); }
+    else{
+      const {data:urlData}=db.storage.from(METER_BUCKET).getPublicUrl(newPath);
+      // *** FIX: getPublicUrl gives a stable CDN URL — the timestamp in the path is the cache-buster ***
+      photoUrl=urlData?.publicUrl||null;
     }
 
-    // ── 2. Upload new photo ──
-    let photoUrl = null;
-    try {
-      const { data: uploadData, error: uploadError } = await db.storage
-        .from(METER_BUCKET)
-        .upload(newPath, meterSnapshotBlob, {
-          contentType: 'image/jpeg',
-          upsert: true   // overwrite if same path exists (same month re-capture)
-        });
-
-      if (uploadError) throw uploadError;
-
-      const { data: urlData } = db.storage.from(METER_BUCKET).getPublicUrl(newPath);
-      photoUrl = urlData?.publicUrl || null;
-    } catch (e) {
-      console.warn('Storage upload failed (bucket may not exist):', e.message);
-      toast('Photo upload failed — saving reading only. See setup notes.', 'error');
-    }
-
-    // ── 3. Save reading to DB ──
-    const record = {
-      tenant_id:     tenantId,
-      reading_value: readingVal,
-      photo_url:     photoUrl,
-      photo_path:    newPath,
-      captured_at:   now.toISOString()
-    };
-
-    const { error: dbError } = await db.from('meter_readings').insert(record);
-    if (dbError) throw dbError;
+    // 3. Save reading to DB
+    const {error:dbErr}=await db.from('meter_readings').insert({
+      tenant_id:tenantId,reading_value:readingVal,
+      photo_url:photoUrl,photo_path:newPath,captured_at:now.toISOString()
+    });
+    if(dbErr) throw dbErr;
 
     hideLoading();
     toast(`Reading ${readingVal} units saved for ${meterSelectedTenant.house_name}!`);
 
-    // Reset UI
-    meterSnapshotBlob = null;
-    document.getElementById('meter-reading-input').value         = '';
-    document.getElementById('reading-confirm-box').classList.remove('show');
-    document.getElementById('meter-save-wrap').style.display     = 'none';
-    document.getElementById('retake-controls').style.display     = 'none';
-    document.getElementById('cam-snapshot').style.display        = 'none';
-    document.getElementById('cam-snapped-badge').classList.remove('show');
-    document.getElementById('cam-placeholder').style.display     = 'block';
-    document.getElementById('start-cam-wrap').style.display      = 'block';
-    document.getElementById('btn-start-cam').disabled            = false;
-    document.getElementById('rcb-diff-text').textContent         = '';
-
-    // Refresh hero + history
+    meterSnapshotBlob=null;
+    const snap=document.getElementById('cam-snapshot');
+    if(snap._objUrl){URL.revokeObjectURL(snap._objUrl);snap._objUrl=null;}
+    resetMeterCapUI();
     await loadLastMeterReading(tenantId);
     await loadMeterHistory();
 
-  } catch (err) {
+  } catch(err){
     hideLoading();
-    toast('Save failed: ' + err.message, 'error');
-    console.error('saveMeterReading error:', err);
+    toast('Save failed: '+err.message,'error');
+    console.error('saveMeterReading:',err);
   }
 }
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  METER HISTORY
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-async function loadMeterHistory() {
-  const el = document.getElementById('meter-history');
-  if (!el) return;
-  el.innerHTML = '<div class="empty"><div class="spinner" style="margin:0 auto 12px;"></div></div>';
-
-  try {
-    const { data, error } = await db
-      .from('meter_readings')
-      .select('*, tenants(house_name)')
-      .order('captured_at', { ascending: false })
-      .limit(20);
-
-    if (error) throw error;
-    if (!data || !data.length) {
-      el.innerHTML = '<div class="empty"><div class="empty-icon">📷</div>No meter captures yet.<br>Select a unit &amp; snap the meter above.</div>';
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  METER — HISTORY (cache-bust on displayed images)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+async function loadMeterHistory(){
+  const el=document.getElementById('meter-history'); if(!el) return;
+  el.innerHTML='<div class="empty"><div class="spinner" style="margin:0 auto 12px;"></div></div>';
+  try{
+    const {data,error}=await db.from('meter_readings').select('*,tenants(house_name)')
+      .order('captured_at',{ascending:false}).limit(20);
+    if(error) throw error;
+    if(!data?.length){
+      el.innerHTML='<div class="empty"><div class="empty-icon">📷</div>No meter captures yet.<br>Select a unit &amp; snap the meter above.</div>';
       return;
     }
-
-    el.innerHTML = data.map(mr => {
-      const t        = mr.tenants;
-      const capDate  = new Date(mr.captured_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
-      const capTime  = new Date(mr.captured_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
-      const imgPart  = mr.photo_url
-        ? `<img class="meter-hist-img" src="${mr.photo_url}" alt="Meter" onclick="openPhotoFull('${mr.photo_url}')" style="cursor:zoom-in;"/>`
-        : `<div class="meter-hist-img-placeholder">📷</div>`;
-
+    el.innerHTML=data.map(mr=>{
+      const capDate=new Date(mr.captured_at).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+      const capTime=new Date(mr.captured_at).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+      // *** FIX: always add cache-buster timestamp to photo URL ***
+      const displayUrl=mr.photo_url?mr.photo_url+'?t='+new Date(mr.captured_at).getTime():null;
+      const imgPart=displayUrl
+        ?`<img class="meter-hist-img" src="${displayUrl}" alt="Meter" onclick="openPhotoFull('${displayUrl}')"/>`
+        :`<div class="meter-hist-img-ph">📷</div>`;
       return `<div class="meter-hist-card">
         <div class="meter-hist-top">
           ${imgPart}
           <div class="meter-hist-body">
-            <div class="meter-hist-unit">${t?.house_name || '—'}</div>
+            <div class="meter-hist-unit">${mr.tenants?.house_name||'—'}</div>
             <div class="meter-hist-reading">${mr.reading_value} <span style="font-size:11px;color:var(--text3);">units</span></div>
             <div class="meter-hist-meta">${capDate} · ${capTime}</div>
             <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;">
-              <button class="btn btn-ghost btn-sm" onclick="useMeterReadingInBill('${mr.tenant_id}','${mr.reading_value}')">Use in New Bill</button>
-              <button class="btn btn-danger btn-sm" onclick="deleteMeterReading('${mr.id}','${mr.photo_path || ''}')">Delete</button>
+              <button class="btn btn-ghost btn-sm" onclick="useMeterReadingInBill('${mr.tenant_id}','${mr.reading_value}')">Use in Bill</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteMeterReading('${mr.id}','${mr.photo_path||''}')">Delete</button>
             </div>
           </div>
         </div>
       </div>`;
     }).join('');
-
-  } catch (e) {
-    if (e.message?.includes('meter_readings') || e.code === '42P01') {
-      el.innerHTML = `<div class="empty" style="color:var(--amber);">
+  } catch(e){
+    if(e.message?.includes('meter_readings')||e.code==='42P01'){
+      el.innerHTML=`<div class="empty" style="color:var(--amber);">
         <div class="empty-icon">⚠</div>
         Table not created yet.<br>
-        <span style="color:var(--text3);">See setup instructions below.</span>
+        <span style="color:var(--text3);font-size:10px;">Run the SQL in setup instructions.</span>
       </div>`;
-    } else {
-      el.innerHTML = `<div class="empty">Error: ${e.message}</div>`;
-    }
+    } else { el.innerHTML=`<div class="empty">Error: ${e.message}</div>`; }
   }
 }
 
-function openPhotoFull(url) {
-  document.getElementById('photo-full-img').src = url;
+function openPhotoFull(url){
+  document.getElementById('photo-full-img').src=url;
   document.getElementById('photo-full-overlay').classList.add('open');
 }
-function closePhotoFull() {
-  document.getElementById('photo-full-overlay').classList.remove('open');
-}
+function closePhotoFull(){ document.getElementById('photo-full-overlay').classList.remove('open'); }
 
-// Shortcut: tap "Use in New Bill" from meter history
-function useMeterReadingInBill(tenantId, readingValue) {
-  showView('new-bill');
-  clearBillForm();
-  setTimeout(() => {
-    document.getElementById('bill-tenant').value = tenantId;
-    onTenantSelect().then(() => {
-      document.getElementById('bill-water-new').value = readingValue;
+function useMeterReadingInBill(tenantId,readingValue){
+  showView('new-bill'); clearBillForm();
+  setTimeout(()=>{
+    document.getElementById('bill-tenant').value=tenantId;
+    onTenantSelect().then(()=>{
+      document.getElementById('bill-water-new').value=readingValue;
       recalculate();
     });
-  }, 100);
+  },100);
 }
 
-async function deleteMeterReading(id, photoPath) {
-  if (!confirm('Delete this meter capture?')) return;
+async function deleteMeterReading(id,photoPath){
+  if(!confirm('Delete this meter capture?')) return;
   showLoading('DELETING');
-  if (photoPath) {
-    await db.storage.from(METER_BUCKET).remove([photoPath]).catch(e => console.warn('Storage delete:', e));
-  }
-  const { error } = await db.from('meter_readings').delete().eq('id', id);
+  if(photoPath) await db.storage.from(METER_BUCKET).remove([photoPath]).catch(e=>console.warn(e));
+  const {error}=await db.from('meter_readings').delete().eq('id',id);
   hideLoading();
-  if (error) { toast('Delete failed: ' + error.message, 'error'); return; }
-  toast('Capture deleted.');
-  loadMeterHistory();
+  if(error){toast('Delete failed: '+error.message,'error');return;}
+  toast('Capture deleted.'); loadMeterHistory();
 }
 </script>
 </body>
