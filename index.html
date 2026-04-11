@@ -537,21 +537,41 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
       </div>
     </div>
 
-    <!-- ── QR CODE SECTION ── -->
+    <!-- ── PAYMENT SETTINGS SECTION ── -->
     <div class="card">
       <div class="card-header"><span class="card-title">Payment QR Code (UPI)</span></div>
       <div class="card-body">
+        <!-- QR Code -->
+        <div style="font-family:var(--font-mono);font-size:9px;letter-spacing:1.5px;color:var(--text3);text-transform:uppercase;margin-bottom:8px;">PhonePe / UPI QR Code</div>
         <div class="qr-preview-wrap">
           <div id="qr-empty-ph" class="qr-empty-placeholder">🔲</div>
           <img id="qr-preview-img" class="qr-preview-img" style="display:none;" alt="Payment QR"/>
           <div style="font-family:var(--font-mono);font-size:10px;color:var(--text3);letter-spacing:.5px;" id="qr-status-text">No QR uploaded yet</div>
         </div>
-        <div class="btn-row">
+        <div class="btn-row" style="margin-bottom:20px;">
           <button class="btn btn-amber" onclick="document.getElementById('qr-file-input').click()">⬆ Upload QR Image</button>
           <button class="btn btn-danger" id="qr-remove-btn" onclick="removeQrCode()" style="display:none;">✕ Remove</button>
         </div>
-        <div style="font-family:var(--font-mono);font-size:9px;color:var(--text3);margin-top:8px;text-align:center;letter-spacing:.5px;">QR code appears at bottom of every shared receipt</div>
         <input type="file" id="qr-file-input" accept="image/*" onchange="uploadQrCode(event)" style="display:none;"/>
+
+        <!-- Divider -->
+        <div style="border-top:1px solid var(--border);margin-bottom:20px;"></div>
+
+        <!-- UPI Logos image -->
+        <div style="font-family:var(--font-mono);font-size:9px;letter-spacing:1.5px;color:var(--text3);text-transform:uppercase;margin-bottom:8px;">UPI App Logos Strip (optional)</div>
+        <div class="qr-preview-wrap" id="logos-preview-wrap">
+          <div id="logos-empty-ph" class="qr-empty-placeholder" style="width:180px;height:44px;border-radius:4px;">—</div>
+          <img id="logos-preview-img" class="qr-preview-img" style="display:none;max-height:60px;width:auto;max-width:220px;" alt="UPI Logos"/>
+          <div style="font-family:var(--font-mono);font-size:10px;color:var(--text3);letter-spacing:.5px;" id="logos-status-text">No logos image uploaded</div>
+        </div>
+        <div style="font-family:var(--font-mono);font-size:9px;color:var(--text3);margin-bottom:8px;text-align:center;">Upload a screenshot of the UPI logos strip</div>
+        <div class="btn-row">
+          <button class="btn btn-ghost" onclick="document.getElementById('logos-file-input').click()">⬆ Upload Logos Image</button>
+          <button class="btn btn-danger" id="logos-remove-btn" onclick="removeLogosImage()" style="display:none;">✕ Remove</button>
+        </div>
+        <input type="file" id="logos-file-input" accept="image/*" onchange="uploadLogosImage(event)" style="display:none;"/>
+
+        <div style="font-family:var(--font-mono);font-size:9px;color:var(--text3);margin-top:12px;text-align:center;letter-spacing:.5px;">Both appear at the bottom of every shared receipt</div>
       </div>
     </div>
 
@@ -667,8 +687,10 @@ let waterManuallyEdited  = false;
 let _prevReading         = 0;
 let _prevReadingLabel    = '—';
 let localCaps            = {};
-let qrCodeUrl            = null; // loaded from DB / localStorage
-let upiLogosUrl          = null; // Google Drive logos image URL
+let qrCodeUrl            = null; // Supabase storage URL
+let upiLogosUrl          = null; // Supabase storage URL
+let qrCodeBase64         = null; // pre-fetched base64 — used in receipt (no CORS issues)
+let upiLogosBase64       = null; // pre-fetched base64 — used in receipt
 
 // Meter state
 let camStream            = null;
@@ -765,49 +787,90 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  QR CODE – UPLOAD, LOAD, REMOVE
+//  IMAGE → BASE64 (pre-fetches so html2canvas works without CORS issues)
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-async function loadQrCode() {
-  // Immediate fallback from localStorage
-  qrCodeUrl = localStorage.getItem('rentmgr_qr_url') || null;
-  updateQrPreviewUI();
-
-  // Try fetching from Supabase app_settings table
-  try {
-    const { data } = await db.from('app_settings').select('value').eq('key','payment_qr_url').single();
-    if (data?.value) { qrCodeUrl = data.value; localStorage.setItem('rentmgr_qr_url', qrCodeUrl); updateQrPreviewUI(); }
-  } catch(_) { /* table may not exist yet — localStorage is the fallback */ }
-
-  // Fetch UPI logos image URL (uploaded to Google Drive, stored in app_settings)
-  upiLogosUrl = localStorage.getItem('rentmgr_logos_url') || null;
-  try {
-    const { data: logoRow } = await db.from('app_settings').select('value').eq('key','upi_logos_url').single();
-    if (logoRow?.value) { upiLogosUrl = logoRow.value; localStorage.setItem('rentmgr_logos_url', upiLogosUrl); }
-  } catch(_) {}
+function imageUrlToBase64(url) {
+  return new Promise((resolve) => {
+    if (!url) { resolve(null); return; }
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.naturalWidth; canvas.height = img.naturalHeight;
+        canvas.getContext('2d').drawImage(img, 0, 0);
+        resolve(canvas.toDataURL('image/png'));
+      } catch { resolve(null); }
+    };
+    img.onerror = () => resolve(null);
+    img.src = url + '?t=' + Date.now();
+  });
 }
 
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  QR CODE + LOGOS – LOAD, UPLOAD, REMOVE
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+async function loadQrCode() {
+  // Load from localStorage immediately (fast)
+  qrCodeUrl   = localStorage.getItem('rentmgr_qr_url')    || null;
+  upiLogosUrl = localStorage.getItem('rentmgr_logos_url') || null;
+  updateQrPreviewUI();
+  updateLogosPreviewUI();
+
+  // Then try Supabase for latest values
+  try {
+    const { data: qrRow } = await db.from('app_settings').select('value').eq('key','payment_qr_url').single();
+    if (qrRow?.value) { qrCodeUrl = qrRow.value; localStorage.setItem('rentmgr_qr_url', qrCodeUrl); updateQrPreviewUI(); }
+  } catch(_) {}
+
+  try {
+    const { data: logoRow } = await db.from('app_settings').select('value').eq('key','upi_logos_url').single();
+    if (logoRow?.value) { upiLogosUrl = logoRow.value; localStorage.setItem('rentmgr_logos_url', upiLogosUrl); updateLogosPreviewUI(); }
+  } catch(_) {}
+
+  // Pre-fetch both as base64 so html2canvas can render without CORS
+  [qrCodeBase64, upiLogosBase64] = await Promise.all([
+    imageUrlToBase64(qrCodeUrl),
+    imageUrlToBase64(upiLogosUrl)
+  ]);
+}
+
+// ── QR preview UI ──
 function updateQrPreviewUI() {
   const img   = document.getElementById('qr-preview-img');
   const ph    = document.getElementById('qr-empty-ph');
   const txt   = document.getElementById('qr-status-text');
   const rmBtn = document.getElementById('qr-remove-btn');
   if (qrCodeUrl) {
-    img.src = qrCodeUrl + '?t=' + Date.now(); // cache-bust
-    img.style.display = 'block';
-    ph.style.display  = 'none';
-    txt.textContent   = 'QR code uploaded ✓';
-    rmBtn.style.display = 'flex';
+    img.src = qrCodeUrl + '?t=' + Date.now();
+    img.style.display = 'block'; ph.style.display = 'none';
+    txt.textContent = 'QR code uploaded ✓'; rmBtn.style.display = 'flex';
   } else {
-    img.style.display = 'none';
-    ph.style.display  = 'flex';
-    txt.textContent   = 'No QR uploaded yet';
-    rmBtn.style.display = 'none';
+    img.style.display = 'none'; ph.style.display = 'flex';
+    txt.textContent = 'No QR uploaded yet'; rmBtn.style.display = 'none';
   }
 }
 
+// ── Logos preview UI ──
+function updateLogosPreviewUI() {
+  const img   = document.getElementById('logos-preview-img');
+  const ph    = document.getElementById('logos-empty-ph');
+  const txt   = document.getElementById('logos-status-text');
+  const rmBtn = document.getElementById('logos-remove-btn');
+  if (!img) return;
+  if (upiLogosUrl) {
+    img.src = upiLogosUrl + '?t=' + Date.now();
+    img.style.display = 'block'; ph.style.display = 'none';
+    txt.textContent = 'Logos image uploaded ✓'; rmBtn.style.display = 'flex';
+  } else {
+    img.style.display = 'none'; ph.style.display = 'flex';
+    txt.textContent = 'No logos image uploaded'; rmBtn.style.display = 'none';
+  }
+}
+
+// ── Upload QR ──
 async function uploadQrCode(event) {
-  const file = event.target.files?.[0];
-  if (!file) return;
+  const file = event.target.files?.[0]; if (!file) return;
   showLoading('UPLOADING QR…');
   try {
     const path = `qr/payment-qr-${Date.now()}.png`;
@@ -820,20 +883,49 @@ async function uploadQrCode(event) {
       try { await db.from('app_settings').upsert({ key:'payment_qr_url', value: qrCodeUrl }); } catch(_) {}
     }
     updateQrPreviewUI();
+    qrCodeBase64 = await imageUrlToBase64(qrCodeUrl);
     toast('QR code uploaded!');
-  } catch(e) {
-    toast('Upload failed: '+e.message, 'error');
-    console.error('QR upload:', e);
-  } finally { hideLoading(); event.target.value = ''; }
+  } catch(e) { toast('Upload failed: '+e.message, 'error'); }
+  finally { hideLoading(); event.target.value = ''; }
 }
 
+// ── Upload Logos ──
+async function uploadLogosImage(event) {
+  const file = event.target.files?.[0]; if (!file) return;
+  showLoading('UPLOADING LOGOS…');
+  try {
+    const path = `qr/upi-logos-${Date.now()}.png`;
+    const { error: upErr } = await db.storage.from(QR_BUCKET).upload(path, file, { contentType: file.type, upsert: true });
+    if (upErr) throw upErr;
+    const { data: urlData } = db.storage.from(QR_BUCKET).getPublicUrl(path);
+    upiLogosUrl = urlData?.publicUrl || null;
+    if (upiLogosUrl) {
+      localStorage.setItem('rentmgr_logos_url', upiLogosUrl);
+      try { await db.from('app_settings').upsert({ key:'upi_logos_url', value: upiLogosUrl }); } catch(_) {}
+    }
+    updateLogosPreviewUI();
+    upiLogosBase64 = await imageUrlToBase64(upiLogosUrl);
+    toast('Logos image uploaded!');
+  } catch(e) { toast('Upload failed: '+e.message, 'error'); }
+  finally { hideLoading(); event.target.value = ''; }
+}
+
+// ── Remove QR ──
 async function removeQrCode() {
   if (!confirm('Remove the QR code from receipts?')) return;
-  qrCodeUrl = null;
+  qrCodeUrl = null; qrCodeBase64 = null;
   localStorage.removeItem('rentmgr_qr_url');
   try { await db.from('app_settings').delete().eq('key','payment_qr_url'); } catch(_) {}
-  updateQrPreviewUI();
-  toast('QR code removed.');
+  updateQrPreviewUI(); toast('QR code removed.');
+}
+
+// ── Remove Logos ──
+async function removeLogosImage() {
+  if (!confirm('Remove the UPI logos image?')) return;
+  upiLogosUrl = null; upiLogosBase64 = null;
+  localStorage.removeItem('rentmgr_logos_url');
+  try { await db.from('app_settings').delete().eq('key','upi_logos_url'); } catch(_) {}
+  updateLogosPreviewUI(); toast('Logos image removed.');
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1347,18 +1439,19 @@ function buildMinimalReceiptHTML(d){
   const dateStr    = new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
 
   const miscRow = d.miscAmount && parseFloat(d.miscAmount) > 0
-    ? `<tr><td style="padding:9px 0;font-size:13px;color:#555;font-weight:500;">${d.miscLabel||'Misc'}</td><td style="padding:9px 0;font-size:13px;text-align:right;font-family:'IBM Plex Mono',monospace;font-weight:600;color:#111;">₹ ${fmt(d.miscAmount)}</td></tr>` : '';
+    ? `<tr><td style="padding:9px 0;font-size:13px;color:#555;font-weight:500;">${d.miscLabel||'Misc'}</td><td style="padding:9px 0;font-size:13px;text-align:right;font-family:'IBM Plex Mono',monospace;font-weight:600;color:#111;">&#8377; ${fmt(d.miscAmount)}</td></tr>` : '';
   const prevRow = parseFloat(d.prevBal) > 0
-    ? `<tr><td style="padding:9px 0;font-size:13px;color:#555;font-weight:500;">Previous Balance</td><td style="padding:9px 0;font-size:13px;text-align:right;font-family:'IBM Plex Mono',monospace;font-weight:600;color:#111;">₹ ${fmt(d.prevBal)}</td></tr>` : '';
+    ? `<tr><td style="padding:9px 0;font-size:13px;color:#555;font-weight:500;">Previous Balance</td><td style="padding:9px 0;font-size:13px;text-align:right;font-family:'IBM Plex Mono',monospace;font-weight:600;color:#111;">&#8377; ${fmt(d.prevBal)}</td></tr>` : '';
 
-  // QR + logos image from Google Drive link stored in app_settings
-  const qrSection = qrCodeUrl ? `
+  // Use pre-fetched base64 so html2canvas renders without any CORS issue
+  const qrImgSrc    = qrCodeBase64   || null;
+  const logoImgSrc  = upiLogosBase64 || null;
+
+  const qrSection = qrImgSrc ? `
     <div style="border-top:1px solid #efefef;padding:20px 24px 18px;text-align:center;">
       <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:2px;color:#bbb;text-transform:uppercase;margin-bottom:14px;">Scan to Pay</div>
-      <img src="${qrCodeUrl}?t=${Date.now()}"
-           crossorigin="anonymous"
-           style="width:170px;height:170px;object-fit:contain;display:block;margin:0 auto 16px;"/>
-      ${upiLogosUrl ? `<img src="${upiLogosUrl}?t=${Date.now()}" crossorigin="anonymous" style="max-width:210px;width:100%;height:auto;display:block;margin:0 auto 14px;opacity:.7;"/>` : ''}
+      <img src="${qrImgSrc}" style="width:170px;height:170px;object-fit:contain;display:block;margin:0 auto 14px;"/>
+      ${logoImgSrc ? `<img src="${logoImgSrc}" style="max-width:220px;width:100%;height:auto;display:block;margin:0 auto 14px;"/>` : ''}
       <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#aaa;letter-spacing:.5px;">Please pay by the 25th</div>
     </div>` : `
     <div style="border-top:1px solid #efefef;padding:14px 24px;text-align:center;">
@@ -1466,12 +1559,8 @@ async function showReceipt(d, type='minimal'){
   document.getElementById('receipt-img-loading').style.display='block';
   currentReceiptDataUrl=null;
 
-  // Wait for QR image to load if minimal
-  if(type==='minimal'&&qrCodeUrl){
-    await new Promise(r=>setTimeout(r,500));
-  } else {
-    await new Promise(r=>setTimeout(r,350));
-  }
+  // Wait for DOM to paint before html2canvas captures
+  await new Promise(r => setTimeout(r, 400));
 
   try{
     const canvas=await html2canvas(zone,{scale:3,backgroundColor:'#ffffff',useCORS:true,logging:false});
