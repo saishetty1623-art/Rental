@@ -22,7 +22,6 @@
 html{font-size:16px;}
 body{background:var(--bg);color:var(--text2);font-family:var(--font-body);min-height:100vh;overflow-x:hidden;-webkit-tap-highlight-color:transparent;padding-bottom:calc(var(--nav-h) + var(--safe-bottom) + 16px);}
 
-/* GRAIN TEXTURE */
 body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:.25;}
 
 /* ── TOP BAR ── */
@@ -38,11 +37,14 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 
 /* ── BOTTOM NAV ── */
 .bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(17,17,20,0.97);border-top:1px solid var(--border);display:flex;height:calc(var(--nav-h) + var(--safe-bottom));padding-bottom:var(--safe-bottom);backdrop-filter:blur(12px);}
-.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;background:none;border:none;padding:8px 4px;color:var(--text3);font-family:var(--font-body);font-size:9px;font-weight:600;transition:color .15s;letter-spacing:.8px;text-transform:uppercase;position:relative;}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;background:none;border:none;padding:8px 2px;color:var(--text3);font-family:var(--font-body);font-size:8px;font-weight:600;transition:color .15s;letter-spacing:.5px;text-transform:uppercase;position:relative;}
 .nav-btn.active{color:var(--amber);}
 .nav-btn.active .nav-icon-wrap{background:var(--amber-dim);border-color:rgba(245,166,35,.25);}
-.nav-icon-wrap{width:36px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:8px;border:1px solid transparent;transition:all .15s;margin-bottom:1px;}
-.nav-icon{font-size:16px;line-height:1;}
+.nav-icon-wrap{width:32px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:8px;border:1px solid transparent;transition:all .15s;margin-bottom:1px;}
+.nav-icon{font-size:15px;line-height:1;}
+
+/* Meter tab special amber glow */
+#nav-meter.active .nav-icon-wrap{background:rgba(245,166,35,.18);border-color:rgba(245,166,35,.35);box-shadow:0 0 10px rgba(245,166,35,.15);}
 
 /* ── CONTENT ── */
 .content{padding:14px 14px;max-width:600px;margin:0 auto;}
@@ -69,6 +71,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .section-label::after{content:'';flex:1;height:1px;background:var(--border);}
 .section-label.red{color:var(--red);}
 .section-label.green{color:var(--green);}
+.section-label.amber{color:var(--amber);}
 
 /* ── BILL CARD ── */
 .bill-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px;margin-bottom:10px;transition:border-color .15s;}
@@ -175,6 +178,45 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .empty{padding:36px 20px;text-align:center;color:var(--text3);font-family:var(--font-mono);font-size:11px;letter-spacing:1px;line-height:1.8;}
 .empty-icon{font-size:28px;margin-bottom:10px;opacity:.6;}
 
+/* ── METER CAPTURE ── */
+.meter-unit-hero{background:linear-gradient(135deg,var(--bg2) 0%,#1c1a24 100%);border:1px solid rgba(245,166,35,.2);border-radius:var(--radius-lg);padding:16px;margin-bottom:14px;display:none;}
+.meter-unit-hero.show{display:block;}
+.meter-hero-name{font-family:var(--font-head);font-size:22px;font-weight:700;color:var(--text);}
+.meter-hero-sub{font-family:var(--font-mono);font-size:10px;color:var(--text3);margin-top:3px;letter-spacing:1px;}
+
+/* Camera zone */
+.cam-zone{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:14px;position:relative;min-height:220px;display:flex;align-items:center;justify-content:center;}
+.cam-zone video,.cam-zone img{width:100%;display:block;max-height:360px;object-fit:cover;}
+.cam-placeholder{text-align:center;padding:36px 20px;color:var(--text3);}
+.cam-placeholder-icon{font-size:40px;margin-bottom:12px;opacity:.4;}
+.cam-placeholder-text{font-family:var(--font-mono);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;}
+.cam-zone-badge{position:absolute;top:10px;left:10px;background:rgba(239,68,68,.85);color:#fff;font-family:var(--font-mono);font-size:9px;letter-spacing:1.5px;padding:3px 9px;border-radius:20px;text-transform:uppercase;display:none;}
+.cam-zone-badge.live{display:block;}
+.cam-zone-snapped-badge{position:absolute;top:10px;left:10px;background:rgba(34,197,94,.85);color:#fff;font-family:var(--font-mono);font-size:9px;letter-spacing:1.5px;padding:3px 9px;border-radius:20px;text-transform:uppercase;display:none;}
+.cam-zone-snapped-badge.show{display:block;}
+
+/* Reading confirm box */
+.reading-confirm-box{background:var(--bg3);border:1px solid rgba(245,166,35,.3);border-radius:var(--radius-lg);padding:16px;margin-bottom:14px;display:none;}
+.reading-confirm-box.show{display:block;}
+.rcb-title{font-family:var(--font-mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--amber);margin-bottom:12px;}
+.rcb-big-input{font-family:var(--font-head);font-size:32px;font-weight:700;background:var(--bg2);border:2px solid var(--amber);border-radius:var(--radius);color:var(--amber);padding:14px;text-align:center;outline:none;width:100%;letter-spacing:2px;}
+.rcb-big-input::placeholder{color:rgba(245,166,35,.35);font-size:20px;}
+.rcb-prev{font-family:var(--font-mono);font-size:10px;color:var(--text3);text-align:center;margin-top:8px;}
+.rcb-diff{font-family:var(--font-mono);font-size:11px;color:var(--green);text-align:center;margin-top:4px;min-height:16px;}
+
+/* Meter history card */
+.meter-hist-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:10px;}
+.meter-hist-top{display:flex;align-items:stretch;gap:0;}
+.meter-hist-img{width:90px;flex-shrink:0;object-fit:cover;display:block;}
+.meter-hist-img-placeholder{width:90px;flex-shrink:0;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:22px;opacity:.3;}
+.meter-hist-body{padding:12px 14px;flex:1;}
+.meter-hist-unit{font-family:var(--font-head);font-size:17px;font-weight:700;color:var(--text);}
+.meter-hist-reading{font-family:var(--font-mono);font-size:20px;font-weight:500;color:var(--amber);margin-top:3px;}
+.meter-hist-meta{font-family:var(--font-mono);font-size:9px;color:var(--text3);margin-top:5px;letter-spacing:.5px;}
+
+/* Today badge on new-bill form */
+.today-reading-chip{display:inline-flex;align-items:center;gap:6px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);border-radius:20px;padding:4px 12px;font-family:var(--font-mono);font-size:10px;color:var(--green);letter-spacing:.5px;margin-bottom:10px;}
+
 /* ── RECEIPT OVERLAY ── */
 #receipt-overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:500;display:none;flex-direction:column;overflow:hidden;backdrop-filter:blur(10px);}
 #receipt-overlay.open{display:flex;}
@@ -188,7 +230,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .receipt-img{width:100%;border-radius:var(--radius);display:block;box-shadow:0 4px 24px rgba(0,0,0,.4);}
 .receipt-acts{padding:0 14px 14px;display:flex;flex-direction:column;gap:8px;}
 
-/* ── RECEIPT PRINT ZONE (off-screen) ── */
+/* ── RECEIPT PRINT ZONE ── */
 #receipt-print-zone{position:fixed;left:-9999px;top:0;width:420px;background:#fff;color:#111;padding:36px 28px;font-family:'IBM Plex Sans',sans-serif;z-index:-1;}
 .rz-header{text-align:center;margin-bottom:22px;padding-bottom:18px;border-bottom:2px solid #111;}
 .rz-logo{font-family:'Rajdhani',sans-serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#999;margin-bottom:8px;}
@@ -221,6 +263,12 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 /* ── MISC CHARGE BLOCK ── */
 .misc-block{background:var(--bg3);border:1px dashed rgba(245,166,35,.3);border-radius:var(--radius);padding:14px;margin-bottom:12px;}
 .misc-block-title{font-family:var(--font-mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--amber);margin-bottom:10px;}
+
+/* Photo full preview overlay */
+#photo-full-overlay{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:700;display:none;align-items:center;justify-content:center;padding:20px;}
+#photo-full-overlay.open{display:flex;}
+#photo-full-overlay img{max-width:100%;max-height:100%;border-radius:var(--radius);box-shadow:0 8px 40px rgba(0,0,0,.6);}
+#photo-full-close{position:absolute;top:16px;right:16px;background:var(--bg2);border:1px solid var(--border);color:var(--text2);width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;}
 
 @media(min-width:600px){
   .content{padding:18px 20px;}
@@ -273,10 +321,8 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
         <div class="stat-sub">This month</div>
       </div>
     </div>
-
     <div class="section-label red">Pending &amp; Partial</div>
     <div id="active-bills"></div>
-
     <div class="section-label green">Fully Paid</div>
     <div id="paid-bills"></div>
   </div>
@@ -290,6 +336,13 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
       <select class="form-select" id="bill-tenant" onchange="onTenantSelect()">
         <option value="">— Choose unit —</option>
       </select>
+    </div>
+
+    <!-- Today's meter reading chip (shown when a capture exists for today) -->
+    <div id="today-reading-chip" style="display:none;" class="today-reading-chip">
+      <span>📷</span>
+      <span id="today-reading-chip-text">Meter captured today</span>
+      <span style="cursor:pointer;opacity:.6;" onclick="showView('meter')">View →</span>
     </div>
 
     <div id="selected-tenant-pill" style="display:none;">
@@ -346,7 +399,6 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
       <input type="number" class="form-input" id="bill-elec" placeholder="0" inputmode="decimal" oninput="recalculate()"/>
     </div>
 
-    <!-- MISC CHARGE -->
     <div class="misc-block">
       <div class="misc-block-title">Miscellaneous Charge (optional)</div>
       <div class="two-col">
@@ -372,8 +424,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
       <div class="calc-row"><span>Rent</span><span class="calc-val" id="calc-rent">₹ —</span></div>
       <div class="calc-row"><span>Water (gross)</span><span class="calc-val" id="calc-water-raw">₹ —</span></div>
       <div class="calc-row discount" id="calc-cap-row" style="display:none;">
-        <span>Water Subsidy</span>
-        <span class="calc-val" id="calc-subsidy">− ₹ 0</span>
+        <span>Water Subsidy</span><span class="calc-val" id="calc-subsidy">− ₹ 0</span>
       </div>
       <div class="calc-row"><span>Water Charged</span><span class="calc-val" id="calc-water">₹ —</span></div>
       <div class="calc-row"><span>Electricity</span><span class="calc-val" id="calc-elec">₹ —</span></div>
@@ -386,6 +437,94 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
       <button class="btn btn-ghost" onclick="previewReceiptOnly()" style="flex:1;">Preview Receipt</button>
     </div>
     <button class="btn btn-amber" onclick="saveBill()" id="save-btn">Save &amp; Generate Bill</button>
+  </div>
+
+  <!-- ══ METER CAPTURE ══ -->
+  <div class="view" id="view-meter">
+
+    <!-- Unit selector -->
+    <div class="form-group">
+      <label class="form-label">Select Rental Unit</label>
+      <select class="form-select" id="meter-unit-select" onchange="onMeterUnitSelect()">
+        <option value="">— Choose unit —</option>
+      </select>
+    </div>
+
+    <!-- Unit hero (shown after selection) -->
+    <div class="meter-unit-hero" id="meter-unit-hero">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div>
+          <div class="meter-hero-name" id="meter-hero-name">—</div>
+          <div class="meter-hero-sub" id="meter-hero-sub">Last reading: —</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          <div style="font-family:var(--font-mono);font-size:9px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;">Last captured</div>
+          <div style="font-family:var(--font-mono);font-size:12px;color:var(--amber);margin-top:3px;" id="meter-hero-last-date">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Camera zone -->
+    <div class="cam-zone" id="cam-zone">
+      <div class="cam-placeholder" id="cam-placeholder">
+        <div class="cam-placeholder-icon">📷</div>
+        <div class="cam-placeholder-text">Select a unit &amp; tap Start Camera</div>
+        <div style="font-family:var(--font-mono);font-size:10px;color:var(--text3);margin-top:8px;">Point at meter display &amp; snap</div>
+      </div>
+      <video id="cam-video" autoplay playsinline style="display:none;width:100%;"></video>
+      <img id="cam-snapshot" style="display:none;width:100%;" alt="Meter snapshot"/>
+      <div class="cam-zone-badge" id="cam-live-badge">● LIVE</div>
+      <div class="cam-zone-snapped-badge" id="cam-snapped-badge">✓ CAPTURED</div>
+    </div>
+
+    <!-- Camera controls -->
+    <div id="cam-controls" style="display:none;margin-bottom:14px;">
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-amber" id="btn-snap" onclick="snapPhoto()" style="flex:2;">
+          <span style="font-size:18px;">⊙</span> Capture Reading
+        </button>
+        <button class="btn btn-danger" onclick="stopCamera()" style="flex:1;font-size:12px;">✕ Stop</button>
+      </div>
+    </div>
+
+    <div id="retake-controls" style="display:none;margin-bottom:14px;">
+      <button class="btn btn-ghost" onclick="retakePhoto()">↺ Retake Photo</button>
+    </div>
+
+    <!-- Start camera button (shown when unit selected, camera not started) -->
+    <div id="start-cam-wrap">
+      <button class="btn btn-amber" id="btn-start-cam" onclick="startCamera()" disabled>
+        <span>📷</span> Start Camera
+      </button>
+      <div style="font-family:var(--font-mono);font-size:10px;color:var(--text3);text-align:center;margin-top:8px;letter-spacing:.5px;">
+        Use rear camera — point at meter display
+      </div>
+    </div>
+
+    <!-- Reading confirm box (shown after snap) -->
+    <div class="reading-confirm-box" id="reading-confirm-box">
+      <div class="rcb-title">Enter Reading You See On Meter</div>
+      <input type="number" class="rcb-big-input" id="meter-reading-input"
+             placeholder="e.g. 1247" inputmode="numeric"
+             oninput="onMeterReadingInput()"/>
+      <div class="rcb-prev" id="rcb-prev-text">Previous: — units</div>
+      <div class="rcb-diff" id="rcb-diff-text"></div>
+    </div>
+
+    <!-- Save button (shown after snap + reading entered) -->
+    <div id="meter-save-wrap" style="display:none;margin-bottom:14px;">
+      <button class="btn btn-green" onclick="saveMeterReading()">
+        <span>💾</span> Save Reading &amp; Photo
+      </button>
+      <div style="font-family:var(--font-mono);font-size:10px;color:var(--text3);text-align:center;margin-top:8px;letter-spacing:.5px;">
+        Photo uploaded to cloud · Reading saved to DB
+      </div>
+    </div>
+
+    <!-- Recent captures for all units -->
+    <div class="section-label amber">Recent Captures</div>
+    <div id="meter-history"></div>
+
   </div>
 
   <!-- ══ LIBRARY ══ -->
@@ -446,7 +585,6 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
         </div>
       </div>
     </div>
-
     <div class="card">
       <div class="card-header">
         <span class="card-title">All Rental Units</span>
@@ -467,6 +605,10 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
   <button class="nav-btn" onclick="showView('new-bill');clearBillForm();" id="nav-new-bill">
     <div class="nav-icon-wrap"><span class="nav-icon">+</span></div>
     <span>New Bill</span>
+  </button>
+  <button class="nav-btn" onclick="showView('meter');loadMeterHistory();" id="nav-meter">
+    <div class="nav-icon-wrap"><span class="nav-icon">📷</span></div>
+    <span>Meter</span>
   </button>
   <button class="nav-btn" onclick="showView('ledger')" id="nav-ledger">
     <div class="nav-icon-wrap"><span class="nav-icon">≡</span></div>
@@ -520,6 +662,12 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
   </div>
 </div>
 
+<!-- PHOTO FULL VIEW -->
+<div id="photo-full-overlay" onclick="closePhotoFull()">
+  <button id="photo-full-close" onclick="closePhotoFull()">✕</button>
+  <img id="photo-full-img" src="" alt="Meter photo"/>
+</div>
+
 <!-- OFF-SCREEN RECEIPT RENDER ZONE -->
 <div id="receipt-print-zone"></div>
 
@@ -534,6 +682,8 @@ const SUPABASE_ANON = 'sb_publishable_GouLtjqj55gikMa7_2CU3w_PnTpeC9-';
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_ANON);
 
+const METER_BUCKET = 'meter-photos'; // Supabase Storage bucket name
+
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //  STATE
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -544,6 +694,12 @@ let waterManuallyEdited = false;
 let _prevReading = 0;
 let _prevReadingLabel = '—';
 let localCaps = {};
+
+// Meter capture state
+let camStream = null;
+let meterSnapshotBlob = null;
+let meterSelectedTenant = null;
+let meterPrevReading = 0;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //  HELPERS
@@ -561,6 +717,10 @@ const fmtMonth = s => {
   try { return new Date((s.length === 7 ? s + '-01' : s) + 'T00:00:00').toLocaleDateString('en-IN', { month: 'long', year: 'numeric' }); }
   catch { return s; }
 };
+const todayYMD = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+};
 const isCapped = t => !!(t && (t.water_cap || localCaps[String(t.id)]));
 
 function getDefaultBillingMonth() {
@@ -573,9 +733,7 @@ function showLoading(msg = 'PLEASE WAIT') {
   document.getElementById('loading-text').textContent = msg;
   document.getElementById('loading-overlay').classList.remove('hidden');
 }
-function hideLoading() {
-  document.getElementById('loading-overlay').classList.add('hidden');
-}
+function hideLoading() { document.getElementById('loading-overlay').classList.add('hidden'); }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //  TOAST
@@ -592,12 +750,18 @@ function toast(msg, type = 'success') {
 //  NAVIGATION
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function showView(name) {
+  // Stop camera if leaving meter view
+  if (!document.getElementById('view-meter').classList.contains('active') === false &&
+       name !== 'meter') {
+    stopCamera();
+  }
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(n => n.classList.remove('active'));
   document.getElementById('view-' + name).classList.add('active');
   document.getElementById('nav-' + name)?.classList.add('active');
   if (name === 'ledger')    loadLedger();
   if (name === 'dashboard') loadDashboard();
+  if (name === 'meter')     loadMeterHistory();
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -625,8 +789,13 @@ async function loadTenants() {
 }
 
 function populateTenantDropdowns() {
-  [['bill-tenant', '— Choose unit —'], ['filter-unit', 'All Units']].forEach(([id, def]) => {
+  [
+    ['bill-tenant', '— Choose unit —'],
+    ['filter-unit', 'All Units'],
+    ['meter-unit-select', '— Choose unit —']
+  ].forEach(([id, def]) => {
     const sel = document.getElementById(id);
+    if (!sel) return;
     const cur = sel.value;
     while (sel.options.length > 1) sel.remove(1);
     tenants.forEach(t => sel.add(new Option(t.house_name, String(t.id))));
@@ -650,11 +819,11 @@ function renderTenantList() {
 function editTenant(id) {
   const t = tenants.find(x => String(x.id) === String(id));
   if (!t) return;
-  document.getElementById('edit-tenant-id').value = t.id;
-  document.getElementById('t-name').value = t.house_name;
-  document.getElementById('t-phone').value = t.phone_number || '';
-  document.getElementById('t-rent').value = t.base_rent;
-  document.getElementById('t-water-init').value = t.initial_water_reading || 0;
+  document.getElementById('edit-tenant-id').value   = t.id;
+  document.getElementById('t-name').value           = t.house_name;
+  document.getElementById('t-phone').value          = t.phone_number || '';
+  document.getElementById('t-rent').value           = t.base_rent;
+  document.getElementById('t-water-init').value     = t.initial_water_reading || 0;
   document.getElementById('water-cap-toggle').classList.toggle('on', isCapped(t));
   document.getElementById('tenant-form-title').textContent = 'Edit — ' + t.house_name;
   showView('settings');
@@ -671,17 +840,17 @@ function clearTenantForm() {
 function toggleWaterCap() { document.getElementById('water-cap-toggle').classList.toggle('on'); }
 
 async function saveTenant() {
-  const id       = document.getElementById('edit-tenant-id').value;
-  const name     = document.getElementById('t-name').value.trim();
-  const phone    = document.getElementById('t-phone').value.trim();
-  const rent     = parseFloat(document.getElementById('t-rent').value) || 0;
-  const wInit    = parseFloat(document.getElementById('t-water-init').value) || 0;
-  const capOn    = document.getElementById('water-cap-toggle').classList.contains('on');
+  const id    = document.getElementById('edit-tenant-id').value;
+  const name  = document.getElementById('t-name').value.trim();
+  const phone = document.getElementById('t-phone').value.trim();
+  const rent  = parseFloat(document.getElementById('t-rent').value) || 0;
+  const wInit = parseFloat(document.getElementById('t-water-init').value) || 0;
+  const capOn = document.getElementById('water-cap-toggle').classList.contains('on');
   if (!name) { toast('Unit name is required', 'error'); return; }
 
   showLoading('SAVING…');
-  const base    = { house_name: name, phone_number: phone, base_rent: rent, initial_water_reading: wInit };
-  const full    = { ...base, water_cap: capOn };
+  const base = { house_name: name, phone_number: phone, base_rent: rent, initial_water_reading: wInit };
+  const full = { ...base, water_cap: capOn };
 
   let error;
   if (id) {
@@ -724,7 +893,6 @@ async function loadDashboard() {
     .reduce((s, b) => s + (parseFloat(b.amount_paid) || 0), 0);
   document.getElementById('stat-collected').textContent = '₹' + fmtK(collected);
 
-  // Latest bill per tenant
   const latestMap = {};
   bills.forEach(b => { if (!latestMap[b.tenant_id]) latestMap[b.tenant_id] = b; });
   const latest = Object.values(latestMap);
@@ -847,6 +1015,7 @@ function clearBillForm() {
   document.getElementById('water-units-hint').textContent  = '';
   document.getElementById('balance-hint').textContent      = '';
   document.getElementById('balance-hint').className        = 'form-hint';
+  document.getElementById('today-reading-chip').style.display = 'none';
   waterManuallyEdited = false;
   _prevReading = 0; _prevReadingLabel = '—';
   resetCalcUI();
@@ -882,22 +1051,22 @@ async function onTenantSelect() {
   document.getElementById('prev-reading-val').textContent = _prevReading + ' units';
   document.getElementById('prev-month-val').textContent   = _prevReadingLabel;
 
+  // ── Check for today's meter capture ──
+  await checkAndApplyTodayReading(id);
+
   if (!document.getElementById('edit-bill-id').value) {
     if (last) {
       const lastTotal = parseFloat(last.total_amount) || 0;
       const lastPaid  = parseFloat(last.amount_paid)  || 0;
       const owed      = Math.max(0, lastTotal - lastPaid);
       const dayOfMonth = new Date().getDate();
-
       if (owed > 0 && dayOfMonth >= 10) {
         document.getElementById('bill-prev-balance').value = owed;
-        document.getElementById('balance-hint').textContent =
-          `Auto-carried ₹${fmt(owed)} unpaid from ${fmtMonth(last.billing_month)}`;
+        document.getElementById('balance-hint').textContent = `Auto-carried ₹${fmt(owed)} unpaid from ${fmtMonth(last.billing_month)}`;
         document.getElementById('balance-hint').className = 'form-hint warn';
       } else if (owed > 0 && dayOfMonth < 10) {
         document.getElementById('bill-prev-balance').value = 0;
-        document.getElementById('balance-hint').textContent =
-          `₹${fmt(owed)} unpaid from last month — will auto-carry after the 10th`;
+        document.getElementById('balance-hint').textContent = `₹${fmt(owed)} unpaid from last month — will auto-carry after the 10th`;
         document.getElementById('balance-hint').className = 'form-hint info';
       } else {
         document.getElementById('bill-prev-balance').value = 0;
@@ -915,6 +1084,37 @@ async function onTenantSelect() {
   document.getElementById('water-reset-btn').classList.remove('show');
   document.getElementById('bill-water-charges').value = '';
   recalculate();
+}
+
+// Auto-populate reading from today's meter capture
+async function checkAndApplyTodayReading(tenantId) {
+  try {
+    const today = todayYMD();
+    const { data } = await db
+      .from('meter_readings')
+      .select('reading_value, captured_at, photo_url')
+      .eq('tenant_id', tenantId)
+      .gte('captured_at', today + 'T00:00:00')
+      .order('captured_at', { ascending: false })
+      .limit(1);
+
+    const chip    = document.getElementById('today-reading-chip');
+    const chipTxt = document.getElementById('today-reading-chip-text');
+    const waterInput = document.getElementById('bill-water-new');
+
+    if (data && data.length > 0) {
+      const mr = data[0];
+      waterInput.value = mr.reading_value;
+      chip.style.display = 'flex';
+      chipTxt.textContent = `Meter captured today · ${mr.reading_value} units`;
+      recalculate();
+    } else {
+      chip.style.display = 'none';
+    }
+  } catch (e) {
+    // meter_readings table may not exist yet — silently ignore
+    document.getElementById('today-reading-chip').style.display = 'none';
+  }
 }
 
 function computeAutoWater() {
@@ -1007,7 +1207,6 @@ function recalculate() {
     }
   }
 
-  // Misc row
   if (miscAmt > 0) {
     document.getElementById('calc-misc-row').style.display = 'flex';
     document.getElementById('calc-misc-lbl').textContent   = miscLabel;
@@ -1055,8 +1254,6 @@ async function saveBill() {
 
   try {
     let savedId = null;
-
-    // Build record — try with misc columns first, fallback without
     const fullRecord = {
       tenant_id: tenantId, billing_month: month + '-01',
       water_reading: waterNew, elec_charges: elec, previous_balance: prevBal,
@@ -1102,7 +1299,6 @@ async function saveBill() {
     };
     buildReceiptHTML(currentBillData);
     await openReceiptPreview();
-
     clearBillForm();
     showView('dashboard');
 
@@ -1142,11 +1338,11 @@ async function editBill(id) {
   document.getElementById('bill-misc-label').value     = b.misc_label || '';
   document.getElementById('bill-misc-amount').value    = b.misc_amount || '';
   document.getElementById('bill-prev-balance').value   = b.previous_balance;
-  document.getElementById('prev-reading-val').textContent  = _prevReading + ' units';
-  document.getElementById('prev-month-val').textContent    = _prevReadingLabel;
-  document.getElementById('balance-hint').textContent      = 'Editing mode';
-  document.getElementById('balance-hint').className        = 'form-hint info';
-  document.getElementById('save-btn').textContent          = 'Update Bill';
+  document.getElementById('prev-reading-val').textContent = _prevReading + ' units';
+  document.getElementById('prev-month-val').textContent   = _prevReadingLabel;
+  document.getElementById('balance-hint').textContent     = 'Editing mode';
+  document.getElementById('balance-hint').className       = 'form-hint info';
+  document.getElementById('save-btn').textContent         = 'Update Bill';
 
   if (t) {
     document.getElementById('selected-tenant-pill').style.display = 'block';
@@ -1167,16 +1363,10 @@ async function editBill(id) {
 function buildReceiptHTML(d) {
   const monthLabel = fmtMonth(d.month);
   const dateStr    = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
-
-  // Misc row
-  const miscRow = (d.miscAmount && parseFloat(d.miscAmount) > 0)
-    ? `<tr><td class="rz-label">${d.miscLabel || 'Miscellaneous'}</td><td>₹ ${fmt(d.miscAmount)}</td></tr>`
-    : '';
-
-  // Previous balance row
-  const prevRow = parseFloat(d.prevBal) > 0
-    ? `<tr><td class="rz-label">Previous Balance</td><td>₹ ${fmt(d.prevBal)}</td></tr>`
-    : '';
+  const miscRow    = (d.miscAmount && parseFloat(d.miscAmount) > 0)
+    ? `<tr><td class="rz-label">${d.miscLabel || 'Miscellaneous'}</td><td>₹ ${fmt(d.miscAmount)}</td></tr>` : '';
+  const prevRow    = parseFloat(d.prevBal) > 0
+    ? `<tr><td class="rz-label">Previous Balance</td><td>₹ ${fmt(d.prevBal)}</td></tr>` : '';
 
   document.getElementById('receipt-print-zone').innerHTML = `
     <div class="rz-header">
@@ -1189,8 +1379,7 @@ function buildReceiptHTML(d) {
       <tr><td class="rz-label">Rent</td><td>₹ ${fmt(d.baseRent)}</td></tr>
       <tr><td class="rz-label">Water Charges</td><td>₹ ${fmt(d.chargedWater)}</td></tr>
       <tr><td class="rz-label">Electricity Charges</td><td>₹ ${fmt(d.elec)}</td></tr>
-      ${miscRow}
-      ${prevRow}
+      ${miscRow}${prevRow}
       <tr class="rz-total-row"><td>Total Due</td><td>₹ ${fmt(d.total)}</td></tr>
     </table>
     <div class="rz-footer">Kindly pay by the 25th. Thank you.</div>`;
@@ -1201,20 +1390,16 @@ async function openReceiptPreview() {
   document.getElementById('receipt-img').style.display         = 'none';
   document.getElementById('receipt-img-loading').style.display = 'block';
   currentReceiptDataUrl = null;
-
   await new Promise(r => setTimeout(r, 400));
   try {
     const zone   = document.getElementById('receipt-print-zone');
-    const canvas = await html2canvas(zone, {
-      scale: 3, backgroundColor: '#ffffff', useCORS: true, logging: false
-    });
+    const canvas = await html2canvas(zone, { scale: 3, backgroundColor: '#ffffff', useCORS: true, logging: false });
     currentReceiptDataUrl = canvas.toDataURL('image/png');
     document.getElementById('receipt-img').src = currentReceiptDataUrl;
     document.getElementById('receipt-img').style.display         = 'block';
     document.getElementById('receipt-img-loading').style.display = 'none';
   } catch (e) {
     document.getElementById('receipt-img-loading').textContent = 'Preview unavailable. You can still download.';
-    console.error('html2canvas:', e);
   }
 }
 
@@ -1222,14 +1407,14 @@ function previewReceiptOnly() {
   const id = document.getElementById('bill-tenant').value;
   const t  = tenants.find(x => String(x.id) === String(id));
   if (!t) { toast('Select a unit first', 'error'); return; }
-  const nr         = parseFloat(document.getElementById('bill-water-new').value) || 0;
-  const elec       = parseFloat(document.getElementById('bill-elec').value) || 0;
-  const prevBal    = parseFloat(document.getElementById('bill-prev-balance').value) || 0;
+  const nr           = parseFloat(document.getElementById('bill-water-new').value) || 0;
+  const elec         = parseFloat(document.getElementById('bill-elec').value) || 0;
+  const prevBal      = parseFloat(document.getElementById('bill-prev-balance').value) || 0;
   const waterCharged = parseFloat(document.getElementById('bill-water-charges').value) || 0;
-  const miscLabel  = document.getElementById('bill-misc-label').value.trim();
-  const miscAmount = parseFloat(document.getElementById('bill-misc-amount').value) || 0;
-  const auto = computeAutoWater();
-  currentBillData = {
+  const miscLabel    = document.getElementById('bill-misc-label').value.trim();
+  const miscAmount   = parseFloat(document.getElementById('bill-misc-amount').value) || 0;
+  const auto         = computeAutoWater();
+  currentBillData    = {
     tenant: t, month: document.getElementById('bill-month').value,
     waterNew: nr, prevReading: _prevReading, units: Math.max(0, nr - _prevReading),
     chargedWater: waterCharged, rawWater: auto?.rawCost ?? waterCharged,
@@ -1296,10 +1481,8 @@ async function shareReceiptImage() {
   }
   const blob = await (await fetch(currentReceiptDataUrl)).blob();
   const file = new File([blob], 'RentBill.png', { type: 'image/png' });
-
   if (navigator.canShare && navigator.canShare({ files: [file] })) {
-    try { await navigator.share({ files: [file], title: 'Rent Bill' }); return; }
-    catch {}
+    try { await navigator.share({ files: [file], title: 'Rent Bill' }); return; } catch {}
   }
   try {
     await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
@@ -1329,42 +1512,24 @@ async function loadLedger() {
   const statusFilter = document.getElementById('filter-status').value;
 
   try {
-    // Build the query step by step — avoid chaining after .limit() to prevent SDK issues
     let query = db
       .from('utility_bills')
       .select('id, tenant_id, billing_month, total_amount, amount_paid, is_sent, tenants(house_name, phone_number)')
       .order('billing_month', { ascending: false });
 
-    if (unitFilter) {
-      query = query.eq('tenant_id', unitFilter);
-    }
-
-    // Month filter: match the billing_month column which stores as DATE (YYYY-MM-DD)
-    // We filter by year-month prefix
+    if (unitFilter) query = query.eq('tenant_id', unitFilter);
     if (monthFilter) {
       const startDate = monthFilter + '-01';
-      // Last day: set to first of next month minus one day
       const [yr, mo] = monthFilter.split('-').map(Number);
-      const nextMonth = mo === 12
-        ? `${yr + 1}-01-01`
-        : `${yr}-${String(mo + 1).padStart(2, '0')}-01`;
+      const nextMonth = mo === 12 ? `${yr + 1}-01-01` : `${yr}-${String(mo + 1).padStart(2, '0')}-01`;
       query = query.gte('billing_month', startDate).lt('billing_month', nextMonth);
     }
 
     const { data, error } = await query.limit(300);
 
-    if (error) {
-      console.error('Ledger query error:', error);
-      el.innerHTML = `<div class="empty">Error loading bills.<br><span style="color:var(--red);font-size:10px;">${error.message}</span></div>`;
-      return;
-    }
+    if (error) { el.innerHTML = `<div class="empty">Error loading bills.<br><span style="color:var(--red);font-size:10px;">${error.message}</span></div>`; return; }
+    if (!data || data.length === 0) { el.innerHTML = '<div class="empty"><div class="empty-icon">□</div>No bills found.</div>'; return; }
 
-    if (!data || data.length === 0) {
-      el.innerHTML = '<div class="empty"><div class="empty-icon">□</div>No bills found.<br>Bills you save will appear here.</div>';
-      return;
-    }
-
-    // Apply status filter client-side
     const filtered = data.filter(b => {
       if (statusFilter === 'all') return true;
       const amtPaid = parseFloat(b.amount_paid) || 0;
@@ -1375,10 +1540,7 @@ async function loadLedger() {
       return true;
     });
 
-    if (filtered.length === 0) {
-      el.innerHTML = '<div class="empty"><div class="empty-icon">□</div>No bills match this filter.</div>';
-      return;
-    }
+    if (filtered.length === 0) { el.innerHTML = '<div class="empty"><div class="empty-icon">□</div>No bills match this filter.</div>'; return; }
 
     let html = '';
     filtered.forEach(b => {
@@ -1386,14 +1548,12 @@ async function loadLedger() {
       const total   = parseFloat(b.total_amount) || 0;
       let statusKey = 'unpaid';
       if (total > 0 && amtPaid >= total) statusKey = 'paid';
-      else if (amtPaid > 0)             statusKey = 'partial';
-
+      else if (amtPaid > 0)              statusKey = 'partial';
       const pillMap = {
         paid:    '<span class="pill pill-paid">Paid</span>',
         partial: `<span class="pill pill-partial">Partial · ₹${fmt(amtPaid)}</span>`,
         unpaid:  '<span class="pill pill-unpaid">Unpaid</span>'
       };
-
       html += `<div class="bill-card">
         <div class="bill-card-top">
           <div>
@@ -1414,11 +1574,8 @@ async function loadLedger() {
         </div>
       </div>`;
     });
-
     el.innerHTML = html;
-
   } catch (err) {
-    console.error('loadLedger exception:', err);
     el.innerHTML = `<div class="empty">Unexpected error.<br><span style="color:var(--red);font-size:10px;">${err.message}</span></div>`;
   }
 }
@@ -1432,6 +1589,376 @@ async function deleteBill(id) {
   toast('Bill deleted.');
   loadLedger();
   loadDashboard();
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  METER CAPTURE — CAMERA
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function onMeterUnitSelect() {
+  const id = document.getElementById('meter-unit-select').value;
+  const t  = tenants.find(x => String(x.id) === String(id));
+  meterSelectedTenant  = t || null;
+  meterSnapshotBlob    = null;
+  meterPrevReading     = 0;
+
+  // Reset UI
+  stopCamera();
+  document.getElementById('cam-snapshot').style.display         = 'none';
+  document.getElementById('cam-video').style.display            = 'none';
+  document.getElementById('cam-placeholder').style.display      = 'flex';
+  document.getElementById('cam-placeholder').style.flexDirection= 'column';
+  document.getElementById('cam-placeholder').style.alignItems   = 'center';
+  document.getElementById('cam-live-badge').classList.remove('live');
+  document.getElementById('cam-snapped-badge').classList.remove('show');
+  document.getElementById('reading-confirm-box').classList.remove('show');
+  document.getElementById('meter-save-wrap').style.display      = 'none';
+  document.getElementById('retake-controls').style.display      = 'none';
+  document.getElementById('cam-controls').style.display         = 'none';
+  document.getElementById('meter-reading-input').value          = '';
+  document.getElementById('rcb-diff-text').textContent          = '';
+  document.getElementById('btn-start-cam').disabled             = !t;
+
+  if (!t) {
+    document.getElementById('meter-unit-hero').classList.remove('show');
+    return;
+  }
+
+  // Show unit hero
+  document.getElementById('meter-unit-hero').classList.add('show');
+  document.getElementById('meter-hero-name').textContent = t.house_name;
+
+  // Load last reading for this tenant
+  loadLastMeterReading(id);
+}
+
+async function loadLastMeterReading(tenantId) {
+  try {
+    const { data } = await db
+      .from('meter_readings')
+      .select('reading_value, captured_at')
+      .eq('tenant_id', tenantId)
+      .order('captured_at', { ascending: false })
+      .limit(1);
+
+    if (data && data.length > 0) {
+      const mr = data[0];
+      meterPrevReading = parseFloat(mr.reading_value) || 0;
+      const capDate = new Date(mr.captured_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+      document.getElementById('meter-hero-sub').textContent     = `Last reading: ${mr.reading_value} units`;
+      document.getElementById('meter-hero-last-date').textContent = capDate;
+    } else {
+      // Fall back to initial_water_reading
+      const t = tenants.find(x => String(x.id) === String(tenantId));
+      meterPrevReading = parseFloat(t?.initial_water_reading) || 0;
+      document.getElementById('meter-hero-sub').textContent     = `Last reading: ${meterPrevReading} units (initial)`;
+      document.getElementById('meter-hero-last-date').textContent = 'No capture yet';
+    }
+    document.getElementById('rcb-prev-text').textContent = `Previous: ${meterPrevReading} units`;
+  } catch (e) {
+    // meter_readings table may not exist yet
+    document.getElementById('meter-hero-sub').textContent = 'No previous capture';
+  }
+}
+
+async function startCamera() {
+  if (!meterSelectedTenant) { toast('Select a unit first', 'error'); return; }
+
+  try {
+    camStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1080 } },
+      audio: false
+    });
+    const video = document.getElementById('cam-video');
+    video.srcObject = camStream;
+    video.style.display = 'block';
+    document.getElementById('cam-placeholder').style.display  = 'none';
+    document.getElementById('cam-snapshot').style.display     = 'none';
+    document.getElementById('cam-live-badge').classList.add('live');
+    document.getElementById('cam-snapped-badge').classList.remove('show');
+    document.getElementById('cam-controls').style.display     = 'flex';
+    document.getElementById('start-cam-wrap').style.display   = 'none';
+    document.getElementById('retake-controls').style.display  = 'none';
+    document.getElementById('reading-confirm-box').classList.remove('show');
+    document.getElementById('meter-save-wrap').style.display  = 'none';
+  } catch (err) {
+    toast('Camera access denied: ' + err.message, 'error');
+    console.error('Camera error:', err);
+  }
+}
+
+function stopCamera() {
+  if (camStream) {
+    camStream.getTracks().forEach(track => track.stop());
+    camStream = null;
+  }
+  const video = document.getElementById('cam-video');
+  if (video) { video.srcObject = null; video.style.display = 'none'; }
+  document.getElementById('cam-live-badge')?.classList.remove('live');
+  document.getElementById('cam-controls').style.display    = 'none';
+  document.getElementById('start-cam-wrap').style.display  = 'block';
+  if (meterSelectedTenant) {
+    document.getElementById('btn-start-cam').disabled = false;
+  }
+}
+
+function snapPhoto() {
+  const video = document.getElementById('cam-video');
+  if (!video || !camStream) { toast('Camera not active', 'error'); return; }
+
+  const canvas = document.createElement('canvas');
+  canvas.width  = video.videoWidth  || 1280;
+  canvas.height = video.videoHeight || 720;
+  canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+
+  // Convert to blob
+  canvas.toBlob(blob => {
+    meterSnapshotBlob = blob;
+
+    // Show snapshot image
+    const snapImg = document.getElementById('cam-snapshot');
+    snapImg.src             = URL.createObjectURL(blob);
+    snapImg.style.display   = 'block';
+    video.style.display     = 'none';
+
+    document.getElementById('cam-snapped-badge').classList.add('show');
+    document.getElementById('cam-live-badge').classList.remove('live');
+    document.getElementById('cam-controls').style.display   = 'none';
+    document.getElementById('retake-controls').style.display = 'flex';
+    document.getElementById('start-cam-wrap').style.display  = 'none';
+
+    // Show reading input
+    document.getElementById('reading-confirm-box').classList.add('show');
+    setTimeout(() => document.getElementById('meter-reading-input').focus(), 300);
+
+    stopCamera();
+  }, 'image/jpeg', 0.92);
+}
+
+function retakePhoto() {
+  meterSnapshotBlob = null;
+  document.getElementById('cam-snapshot').style.display     = 'none';
+  document.getElementById('cam-snapped-badge').classList.remove('show');
+  document.getElementById('retake-controls').style.display  = 'none';
+  document.getElementById('reading-confirm-box').classList.remove('show');
+  document.getElementById('meter-save-wrap').style.display  = 'none';
+  document.getElementById('start-cam-wrap').style.display   = 'block';
+  document.getElementById('btn-start-cam').disabled         = false;
+  document.getElementById('cam-placeholder').style.display  = 'block';
+  startCamera();
+}
+
+function onMeterReadingInput() {
+  const val  = parseFloat(document.getElementById('meter-reading-input').value);
+  const diff = document.getElementById('rcb-diff-text');
+  const saveWrap = document.getElementById('meter-save-wrap');
+
+  if (!isNaN(val) && meterSnapshotBlob) {
+    saveWrap.style.display = 'block';
+    if (val > meterPrevReading) {
+      const u = val - meterPrevReading;
+      diff.textContent = `▲ ${u} units used since last capture`;
+      diff.style.color = 'var(--green)';
+    } else if (val === meterPrevReading) {
+      diff.textContent = 'Same as previous reading';
+      diff.style.color = 'var(--amber)';
+    } else {
+      diff.textContent = '⚠ Reading is lower than previous!';
+      diff.style.color = 'var(--red)';
+    }
+  } else {
+    saveWrap.style.display = 'none';
+    diff.textContent = '';
+  }
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  METER CAPTURE — SAVE
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+async function saveMeterReading() {
+  if (!meterSelectedTenant) { toast('No unit selected', 'error'); return; }
+  if (!meterSnapshotBlob)   { toast('No photo captured', 'error'); return; }
+
+  const readingVal = parseFloat(document.getElementById('meter-reading-input').value);
+  if (isNaN(readingVal)) { toast('Enter the meter reading', 'error'); return; }
+
+  showLoading('UPLOADING PHOTO…');
+
+  try {
+    const tenantId = String(meterSelectedTenant.id);
+    const now      = new Date();
+    const ym       = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+    const newPath  = `${tenantId}/${ym}.jpg`;
+
+    // ── 1. Find & delete previous photo from storage ──
+    let existingPhotoPath = null;
+    try {
+      const { data: existing } = await db
+        .from('meter_readings')
+        .select('id, photo_path')
+        .eq('tenant_id', tenantId)
+        .order('captured_at', { ascending: false })
+        .limit(1);
+
+      if (existing && existing.length > 0 && existing[0].photo_path) {
+        existingPhotoPath = existing[0].photo_path;
+        // Delete old photo from storage
+        await db.storage.from(METER_BUCKET).remove([existingPhotoPath]);
+        // Delete old DB record
+        await db.from('meter_readings').delete().eq('id', existing[0].id);
+      }
+    } catch (e) {
+      console.warn('Could not remove old reading (table may not exist yet):', e);
+    }
+
+    // ── 2. Upload new photo ──
+    let photoUrl = null;
+    try {
+      const { data: uploadData, error: uploadError } = await db.storage
+        .from(METER_BUCKET)
+        .upload(newPath, meterSnapshotBlob, {
+          contentType: 'image/jpeg',
+          upsert: true   // overwrite if same path exists (same month re-capture)
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = db.storage.from(METER_BUCKET).getPublicUrl(newPath);
+      photoUrl = urlData?.publicUrl || null;
+    } catch (e) {
+      console.warn('Storage upload failed (bucket may not exist):', e.message);
+      toast('Photo upload failed — saving reading only. See setup notes.', 'error');
+    }
+
+    // ── 3. Save reading to DB ──
+    const record = {
+      tenant_id:     tenantId,
+      reading_value: readingVal,
+      photo_url:     photoUrl,
+      photo_path:    newPath,
+      captured_at:   now.toISOString()
+    };
+
+    const { error: dbError } = await db.from('meter_readings').insert(record);
+    if (dbError) throw dbError;
+
+    hideLoading();
+    toast(`Reading ${readingVal} units saved for ${meterSelectedTenant.house_name}!`);
+
+    // Reset UI
+    meterSnapshotBlob = null;
+    document.getElementById('meter-reading-input').value         = '';
+    document.getElementById('reading-confirm-box').classList.remove('show');
+    document.getElementById('meter-save-wrap').style.display     = 'none';
+    document.getElementById('retake-controls').style.display     = 'none';
+    document.getElementById('cam-snapshot').style.display        = 'none';
+    document.getElementById('cam-snapped-badge').classList.remove('show');
+    document.getElementById('cam-placeholder').style.display     = 'block';
+    document.getElementById('start-cam-wrap').style.display      = 'block';
+    document.getElementById('btn-start-cam').disabled            = false;
+    document.getElementById('rcb-diff-text').textContent         = '';
+
+    // Refresh hero + history
+    await loadLastMeterReading(tenantId);
+    await loadMeterHistory();
+
+  } catch (err) {
+    hideLoading();
+    toast('Save failed: ' + err.message, 'error');
+    console.error('saveMeterReading error:', err);
+  }
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  METER HISTORY
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+async function loadMeterHistory() {
+  const el = document.getElementById('meter-history');
+  if (!el) return;
+  el.innerHTML = '<div class="empty"><div class="spinner" style="margin:0 auto 12px;"></div></div>';
+
+  try {
+    const { data, error } = await db
+      .from('meter_readings')
+      .select('*, tenants(house_name)')
+      .order('captured_at', { ascending: false })
+      .limit(20);
+
+    if (error) throw error;
+    if (!data || !data.length) {
+      el.innerHTML = '<div class="empty"><div class="empty-icon">📷</div>No meter captures yet.<br>Select a unit &amp; snap the meter above.</div>';
+      return;
+    }
+
+    el.innerHTML = data.map(mr => {
+      const t        = mr.tenants;
+      const capDate  = new Date(mr.captured_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+      const capTime  = new Date(mr.captured_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+      const imgPart  = mr.photo_url
+        ? `<img class="meter-hist-img" src="${mr.photo_url}" alt="Meter" onclick="openPhotoFull('${mr.photo_url}')" style="cursor:zoom-in;"/>`
+        : `<div class="meter-hist-img-placeholder">📷</div>`;
+
+      return `<div class="meter-hist-card">
+        <div class="meter-hist-top">
+          ${imgPart}
+          <div class="meter-hist-body">
+            <div class="meter-hist-unit">${t?.house_name || '—'}</div>
+            <div class="meter-hist-reading">${mr.reading_value} <span style="font-size:11px;color:var(--text3);">units</span></div>
+            <div class="meter-hist-meta">${capDate} · ${capTime}</div>
+            <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;">
+              <button class="btn btn-ghost btn-sm" onclick="useMeterReadingInBill('${mr.tenant_id}','${mr.reading_value}')">Use in New Bill</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteMeterReading('${mr.id}','${mr.photo_path || ''}')">Delete</button>
+            </div>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+
+  } catch (e) {
+    if (e.message?.includes('meter_readings') || e.code === '42P01') {
+      el.innerHTML = `<div class="empty" style="color:var(--amber);">
+        <div class="empty-icon">⚠</div>
+        Table not created yet.<br>
+        <span style="color:var(--text3);">See setup instructions below.</span>
+      </div>`;
+    } else {
+      el.innerHTML = `<div class="empty">Error: ${e.message}</div>`;
+    }
+  }
+}
+
+function openPhotoFull(url) {
+  document.getElementById('photo-full-img').src = url;
+  document.getElementById('photo-full-overlay').classList.add('open');
+}
+function closePhotoFull() {
+  document.getElementById('photo-full-overlay').classList.remove('open');
+}
+
+// Shortcut: tap "Use in New Bill" from meter history
+function useMeterReadingInBill(tenantId, readingValue) {
+  showView('new-bill');
+  clearBillForm();
+  setTimeout(() => {
+    document.getElementById('bill-tenant').value = tenantId;
+    onTenantSelect().then(() => {
+      document.getElementById('bill-water-new').value = readingValue;
+      recalculate();
+    });
+  }, 100);
+}
+
+async function deleteMeterReading(id, photoPath) {
+  if (!confirm('Delete this meter capture?')) return;
+  showLoading('DELETING');
+  if (photoPath) {
+    await db.storage.from(METER_BUCKET).remove([photoPath]).catch(e => console.warn('Storage delete:', e));
+  }
+  const { error } = await db.from('meter_readings').delete().eq('id', id);
+  hideLoading();
+  if (error) { toast('Delete failed: ' + error.message, 'error'); return; }
+  toast('Capture deleted.');
+  loadMeterHistory();
 }
 </script>
 </body>
