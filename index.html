@@ -15,198 +15,217 @@
   --blue:#60a5fa; --purple:#a78bfa;
   --text:#ffffff; --text2:#e8e8ec; --text3:#a0a0b0;
   --font-head:'Rajdhani',sans-serif; --font-mono:'IBM Plex Mono',monospace; --font-body:'IBM Plex Sans',sans-serif;
-  --nav-h:64px; --safe-bottom:env(safe-area-inset-bottom,0px);
+  --nav-h:60px; --safe-bottom:env(safe-area-inset-bottom,0px);
+  --radius:12px; --radius-lg:16px;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html{font-size:16px;}
-body{background:var(--bg);color:var(--text2);font-family:var(--font-body);min-height:100vh;overflow-x:hidden;-webkit-tap-highlight-color:transparent;padding-bottom:calc(var(--nav-h) + var(--safe-bottom) + 8px);}
-body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:.3;}
+body{background:var(--bg);color:var(--text2);font-family:var(--font-body);min-height:100vh;overflow-x:hidden;-webkit-tap-highlight-color:transparent;padding-bottom:calc(var(--nav-h) + var(--safe-bottom) + 16px);}
 
-/* TOP BAR */
-.topbar{position:sticky;top:0;z-index:100;background:var(--bg2);border-bottom:1px solid var(--border);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;}
+/* GRAIN TEXTURE */
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:.25;}
+
+/* ── TOP BAR ── */
+.topbar{position:sticky;top:0;z-index:100;background:rgba(17,17,20,0.95);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;backdrop-filter:blur(12px);}
 .topbar-left{display:flex;align-items:center;gap:10px;}
-.logo-text{font-family:var(--font-head);font-size:20px;font-weight:700;letter-spacing:2px;color:var(--amber);text-transform:uppercase;}
-.logo-dot{width:7px;height:7px;background:var(--green);border-radius:50%;box-shadow:0 0 6px var(--green);animation:pulse 2s infinite;}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-.date-chip{font-family:var(--font-mono);font-size:10px;color:var(--text3);}
+.logo-mark{width:28px;height:28px;background:var(--amber);border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.logo-mark svg{width:16px;height:16px;fill:#0a0a0b;}
+.logo-text{font-family:var(--font-head);font-size:18px;font-weight:700;letter-spacing:2.5px;color:var(--text);text-transform:uppercase;}
+.logo-text span{color:var(--amber);}
+.status-dot{width:6px;height:6px;background:var(--green);border-radius:50%;box-shadow:0 0 8px var(--green);animation:pulse 2.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.85)}}
+.date-chip{font-family:var(--font-mono);font-size:10px;color:var(--text3);letter-spacing:.5px;}
 
-/* BOTTOM NAV */
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:var(--bg2);border-top:1px solid var(--border);display:flex;height:calc(var(--nav-h) + var(--safe-bottom));padding-bottom:var(--safe-bottom);}
-.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;background:none;border:none;padding:8px 4px;color:var(--text3);font-family:var(--font-body);font-size:10px;font-weight:500;transition:color .15s;letter-spacing:.5px;position:relative;}
+/* ── BOTTOM NAV ── */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(17,17,20,0.97);border-top:1px solid var(--border);display:flex;height:calc(var(--nav-h) + var(--safe-bottom));padding-bottom:var(--safe-bottom);backdrop-filter:blur(12px);}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;background:none;border:none;padding:8px 4px;color:var(--text3);font-family:var(--font-body);font-size:9px;font-weight:600;transition:color .15s;letter-spacing:.8px;text-transform:uppercase;position:relative;}
 .nav-btn.active{color:var(--amber);}
-.nav-btn.active::before{content:'';position:absolute;top:0;left:20%;right:20%;height:2px;background:var(--amber);border-radius:0 0 2px 2px;}
-.nav-icon{font-size:22px;line-height:1;}
+.nav-btn.active .nav-icon-wrap{background:var(--amber-dim);border-color:rgba(245,166,35,.25);}
+.nav-icon-wrap{width:36px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:8px;border:1px solid transparent;transition:all .15s;margin-bottom:1px;}
+.nav-icon{font-size:16px;line-height:1;}
 
-/* CONTENT */
-.content{padding:16px;max-width:600px;margin:0 auto;}
+/* ── CONTENT ── */
+.content{padding:14px 14px;max-width:600px;margin:0 auto;}
 .view{display:none;}
 .view.active{display:block;}
 
-/* LOADING */
-.loading-overlay{position:fixed;inset:0;background:rgba(10,10,11,.88);display:flex;align-items:center;justify-content:center;z-index:8000;flex-direction:column;gap:16px;backdrop-filter:blur(6px);}
+/* ── LOADING ── */
+.loading-overlay{position:fixed;inset:0;background:rgba(10,10,11,.9);display:flex;align-items:center;justify-content:center;z-index:8000;flex-direction:column;gap:14px;backdrop-filter:blur(8px);}
 .loading-overlay.hidden{display:none;}
-.spinner{width:34px;height:34px;border:2px solid var(--border);border-top-color:var(--amber);border-radius:50%;animation:spin .8s linear infinite;}
+.spinner{width:30px;height:30px;border:2px solid var(--border);border-top-color:var(--amber);border-radius:50%;animation:spin .7s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
-.loading-text{font-family:var(--font-mono);font-size:11px;color:var(--text3);letter-spacing:2px;}
+.loading-text{font-family:var(--font-mono);font-size:10px;color:var(--text3);letter-spacing:2.5px;}
 
-/* STAT GRID */
-.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
-.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px 14px;position:relative;overflow:hidden;}
-.stat-card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--amber);}
+/* ── STAT GRID ── */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px 14px 12px;position:relative;overflow:hidden;}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--amber),transparent);}
 .stat-label{font-family:var(--font-mono);font-size:9px;letter-spacing:1.5px;color:var(--text3);text-transform:uppercase;margin-bottom:8px;}
-.stat-value{font-family:var(--font-head);font-size:26px;font-weight:700;color:var(--amber);line-height:1;}
-.stat-sub{font-size:10px;color:var(--text3);margin-top:4px;font-family:var(--font-mono);}
+.stat-value{font-family:var(--font-head);font-size:28px;font-weight:700;color:var(--amber);line-height:1;}
+.stat-sub{font-size:10px;color:var(--text3);margin-top:3px;font-family:var(--font-mono);}
 
-/* SECTION LABEL */
-.section-label{display:flex;align-items:center;gap:10px;margin:20px 0 12px;font-family:var(--font-head);font-size:16px;font-weight:700;letter-spacing:1px;color:var(--text);text-transform:uppercase;}
+/* ── SECTION LABEL ── */
+.section-label{display:flex;align-items:center;gap:10px;margin:18px 0 10px;font-family:var(--font-mono);font-size:9px;font-weight:600;letter-spacing:2px;color:var(--text3);text-transform:uppercase;}
 .section-label::after{content:'';flex:1;height:1px;background:var(--border);}
+.section-label.red{color:var(--red);}
+.section-label.green{color:var(--green);}
 
-/* BILL CARD */
-.bill-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px;}
+/* ── BILL CARD ── */
+.bill-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px;margin-bottom:10px;transition:border-color .15s;}
+.bill-card:active{border-color:var(--amber);}
 .bill-card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
-.bill-unit{font-family:var(--font-head);font-size:22px;font-weight:700;color:var(--text);letter-spacing:1px;}
-.bill-month-lbl{font-family:var(--font-mono);font-size:11px;color:var(--text3);margin-top:2px;}
-.bill-total-amt{font-family:var(--font-head);font-size:24px;font-weight:700;color:var(--amber);}
-.bill-balance-lbl{font-family:var(--font-mono);font-size:11px;color:var(--text3);margin-top:3px;text-align:right;}
+.bill-unit{font-family:var(--font-head);font-size:20px;font-weight:700;color:var(--text);letter-spacing:.5px;}
+.bill-month-lbl{font-family:var(--font-mono);font-size:10px;color:var(--text3);margin-top:2px;}
+.bill-total-amt{font-family:var(--font-head);font-size:22px;font-weight:700;color:var(--amber);}
+.bill-balance-lbl{font-family:var(--font-mono);font-size:10px;color:var(--text3);margin-top:3px;text-align:right;}
 .bill-divider{border:none;border-top:1px solid var(--border);margin:10px 0;}
-.bill-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.bill-actions{display:flex;gap:7px;flex-wrap:wrap;}
 
-/* STATUS PILLS */
-.pill{display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:20px;font-family:var(--font-mono);font-size:10px;letter-spacing:1px;text-transform:uppercase;}
-.pill-unpaid{background:rgba(239,68,68,.12);color:var(--red);border:1px solid rgba(239,68,68,.3);}
-.pill-partial{background:var(--amber-dim);color:var(--amber);border:1px solid rgba(245,166,35,.3);}
-.pill-paid{background:var(--green-dim);color:var(--green);border:1px solid rgba(34,197,94,.3);}
+/* ── STATUS PILLS ── */
+.pill{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-family:var(--font-mono);font-size:9px;letter-spacing:1px;text-transform:uppercase;font-weight:500;}
+.pill-unpaid{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.25);}
+.pill-partial{background:var(--amber-dim);color:var(--amber);border:1px solid rgba(245,166,35,.25);}
+.pill-paid{background:var(--green-dim);color:var(--green);border:1px solid rgba(34,197,94,.25);}
 
-/* TENANT HERO */
-.tenant-hero{background:linear-gradient(135deg,var(--bg2) 0%,#1a1a22 100%);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:14px;position:relative;overflow:hidden;}
-.tenant-hero::before{content:'';position:absolute;top:-30px;right:-30px;width:100px;height:100px;background:var(--amber-dim);border-radius:50%;filter:blur(20px);}
-.hero-unit{font-family:var(--font-head);font-size:26px;font-weight:700;letter-spacing:2px;color:var(--text);}
-.hero-phone{font-family:var(--font-mono);font-size:12px;color:var(--text3);margin-top:4px;}
+/* ── TENANT HERO ── */
+.tenant-hero{background:linear-gradient(135deg,var(--bg2) 0%,#1a1a22 100%);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;margin-bottom:14px;position:relative;overflow:hidden;}
+.tenant-hero::before{content:'';position:absolute;top:-40px;right:-40px;width:120px;height:120px;background:var(--amber-dim);border-radius:50%;filter:blur(30px);}
+.hero-unit{font-family:var(--font-head);font-size:24px;font-weight:700;letter-spacing:1px;color:var(--text);}
+.hero-phone{font-family:var(--font-mono);font-size:11px;color:var(--text3);margin-top:3px;}
 .hero-rent{font-family:var(--font-head);font-size:20px;font-weight:700;color:var(--amber);}
 
-/* READING BAR */
-.reading-bar{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
-.reading-lbl{font-family:var(--font-mono);font-size:9px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px;}
-.reading-val{font-family:var(--font-mono);font-size:16px;color:var(--text);font-weight:500;}
+/* ── READING BAR ── */
+.reading-bar{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+.reading-lbl{font-family:var(--font-mono);font-size:9px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px;}
+.reading-val{font-family:var(--font-mono);font-size:15px;color:var(--text);font-weight:500;}
 
-/* FORM */
-.form-group{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;}
+/* ── FORM ── */
+.form-group{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;}
 .form-label{font-family:var(--font-mono);font-size:10px;letter-spacing:1.5px;color:var(--text3);text-transform:uppercase;}
-.form-input,.form-select{background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:var(--font-body);font-size:16px;padding:14px 16px;outline:none;transition:border-color .15s;width:100%;-webkit-appearance:none;appearance:none;}
+.form-input,.form-select{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:var(--font-body);font-size:16px;padding:13px 14px;outline:none;transition:border-color .15s;width:100%;-webkit-appearance:none;appearance:none;}
 .form-input:focus,.form-select:focus{border-color:var(--amber);}
 .form-select option{background:var(--bg3);}
 .form-input::placeholder{color:var(--text3);}
-.form-hint{font-family:var(--font-mono);font-size:11px;color:var(--text3);}
+.form-hint{font-family:var(--font-mono);font-size:10px;color:var(--text3);}
 .form-hint.info{color:var(--blue);}
 .form-hint.warn{color:var(--amber);}
 .form-hint.ok{color:var(--green);}
 
-/* WATER ROW */
+/* ── TWO-COL ROW ── */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
+/* ── WATER ROW ── */
 .water-row{display:flex;gap:8px;align-items:flex-end;}
 .water-row .form-input{flex:1;}
-.water-reset-btn{flex-shrink:0;background:var(--bg3);border:1px solid var(--amber);color:var(--amber);border-radius:10px;padding:0 14px;height:52px;font-family:var(--font-mono);font-size:11px;cursor:pointer;transition:all .15s;display:none;}
+.water-reset-btn{flex-shrink:0;background:var(--bg3);border:1px solid var(--amber);color:var(--amber);border-radius:var(--radius);padding:0 12px;height:50px;font-family:var(--font-mono);font-size:10px;cursor:pointer;transition:all .15s;display:none;letter-spacing:.5px;}
 .water-reset-btn.show{display:flex;align-items:center;justify-content:center;}
 .water-reset-btn:active{background:var(--amber-dim);}
 
-/* CALC BOX */
-.calc-box{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px;}
-.calc-title{font-family:var(--font-mono);font-size:9px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-bottom:12px;}
-.calc-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;font-family:var(--font-mono);font-size:12px;color:var(--text2);border-bottom:1px solid rgba(42,42,50,.4);}
+/* ── CALC BOX ── */
+.calc-box{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:14px;}
+.calc-title{font-family:var(--font-mono);font-size:9px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-bottom:10px;}
+.calc-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;font-family:var(--font-mono);font-size:11px;color:var(--text3);border-bottom:1px solid rgba(42,42,50,.5);}
 .calc-row:last-child{border-bottom:none;}
-.calc-row.total{padding-top:12px;margin-top:4px;font-size:18px;font-weight:700;color:var(--amber);font-family:var(--font-head);letter-spacing:1px;border-top:1px solid var(--border);border-bottom:none;}
-.calc-val{color:var(--text);}
+.calc-row.total{padding-top:12px;margin-top:4px;font-size:17px;font-weight:700;color:var(--amber);font-family:var(--font-head);letter-spacing:1px;border-top:1px solid var(--border);border-bottom:none;}
+.calc-val{color:var(--text2);}
 .calc-row.discount .calc-val{color:var(--green);}
 
-/* BUTTONS */
-.btn{font-family:var(--font-body);font-weight:600;font-size:15px;padding:14px 20px;border-radius:10px;border:none;cursor:pointer;transition:all .15s;letter-spacing:.5px;display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:50px;}
+/* ── BUTTONS ── */
+.btn{font-family:var(--font-body);font-weight:600;font-size:14px;padding:13px 18px;border-radius:var(--radius);border:none;cursor:pointer;transition:all .15s;letter-spacing:.3px;display:flex;align-items:center;justify-content:center;gap:7px;width:100%;min-height:48px;}
 .btn-amber{background:var(--amber);color:#0a0a0b;}
 .btn-amber:active{background:var(--amber2);transform:scale(.98);}
 .btn-green{background:var(--green);color:#0a0a0b;}
 .btn-green:active{transform:scale(.98);}
-.btn-ghost{background:var(--bg3);color:var(--text);border:1px solid var(--border);font-size:13px;}
+.btn-ghost{background:var(--bg3);color:var(--text2);border:1px solid var(--border);font-size:13px;}
 .btn-ghost:active{border-color:var(--text3);}
-.btn-danger{background:rgba(239,68,68,.12);color:var(--red);border:1px solid rgba(239,68,68,.25);font-size:13px;}
-.btn-danger:active{background:rgba(239,68,68,.25);}
-.btn-sm{padding:8px 14px;font-size:12px;min-height:36px;width:auto;}
+.btn-danger{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2);font-size:13px;}
+.btn-danger:active{background:rgba(239,68,68,.2);}
+.btn-sm{padding:7px 12px;font-size:11px;min-height:32px;width:auto;letter-spacing:.3px;}
 .btn:disabled{opacity:.4;cursor:not-allowed;}
 .btn-row{display:flex;gap:10px;margin-top:10px;}
 .btn-row .btn{flex:1;}
 
-/* TOGGLE */
-.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;margin-bottom:14px;cursor:pointer;}
-.toggle-lbl{font-size:14px;color:var(--text);}
-.toggle-sub{font-family:var(--font-mono);font-size:10px;color:var(--text3);margin-top:2px;}
-.toggle{position:relative;width:44px;height:24px;background:var(--border);border-radius:12px;transition:background .2s;flex-shrink:0;}
+/* ── TOGGLE ── */
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:13px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:12px;cursor:pointer;}
+.toggle-lbl{font-size:13px;color:var(--text);}
+.toggle-sub{font-family:var(--font-mono);font-size:9px;color:var(--text3);margin-top:2px;}
+.toggle{position:relative;width:42px;height:24px;background:var(--border);border-radius:12px;transition:background .2s;flex-shrink:0;}
 .toggle.on{background:var(--amber);}
 .toggle::after{content:'';position:absolute;width:18px;height:18px;background:#fff;border-radius:50%;top:3px;left:3px;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.4);}
-.toggle.on::after{transform:translateX(20px);}
+.toggle.on::after{transform:translateX(18px);}
 
-/* CARD */
-.card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:14px;}
-.card-header{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg3);}
-.card-title{font-family:var(--font-head);font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text);}
-.card-body{padding:16px;}
+/* ── CARD ── */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:14px;}
+.card-header{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg3);}
+.card-title{font-family:var(--font-mono);font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--text);}
+.card-body{padding:14px;}
 
-/* LEDGER FILTER */
-.filter-strip{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
-.filter-strip .form-input,.filter-strip .form-select{flex:1;min-width:120px;}
+/* ── LEDGER FILTER ── */
+.filter-strip{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
+.filter-strip .form-input,.filter-strip .form-select{font-size:14px;}
+.filter-strip-row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:-4px;margin-bottom:14px;}
 
-/* DATA TABLE */
+/* ── DATA TABLE ── */
 .data-table{width:100%;border-collapse:collapse;}
 .data-table th{font-family:var(--font-mono);font-size:9px;letter-spacing:1.5px;color:var(--text3);text-transform:uppercase;padding:10px 14px;text-align:left;background:var(--bg3);border-bottom:1px solid var(--border);}
 .data-table td{padding:11px 14px;font-size:13px;border-bottom:1px solid rgba(42,42,50,.5);vertical-align:middle;}
 .data-table tr:last-child td{border-bottom:none;}
 
-/* EMPTY */
-.empty{padding:40px 20px;text-align:center;color:var(--text3);font-family:var(--font-mono);font-size:12px;letter-spacing:1px;}
-.empty-icon{font-size:32px;margin-bottom:10px;}
+/* ── EMPTY ── */
+.empty{padding:36px 20px;text-align:center;color:var(--text3);font-family:var(--font-mono);font-size:11px;letter-spacing:1px;line-height:1.8;}
+.empty-icon{font-size:28px;margin-bottom:10px;opacity:.6;}
 
-/* RECEIPT OVERLAY */
-#receipt-overlay{position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:500;display:none;flex-direction:column;overflow:hidden;backdrop-filter:blur(8px);}
+/* ── RECEIPT OVERLAY ── */
+#receipt-overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:500;display:none;flex-direction:column;overflow:hidden;backdrop-filter:blur(10px);}
 #receipt-overlay.open{display:flex;}
 .receipt-sheet{background:var(--bg2);border-top:1px solid var(--border);border-radius:20px 20px 0 0;margin-top:auto;max-height:92vh;overflow-y:auto;padding-bottom:calc(16px + var(--safe-bottom));animation:slideUp .3s ease;}
 @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
-.receipt-sheet-hdr{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--bg2);z-index:1;}
-.close-btn{background:var(--bg3);border:1px solid var(--border);color:var(--text2);width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;}
-.receipt-prev-wrap{padding:16px;}
+.receipt-sheet-hdr{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--bg2);z-index:1;}
+.receipt-hdr-title{font-family:var(--font-mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);}
+.close-btn{background:var(--bg3);border:1px solid var(--border);color:var(--text2);width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;}
+.receipt-prev-wrap{padding:14px;}
 .receipt-img-loading{padding:40px;text-align:center;font-family:var(--font-mono);font-size:11px;color:var(--text3);}
-.receipt-img{width:100%;border-radius:10px;display:block;}
-.receipt-acts{padding:0 16px 16px;display:flex;flex-direction:column;gap:10px;}
+.receipt-img{width:100%;border-radius:var(--radius);display:block;box-shadow:0 4px 24px rgba(0,0,0,.4);}
+.receipt-acts{padding:0 14px 14px;display:flex;flex-direction:column;gap:8px;}
 
-/* RECEIPT PRINT ZONE (off-screen) */
-#receipt-print-zone{position:fixed;left:-9999px;top:0;width:400px;background:#fff;color:#111;padding:32px 26px;font-family:'IBM Plex Sans',sans-serif;z-index:-1;}
-.rz-header{text-align:center;margin-bottom:20px;padding-bottom:16px;border-bottom:3px solid #111;}
-.rz-title{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;letter-spacing:2px;color:#111;text-transform:uppercase;}
-.rz-for{font-family:'Rajdhani',sans-serif;font-size:14px;color:#444;letter-spacing:1px;margin-top:3px;}
-.rz-unit{font-family:'IBM Plex Mono',monospace;font-size:12px;color:#666;margin-top:5px;}
-.rz-date{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#aaa;margin-top:3px;}
-.rz-table{width:100%;border-collapse:collapse;margin-bottom:12px;}
+/* ── RECEIPT PRINT ZONE (off-screen) ── */
+#receipt-print-zone{position:fixed;left:-9999px;top:0;width:420px;background:#fff;color:#111;padding:36px 28px;font-family:'IBM Plex Sans',sans-serif;z-index:-1;}
+.rz-header{text-align:center;margin-bottom:22px;padding-bottom:18px;border-bottom:2px solid #111;}
+.rz-logo{font-family:'Rajdhani',sans-serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#999;margin-bottom:8px;}
+.rz-title{font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;color:#111;text-transform:uppercase;letter-spacing:1px;}
+.rz-for{font-family:'IBM Plex Mono',monospace;font-size:12px;color:#555;margin-top:6px;}
+.rz-date{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#bbb;margin-top:4px;}
+.rz-table{width:100%;border-collapse:collapse;margin-bottom:0;}
 .rz-table tr{border-bottom:1px solid #f0f0f0;}
 .rz-table tr:last-child{border-bottom:none;}
-.rz-table td{padding:10px 4px;font-size:14px;}
+.rz-table td{padding:11px 4px;font-size:14px;}
 .rz-table td:last-child{text-align:right;font-family:'IBM Plex Mono',monospace;font-weight:600;color:#111;}
 .rz-label{color:#555;font-weight:500;}
-.rz-sub-row td{color:#166534 !important;background:#f0fdf4;}
-.rz-total-row{border-top:3px solid #111 !important;}
-.rz-total-row td{padding-top:14px !important;font-family:'Rajdhani',sans-serif !important;font-size:20px !important;font-weight:700 !important;letter-spacing:1px !important;}
+.rz-total-row{border-top:2px solid #111 !important;border-bottom:none !important;}
+.rz-total-row td{padding-top:16px !important;font-family:'Rajdhani',sans-serif !important;font-size:22px !important;font-weight:700 !important;letter-spacing:.5px !important;}
 .rz-total-row td:last-child{color:#f5a623 !important;}
-.rz-footer{text-align:center;font-size:12px;color:#999;font-family:'IBM Plex Mono',monospace;border-top:1px dashed #ddd;padding-top:14px;margin-top:4px;font-style:italic;}
+.rz-footer{text-align:center;font-size:11px;color:#bbb;font-family:'IBM Plex Mono',monospace;border-top:1px dashed #e0e0e0;padding-top:16px;margin-top:18px;}
 
-/* PAY MODAL */
-#pay-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:600;display:none;align-items:flex-end;backdrop-filter:blur(4px);}
+/* ── PAY MODAL ── */
+#pay-modal{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:600;display:none;align-items:flex-end;backdrop-filter:blur(4px);}
 #pay-modal.open{display:flex;}
-.pay-sheet{background:var(--bg2);border:1px solid var(--border);border-radius:20px 20px 0 0;width:100%;padding:24px 20px calc(24px + var(--safe-bottom));animation:slideUp .25s ease;}
-.pay-sheet-title{font-family:var(--font-head);font-size:18px;font-weight:700;letter-spacing:1px;color:var(--text);margin-bottom:16px;}
+.pay-sheet{background:var(--bg2);border:1px solid var(--border);border-radius:20px 20px 0 0;width:100%;padding:22px 16px calc(22px + var(--safe-bottom));animation:slideUp .25s ease;}
+.pay-sheet-title{font-family:var(--font-mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:14px;}
 
-/* TOAST */
-#toast{position:fixed;bottom:calc(var(--nav-h) + 12px + var(--safe-bottom));right:16px;left:16px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 18px;font-size:14px;color:var(--text);z-index:9000;transform:translateY(16px);opacity:0;transition:all .3s;display:flex;align-items:center;gap:10px;}
+/* ── TOAST ── */
+#toast{position:fixed;bottom:calc(var(--nav-h) + 10px + var(--safe-bottom));right:14px;left:14px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;font-size:13px;color:var(--text);z-index:9000;transform:translateY(14px);opacity:0;transition:all .25s;display:flex;align-items:center;gap:8px;font-family:var(--font-body);}
 #toast.show{transform:translateY(0);opacity:1;}
 #toast.success{border-color:var(--green);}
 #toast.error{border-color:var(--red);}
 
+/* ── MISC CHARGE BLOCK ── */
+.misc-block{background:var(--bg3);border:1px dashed rgba(245,166,35,.3);border-radius:var(--radius);padding:14px;margin-bottom:12px;}
+.misc-block-title{font-family:var(--font-mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--amber);margin-bottom:10px;}
+
 @media(min-width:600px){
-  .content{padding:20px 24px;}
+  .content{padding:18px 20px;}
   .stat-grid{grid-template-columns:repeat(4,1fr);}
+  .filter-strip{grid-template-columns:1fr 1fr 1fr;}
 }
 </style>
 </head>
@@ -219,8 +238,11 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 
 <div class="topbar">
   <div class="topbar-left">
-    <div class="logo-dot"></div>
-    <div class="logo-text">RentMgr</div>
+    <div class="logo-mark">
+      <svg viewBox="0 0 16 16"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
+    </div>
+    <div class="logo-text">Rent<span>Mgr</span></div>
+    <div class="status-dot"></div>
   </div>
   <div class="date-chip" id="current-date"></div>
 </div>
@@ -252,10 +274,10 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
       </div>
     </div>
 
-    <div class="section-label" style="color:var(--red);">⚠ Pending &amp; Partial</div>
+    <div class="section-label red">Pending &amp; Partial</div>
     <div id="active-bills"></div>
 
-    <div class="section-label" style="color:var(--green);">✓ Fully Paid</div>
+    <div class="section-label green">Fully Paid</div>
     <div id="paid-bills"></div>
   </div>
 
@@ -264,7 +286,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     <input type="hidden" id="edit-bill-id" value=""/>
 
     <div class="form-group" id="tenant-select-wrap">
-      <label class="form-label">Select Rental Unit</label>
+      <label class="form-label">Rental Unit</label>
       <select class="form-select" id="bill-tenant" onchange="onTenantSelect()">
         <option value="">— Choose unit —</option>
       </select>
@@ -283,7 +305,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
           </div>
         </div>
         <div id="pill-cap-note" style="display:none;margin-top:10px;">
-          <span style="font-family:var(--font-mono);font-size:10px;background:var(--green-dim);color:var(--green);border:1px solid rgba(34,197,94,.3);padding:4px 12px;border-radius:20px;letter-spacing:1px;">💧 WATER SUBSIDY CAP ACTIVE</span>
+          <span style="font-family:var(--font-mono);font-size:9px;background:var(--green-dim);color:var(--green);border:1px solid rgba(34,197,94,.3);padding:3px 10px;border-radius:20px;letter-spacing:1px;">Water Subsidy Cap Active</span>
         </div>
       </div>
     </div>
@@ -311,13 +333,10 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     </div>
 
     <div class="form-group">
-      <label class="form-label">
-        Water Charges (₹)
-        <span style="color:var(--amber);font-size:9px;letter-spacing:1px;margin-left:6px;">AUTO · EDITABLE</span>
-      </label>
+      <label class="form-label">Water Charges (₹) &nbsp;<span style="color:var(--amber);font-size:9px;letter-spacing:1px;">AUTO · EDITABLE</span></label>
       <div class="water-row">
         <input type="number" class="form-input" id="bill-water-charges" placeholder="Auto-calculated" inputmode="decimal" oninput="onWaterChargesEdited()"/>
-        <button class="water-reset-btn" id="water-reset-btn" onclick="resetWaterCharges()">↺ Reset</button>
+        <button class="water-reset-btn" id="water-reset-btn" onclick="resetWaterCharges()">Reset</button>
       </div>
       <span class="form-hint" id="water-calc-hint"></span>
     </div>
@@ -327,30 +346,46 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
       <input type="number" class="form-input" id="bill-elec" placeholder="0" inputmode="decimal" oninput="recalculate()"/>
     </div>
 
+    <!-- MISC CHARGE -->
+    <div class="misc-block">
+      <div class="misc-block-title">Miscellaneous Charge (optional)</div>
+      <div class="two-col">
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label">Label</label>
+          <input type="text" class="form-input" id="bill-misc-label" placeholder="e.g. Parking" oninput="recalculate()"/>
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label">Amount (₹)</label>
+          <input type="number" class="form-input" id="bill-misc-amount" placeholder="0" inputmode="decimal" oninput="recalculate()"/>
+        </div>
+      </div>
+    </div>
+
     <div class="form-group">
-      <label class="form-label">Previous Balance Carry-over (₹)</label>
+      <label class="form-label">Previous Balance (₹)</label>
       <input type="number" class="form-input" id="bill-prev-balance" value="0" inputmode="decimal" oninput="recalculate()"/>
       <span class="form-hint" id="balance-hint"></span>
     </div>
 
     <div class="calc-box">
       <div class="calc-title">Live Breakdown</div>
-      <div class="calc-row"><span>Base Rent</span><span class="calc-val" id="calc-rent">₹ —</span></div>
-      <div class="calc-row"><span>Water (gross formula)</span><span class="calc-val" id="calc-water-raw">₹ —</span></div>
+      <div class="calc-row"><span>Rent</span><span class="calc-val" id="calc-rent">₹ —</span></div>
+      <div class="calc-row"><span>Water (gross)</span><span class="calc-val" id="calc-water-raw">₹ —</span></div>
       <div class="calc-row discount" id="calc-cap-row" style="display:none;">
-        <span id="calc-cap-lbl">Water Subsidy (cap ₹500)</span>
+        <span>Water Subsidy</span>
         <span class="calc-val" id="calc-subsidy">− ₹ 0</span>
       </div>
       <div class="calc-row"><span>Water Charged</span><span class="calc-val" id="calc-water">₹ —</span></div>
       <div class="calc-row"><span>Electricity</span><span class="calc-val" id="calc-elec">₹ —</span></div>
+      <div class="calc-row" id="calc-misc-row" style="display:none;"><span id="calc-misc-lbl">Misc</span><span class="calc-val" id="calc-misc">₹ 0</span></div>
       <div class="calc-row"><span>Previous Balance</span><span class="calc-val" id="calc-prev">₹ 0</span></div>
-      <div class="calc-row total"><span>TOTAL DUE</span><span id="calc-total">₹ 0</span></div>
+      <div class="calc-row total"><span>Total Due</span><span id="calc-total">₹ 0</span></div>
     </div>
 
-    <div class="btn-row" style="margin-bottom:12px;">
-      <button class="btn btn-ghost" onclick="previewReceiptOnly()">👁 Preview Receipt</button>
+    <div style="display:flex;gap:10px;margin-bottom:10px;">
+      <button class="btn btn-ghost" onclick="previewReceiptOnly()" style="flex:1;">Preview Receipt</button>
     </div>
-    <button class="btn btn-amber" onclick="saveBill()" id="save-btn">💾 Save &amp; Generate Bill</button>
+    <button class="btn btn-amber" onclick="saveBill()" id="save-btn">Save &amp; Generate Bill</button>
   </div>
 
   <!-- ══ LIBRARY ══ -->
@@ -359,13 +394,16 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
       <select class="form-select" id="filter-unit" onchange="loadLedger()">
         <option value="">All Units</option>
       </select>
-      <input type="month" class="form-input" id="filter-month" onchange="loadLedger()"/>
       <select class="form-select" id="filter-status" onchange="loadLedger()">
         <option value="all">All Status</option>
         <option value="unpaid">Unpaid</option>
         <option value="partial">Partial</option>
         <option value="paid">Paid</option>
       </select>
+    </div>
+    <div class="filter-strip-row2">
+      <input type="month" class="form-input" id="filter-month" onchange="loadLedger()" placeholder="Filter month"/>
+      <button class="btn btn-ghost" onclick="clearLedgerFilters()" style="font-size:12px;min-height:0;padding:0 10px;height:48px;">Clear Filters</button>
     </div>
     <div id="ledger-list"></div>
   </div>
@@ -403,8 +441,8 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
           <div class="toggle" id="water-cap-toggle"></div>
         </div>
         <div class="btn-row">
-          <button class="btn btn-ghost" onclick="clearTenantForm()">✕ Clear</button>
-          <button class="btn btn-amber" onclick="saveTenant()">💾 Save Unit</button>
+          <button class="btn btn-ghost" onclick="clearTenantForm()">Clear</button>
+          <button class="btn btn-amber" onclick="saveTenant()">Save Unit</button>
         </div>
       </div>
     </div>
@@ -412,7 +450,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     <div class="card">
       <div class="card-header">
         <span class="card-title">All Rental Units</span>
-        <button class="btn btn-ghost btn-sm" onclick="loadTenants()">↻ Refresh</button>
+        <button class="btn btn-ghost btn-sm" onclick="loadTenants()">Refresh</button>
       </div>
       <div id="tenant-list-table"></div>
     </div>
@@ -423,19 +461,19 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 <!-- BOTTOM NAV -->
 <nav class="bottom-nav">
   <button class="nav-btn active" onclick="showView('dashboard')" id="nav-dashboard">
-    <span class="nav-icon">🏠</span>
+    <div class="nav-icon-wrap"><span class="nav-icon">⌂</span></div>
     <span>Home</span>
   </button>
   <button class="nav-btn" onclick="showView('new-bill');clearBillForm();" id="nav-new-bill">
-    <span class="nav-icon">⚡</span>
+    <div class="nav-icon-wrap"><span class="nav-icon">+</span></div>
     <span>New Bill</span>
   </button>
   <button class="nav-btn" onclick="showView('ledger')" id="nav-ledger">
-    <span class="nav-icon">📋</span>
+    <div class="nav-icon-wrap"><span class="nav-icon">≡</span></div>
     <span>Library</span>
   </button>
   <button class="nav-btn" onclick="showView('settings')" id="nav-settings">
-    <span class="nav-icon">⚙️</span>
+    <div class="nav-icon-wrap"><span class="nav-icon">◎</span></div>
     <span>Units</span>
   </button>
 </nav>
@@ -445,19 +483,19 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
   <div style="flex:1;" onclick="closeReceipt()"></div>
   <div class="receipt-sheet">
     <div class="receipt-sheet-hdr">
-      <span style="font-family:var(--font-head);font-size:16px;font-weight:700;letter-spacing:1px;color:var(--text);">📄 Bill Receipt</span>
+      <span class="receipt-hdr-title">Bill Receipt</span>
       <button class="close-btn" onclick="closeReceipt()">✕</button>
     </div>
     <div class="receipt-prev-wrap">
       <div class="receipt-img-loading" id="receipt-img-loading">
         <div class="spinner" style="margin:0 auto 12px;"></div>
-        <div>Rendering receipt image…</div>
+        <div style="font-family:var(--font-mono);font-size:11px;color:var(--text3);">Rendering receipt…</div>
       </div>
       <img id="receipt-img" class="receipt-img" style="display:none;" alt="Receipt Preview"/>
     </div>
     <div class="receipt-acts">
-      <button class="btn btn-green" onclick="shareReceiptImage()" style="font-size:16px;">💬 Share via WhatsApp</button>
-      <button class="btn btn-ghost" onclick="downloadReceipt()">⬇ Download Image</button>
+      <button class="btn btn-green" onclick="shareReceiptImage()">Share via WhatsApp</button>
+      <button class="btn btn-ghost" onclick="downloadReceipt()">Download Image</button>
       <button class="btn btn-ghost" onclick="closeReceipt()">Close</button>
     </div>
   </div>
@@ -477,7 +515,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     </div>
     <div class="btn-row">
       <button class="btn btn-ghost" onclick="closePayModal()">Cancel</button>
-      <button class="btn btn-amber" onclick="submitPayment()">✓ Record Payment</button>
+      <button class="btn btn-amber" onclick="submitPayment()">Record Payment</button>
     </div>
   </div>
 </div>
@@ -503,9 +541,9 @@ let tenants = [];
 let currentBillData = null;
 let currentReceiptDataUrl = null;
 let waterManuallyEdited = false;
-let _prevReading = 0;          // previous water reading for current form
+let _prevReading = 0;
 let _prevReadingLabel = '—';
-let localCaps = {};            // fallback if water_cap column missing in DB
+let localCaps = {};
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //  HELPERS
@@ -544,10 +582,10 @@ function hideLoading() {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function toast(msg, type = 'success') {
   const el = document.getElementById('toast');
-  el.innerHTML = (type === 'success' ? '✓ &nbsp;' : '✕ &nbsp;') + msg;
+  el.textContent = msg;
   el.className = 'show ' + type;
   clearTimeout(el._t);
-  el._t = setTimeout(() => { el.className = ''; }, 3800);
+  el._t = setTimeout(() => { el.className = ''; }, 3500);
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -567,7 +605,7 @@ function showView(name) {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('current-date').textContent =
-    new Date().toLocaleDateString('en-IN', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
+    new Date().toLocaleDateString('en-IN', { weekday: 'short', day: '2-digit', month: 'short' });
   document.getElementById('bill-month').value = getDefaultBillingMonth();
   showLoading('LOADING');
   await loadTenants();
@@ -598,13 +636,13 @@ function populateTenantDropdowns() {
 
 function renderTenantList() {
   const el = document.getElementById('tenant-list-table');
-  if (!tenants.length) { el.innerHTML = '<div class="empty"><div class="empty-icon">🏠</div>No units yet</div>'; return; }
+  if (!tenants.length) { el.innerHTML = '<div class="empty"><div class="empty-icon">□</div>No units yet</div>'; return; }
   el.innerHTML = `<table class="data-table">
     <thead><tr><th>Unit</th><th>Rent</th><th>Cap</th><th></th></tr></thead>
     <tbody>${tenants.map(t => `<tr>
       <td style="font-weight:600;color:var(--text);">${t.house_name}</td>
-      <td style="font-family:var(--font-mono);color:var(--amber);">₹${fmt(t.base_rent)}</td>
-      <td style="font-size:12px;">${isCapped(t) ? '<span style="color:var(--green);">💧 Yes</span>' : '<span style="color:var(--text3);">—</span>'}</td>
+      <td style="font-family:var(--font-mono);color:var(--amber);font-size:12px;">₹${fmt(t.base_rent)}</td>
+      <td style="font-size:11px;">${isCapped(t) ? '<span style="color:var(--green);">Yes</span>' : '<span style="color:var(--text3);">—</span>'}</td>
       <td><button class="btn btn-ghost btn-sm" onclick="editTenant('${t.id}')">Edit</button></td>
     </tr>`).join('')}</tbody></table>`;
 }
@@ -681,7 +719,6 @@ async function loadDashboard() {
   const bills = allBills || [];
   document.getElementById('stat-bills').textContent = bills.length;
 
-  // Collected this month
   const collected = bills
     .filter(b => b.billing_month?.startsWith(ym))
     .reduce((s, b) => s + (parseFloat(b.amount_paid) || 0), 0);
@@ -704,8 +741,8 @@ async function loadDashboard() {
   paidEl.innerHTML   = '';
 
   if (!latest.length) {
-    activeEl.innerHTML = '<div class="empty"><div class="empty-icon">📄</div>No bills yet. Tap ⚡ New Bill to start.</div>';
-    paidEl.innerHTML   = '<div class="empty"><div class="empty-icon">✅</div>Nothing here yet.</div>';
+    activeEl.innerHTML = '<div class="empty"><div class="empty-icon">□</div>No bills yet. Tap New Bill to start.</div>';
+    paidEl.innerHTML   = '<div class="empty"><div class="empty-icon">□</div>Nothing here yet.</div>';
     return;
   }
 
@@ -717,28 +754,28 @@ async function loadDashboard() {
     const isPartial = amtPaid > 0 && !isPaid;
 
     let pillHtml = '';
-    if (isPaid)        pillHtml = '<span class="pill pill-paid">✓ Fully Paid</span>';
+    if (isPaid)         pillHtml = '<span class="pill pill-paid">Fully Paid</span>';
     else if (isPartial) pillHtml = `<span class="pill pill-partial">Partial · ₹${fmt(amtPaid)} paid</span>`;
-    else                pillHtml = '<span class="pill pill-unpaid">Not Paid</span>';
+    else                pillHtml = '<span class="pill pill-unpaid">Unpaid</span>';
 
     const actions = isPaid
-      ? `<button class="btn btn-ghost btn-sm" onclick="viewBillReceipt('${b.id}')">👁 Receipt</button>
-         <button class="btn btn-ghost btn-sm" onclick="editBill('${b.id}')">✏️ Edit</button>`
-      : `<button class="btn btn-green btn-sm" onclick="openPayModal('${b.id}',${total},${amtPaid})">✓ Full Pay</button>
-         <button class="btn btn-ghost btn-sm" onclick="openPayModal('${b.id}',${total},${amtPaid},true)">💰 Partial</button>
-         <button class="btn btn-ghost btn-sm" onclick="viewBillReceipt('${b.id}')">👁 Share</button>
-         <button class="btn btn-ghost btn-sm" onclick="editBill('${b.id}')">✏️ Edit</button>`;
+      ? `<button class="btn btn-ghost btn-sm" onclick="viewBillReceipt('${b.id}')">Receipt</button>
+         <button class="btn btn-ghost btn-sm" onclick="editBill('${b.id}')">Edit</button>`
+      : `<button class="btn btn-green btn-sm" onclick="openPayModal('${b.id}',${total},${amtPaid})">Full Pay</button>
+         <button class="btn btn-ghost btn-sm" onclick="openPayModal('${b.id}',${total},${amtPaid},true)">Partial</button>
+         <button class="btn btn-ghost btn-sm" onclick="viewBillReceipt('${b.id}')">Share</button>
+         <button class="btn btn-ghost btn-sm" onclick="editBill('${b.id}')">Edit</button>`;
 
     const card = `<div class="bill-card">
       <div class="bill-card-top">
         <div>
           <div class="bill-unit">${b.tenants?.house_name || '—'}</div>
-          <div class="bill-month-lbl">📅 ${fmtMonth(b.billing_month)}</div>
+          <div class="bill-month-lbl">${fmtMonth(b.billing_month)}</div>
           <div style="margin-top:8px;">${pillHtml}</div>
         </div>
         <div>
           <div class="bill-total-amt">₹${fmt(total)}</div>
-          ${!isPaid ? `<div class="bill-balance-lbl">Bal: <span style="color:var(--red);">₹${fmt(balance)}</span></div>` : ''}
+          ${!isPaid ? `<div class="bill-balance-lbl">Balance: <span style="color:var(--red);">₹${fmt(balance)}</span></div>` : ''}
         </div>
       </div>
       <hr class="bill-divider"/>
@@ -749,21 +786,21 @@ async function loadDashboard() {
     else        activeEl.innerHTML += card;
   });
 
-  if (!activeEl.innerHTML) activeEl.innerHTML = '<div style="color:var(--green);font-family:var(--font-mono);font-size:12px;padding:10px 0;">All caught up! 🎉 No pending bills.</div>';
-  if (!paidEl.innerHTML)   paidEl.innerHTML   = '<div class="empty"><div class="empty-icon">💰</div>No fully paid bills yet.</div>';
+  if (!activeEl.innerHTML) activeEl.innerHTML = '<div style="color:var(--green);font-family:var(--font-mono);font-size:11px;padding:10px 0;letter-spacing:1px;">All caught up. No pending bills.</div>';
+  if (!paidEl.innerHTML)   paidEl.innerHTML   = '<div class="empty"><div class="empty-icon">□</div>No fully paid bills yet.</div>';
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //  PAYMENT MODAL
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function openPayModal(billId, total, currentPaid, partialOnly = false) {
-  document.getElementById('pay-bill-id').value     = billId;
-  document.getElementById('pay-bill-total').value  = total;
+  document.getElementById('pay-bill-id').value      = billId;
+  document.getElementById('pay-bill-total').value   = total;
   document.getElementById('pay-current-paid').value = currentPaid;
   const remaining = total - currentPaid;
   document.getElementById('pay-amount').value = partialOnly ? '' : remaining;
   document.getElementById('pay-hint').textContent =
-    `Total ₹${fmt(total)} · Paid ₹${fmt(currentPaid)} · Remaining ₹${fmt(remaining)}`;
+    `Total ₹${fmt(total)}  ·  Paid ₹${fmt(currentPaid)}  ·  Remaining ₹${fmt(remaining)}`;
   document.getElementById('pay-modal').classList.add('open');
   setTimeout(() => document.getElementById('pay-amount').focus(), 250);
 }
@@ -783,7 +820,7 @@ async function submitPayment() {
   if (error) { toast('Failed: ' + error.message, 'error'); return; }
 
   const full = newPaid >= total;
-  toast(full ? '🎉 Fully paid! Moved to Completed.' : `₹${fmt(adding)} recorded. Remaining: ₹${fmt(total - newPaid)}`);
+  toast(full ? 'Fully paid! Moved to Completed.' : `₹${fmt(adding)} recorded. Remaining: ₹${fmt(total - newPaid)}`);
   closePayModal();
   await loadDashboard();
 }
@@ -792,22 +829,24 @@ async function submitPayment() {
 //  NEW BILL — FORM LOGIC
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function clearBillForm() {
-  document.getElementById('edit-bill-id').value       = '';
-  document.getElementById('bill-tenant').value        = '';
-  document.getElementById('bill-month').value         = getDefaultBillingMonth();
-  document.getElementById('bill-water-new').value     = '';
-  document.getElementById('bill-water-charges').value = '';
-  document.getElementById('bill-elec').value          = '';
-  document.getElementById('bill-prev-balance').value  = '0';
+  document.getElementById('edit-bill-id').value        = '';
+  document.getElementById('bill-tenant').value         = '';
+  document.getElementById('bill-month').value          = getDefaultBillingMonth();
+  document.getElementById('bill-water-new').value      = '';
+  document.getElementById('bill-water-charges').value  = '';
+  document.getElementById('bill-elec').value           = '';
+  document.getElementById('bill-misc-label').value     = '';
+  document.getElementById('bill-misc-amount').value    = '';
+  document.getElementById('bill-prev-balance').value   = '0';
   document.getElementById('selected-tenant-pill').style.display = 'none';
-  document.getElementById('prev-reading-val').textContent = '—';
-  document.getElementById('prev-month-val').textContent   = '—';
-  document.getElementById('save-btn').textContent         = '💾 Save & Generate Bill';
+  document.getElementById('prev-reading-val').textContent  = '—';
+  document.getElementById('prev-month-val').textContent    = '—';
+  document.getElementById('save-btn').textContent          = 'Save & Generate Bill';
   document.getElementById('water-reset-btn').classList.remove('show');
-  document.getElementById('water-calc-hint').textContent  = '';
-  document.getElementById('water-units-hint').textContent = '';
-  document.getElementById('balance-hint').textContent     = '';
-  document.getElementById('balance-hint').className       = 'form-hint';
+  document.getElementById('water-calc-hint').textContent   = '';
+  document.getElementById('water-units-hint').textContent  = '';
+  document.getElementById('balance-hint').textContent      = '';
+  document.getElementById('balance-hint').className        = 'form-hint';
   waterManuallyEdited = false;
   _prevReading = 0; _prevReadingLabel = '—';
   resetCalcUI();
@@ -819,14 +858,12 @@ async function onTenantSelect() {
   const t = tenants.find(x => String(x.id) === String(id));
   if (!t) return;
 
-  // Show hero card
   document.getElementById('selected-tenant-pill').style.display = 'block';
   document.getElementById('pill-name').textContent  = t.house_name;
-  document.getElementById('pill-phone').textContent = '📱 ' + (t.phone_number || 'No number');
+  document.getElementById('pill-phone').textContent = t.phone_number || 'No number';
   document.getElementById('pill-rent').textContent  = '₹' + fmt(t.base_rent);
   document.getElementById('pill-cap-note').style.display = isCapped(t) ? 'block' : 'none';
 
-  // Fetch last bill
   const { data: pastBills } = await db.from('utility_bills')
     .select('water_reading, billing_month, total_amount, amount_paid')
     .eq('tenant_id', id)
@@ -835,7 +872,6 @@ async function onTenantSelect() {
 
   const last = pastBills?.[0] || null;
 
-  // Set previous reading
   if (last) {
     _prevReading      = parseFloat(last.water_reading) || 0;
     _prevReadingLabel = fmtMonth(last.billing_month);
@@ -846,7 +882,6 @@ async function onTenantSelect() {
   document.getElementById('prev-reading-val').textContent = _prevReading + ' units';
   document.getElementById('prev-month-val').textContent   = _prevReadingLabel;
 
-  // ── 10TH RULE: auto-carry balance ──
   if (!document.getElementById('edit-bill-id').value) {
     if (last) {
       const lastTotal = parseFloat(last.total_amount) || 0;
@@ -857,21 +892,21 @@ async function onTenantSelect() {
       if (owed > 0 && dayOfMonth >= 10) {
         document.getElementById('bill-prev-balance').value = owed;
         document.getElementById('balance-hint').textContent =
-          `⚡ Auto-carried ₹${fmt(owed)} unpaid from ${fmtMonth(last.billing_month)} (today is ≥ 10th)`;
+          `Auto-carried ₹${fmt(owed)} unpaid from ${fmtMonth(last.billing_month)}`;
         document.getElementById('balance-hint').className = 'form-hint warn';
       } else if (owed > 0 && dayOfMonth < 10) {
         document.getElementById('bill-prev-balance').value = 0;
         document.getElementById('balance-hint').textContent =
-          `ℹ ₹${fmt(owed)} unpaid from last month — will auto-carry once the 10th passes`;
+          `₹${fmt(owed)} unpaid from last month — will auto-carry after the 10th`;
         document.getElementById('balance-hint').className = 'form-hint info';
       } else {
         document.getElementById('bill-prev-balance').value = 0;
-        document.getElementById('balance-hint').textContent = '✓ No outstanding balance from last bill.';
+        document.getElementById('balance-hint').textContent = 'No outstanding balance from last bill.';
         document.getElementById('balance-hint').className = 'form-hint ok';
       }
     } else {
       document.getElementById('bill-prev-balance').value = 0;
-      document.getElementById('balance-hint').textContent = '✓ First bill for this unit.';
+      document.getElementById('balance-hint').textContent = 'First bill for this unit.';
       document.getElementById('balance-hint').className = 'form-hint ok';
     }
   }
@@ -882,7 +917,6 @@ async function onTenantSelect() {
   recalculate();
 }
 
-// ── WATER CHARGES EDITABLE ──
 function computeAutoWater() {
   const id = document.getElementById('bill-tenant').value;
   const t  = tenants.find(x => String(x.id) === String(id));
@@ -899,8 +933,8 @@ function computeAutoWater() {
 function onWaterChargesEdited() {
   waterManuallyEdited = true;
   document.getElementById('water-reset-btn').classList.add('show');
-  document.getElementById('water-calc-hint').textContent  = '⚠ Manual override active — auto-calc paused';
-  document.getElementById('water-calc-hint').className    = 'form-hint warn';
+  document.getElementById('water-calc-hint').textContent = 'Manual override active';
+  document.getElementById('water-calc-hint').className   = 'form-hint warn';
   recalculate();
 }
 
@@ -912,13 +946,13 @@ function resetWaterCharges() {
   recalculate();
 }
 
-// ── RECALCULATE ──
 function resetCalcUI() {
   ['calc-rent','calc-water-raw','calc-water','calc-elec','calc-prev'].forEach(
     id => document.getElementById(id).textContent = '₹ —'
   );
   document.getElementById('calc-total').textContent = '₹ 0';
   document.getElementById('calc-cap-row').style.display = 'none';
+  document.getElementById('calc-misc-row').style.display = 'none';
 }
 
 function recalculate() {
@@ -926,17 +960,18 @@ function recalculate() {
   const t  = tenants.find(x => String(x.id) === String(id));
   if (!t) { resetCalcUI(); return; }
 
-  const baseRent = parseFloat(t.base_rent) || 0;
-  const elec     = parseFloat(document.getElementById('bill-elec').value) || 0;
-  const prevBal  = parseFloat(document.getElementById('bill-prev-balance').value) || 0;
-  const nr       = parseFloat(document.getElementById('bill-water-new').value);
+  const baseRent   = parseFloat(t.base_rent) || 0;
+  const elec       = parseFloat(document.getElementById('bill-elec').value) || 0;
+  const prevBal    = parseFloat(document.getElementById('bill-prev-balance').value) || 0;
+  const miscAmt    = parseFloat(document.getElementById('bill-misc-amount').value) || 0;
+  const miscLabel  = document.getElementById('bill-misc-label').value.trim() || 'Misc';
+  const nr         = parseFloat(document.getElementById('bill-water-new').value);
 
-  // Units hint
   if (!isNaN(nr)) {
     const u = Math.max(0, nr - _prevReading);
     document.getElementById('water-units-hint').textContent =
       nr < _prevReading
-        ? '⚠ Reading is lower than previous!'
+        ? 'Reading is lower than previous!'
         : `(${nr} − ${_prevReading}) = ${u} units → ${u * 10}L → gross ₹${fmt(u * 10 * 0.22)}`;
     document.getElementById('water-units-hint').className =
       nr < _prevReading ? 'form-hint warn' : 'form-hint';
@@ -944,7 +979,6 @@ function recalculate() {
     document.getElementById('water-units-hint').textContent = '';
   }
 
-  // Water cost
   let rawWater = 0, chargedWater = 0, subsidy = 0;
 
   if (waterManuallyEdited) {
@@ -973,7 +1007,16 @@ function recalculate() {
     }
   }
 
-  const total = baseRent + chargedWater + elec + prevBal;
+  // Misc row
+  if (miscAmt > 0) {
+    document.getElementById('calc-misc-row').style.display = 'flex';
+    document.getElementById('calc-misc-lbl').textContent   = miscLabel;
+    document.getElementById('calc-misc').textContent       = `₹ ${fmt(miscAmt)}`;
+  } else {
+    document.getElementById('calc-misc-row').style.display = 'none';
+  }
+
+  const total = baseRent + chargedWater + elec + miscAmt + prevBal;
   document.getElementById('calc-rent').textContent      = `₹ ${fmt(baseRent)}`;
   document.getElementById('calc-water-raw').textContent = `₹ ${fmt(rawWater)}`;
   document.getElementById('calc-water').textContent     = `₹ ${fmt(chargedWater)}`;
@@ -986,13 +1029,15 @@ function recalculate() {
 //  SAVE BILL
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 async function saveBill() {
-  const tenantId    = document.getElementById('bill-tenant').value;
-  const month       = document.getElementById('bill-month').value;
-  const waterNew    = parseFloat(document.getElementById('bill-water-new').value);
-  const elec        = parseFloat(document.getElementById('bill-elec').value) || 0;
-  const prevBal     = parseFloat(document.getElementById('bill-prev-balance').value) || 0;
+  const tenantId     = document.getElementById('bill-tenant').value;
+  const month        = document.getElementById('bill-month').value;
+  const waterNew     = parseFloat(document.getElementById('bill-water-new').value);
+  const elec         = parseFloat(document.getElementById('bill-elec').value) || 0;
+  const prevBal      = parseFloat(document.getElementById('bill-prev-balance').value) || 0;
   const waterCharged = parseFloat(document.getElementById('bill-water-charges').value) || 0;
-  const editId      = document.getElementById('edit-bill-id').value;
+  const miscLabel    = document.getElementById('bill-misc-label').value.trim();
+  const miscAmount   = parseFloat(document.getElementById('bill-misc-amount').value) || 0;
+  const editId       = document.getElementById('edit-bill-id').value;
 
   if (!tenantId) { toast('Please select a unit', 'error'); return; }
   if (!month)    { toast('Select a billing month', 'error'); return; }
@@ -1001,9 +1046,9 @@ async function saveBill() {
     if (!confirm(`Reading ${waterNew} is below previous ${_prevReading}. Continue?`)) return;
   }
 
-  const t       = tenants.find(x => String(x.id) === String(tenantId));
+  const t        = tenants.find(x => String(x.id) === String(tenantId));
   const baseRent = parseFloat(t?.base_rent) || 0;
-  const total    = parseFloat((baseRent + waterCharged + elec + prevBal).toFixed(2));
+  const total    = parseFloat((baseRent + waterCharged + elec + miscAmount + prevBal).toFixed(2));
 
   showLoading('SAVING BILL…');
   document.getElementById('save-btn').disabled = true;
@@ -1011,33 +1056,40 @@ async function saveBill() {
   try {
     let savedId = null;
 
+    // Build record — try with misc columns first, fallback without
+    const fullRecord = {
+      tenant_id: tenantId, billing_month: month + '-01',
+      water_reading: waterNew, elec_charges: elec, previous_balance: prevBal,
+      total_amount: total, is_sent: false,
+      misc_label: miscLabel || null, misc_amount: miscAmount || null
+    };
+    const baseRecord = {
+      tenant_id: tenantId, billing_month: month + '-01',
+      water_reading: waterNew, elec_charges: elec, previous_balance: prevBal,
+      total_amount: total, is_sent: false
+    };
+
     if (editId) {
-      // Update (preserve amount_paid)
-      const { data: upd, error: upErr } = await db
-        .from('utility_bills')
-        .update({ tenant_id: tenantId, billing_month: month + '-01', water_reading: waterNew, elec_charges: elec, previous_balance: prevBal, total_amount: total, is_sent: false })
-        .eq('id', editId)
-        .select('id')
-        .single();
-      if (upErr) throw upErr;
-      savedId = upd?.id || editId;
+      let r = await db.from('utility_bills').update(fullRecord).eq('id', editId).select('id').single();
+      if (r.error?.message?.includes('misc')) {
+        r = await db.from('utility_bills').update(baseRecord).eq('id', editId).select('id').single();
+      }
+      if (r.error) throw r.error;
+      savedId = r.data?.id || editId;
     } else {
-      // Insert new
-      const { data: ins, error: insErr } = await db
-        .from('utility_bills')
-        .insert({ tenant_id: tenantId, billing_month: month + '-01', water_reading: waterNew, elec_charges: elec, previous_balance: prevBal, total_amount: total, amount_paid: 0, is_sent: false })
-        .select('id')
-        .single();
-      if (insErr) throw insErr;
-      if (!ins?.id) throw new Error('No ID returned — check Supabase Row-Level Security (RLS) policies');
-      savedId = ins.id;
+      let r = await db.from('utility_bills').insert(fullRecord).select('id').single();
+      if (r.error?.message?.includes('misc')) {
+        r = await db.from('utility_bills').insert({ ...baseRecord, amount_paid: 0 }).select('id').single();
+      }
+      if (r.error) throw r.error;
+      if (!r.data?.id) throw new Error('No ID returned — check Supabase RLS policies');
+      savedId = r.data.id;
     }
 
     hideLoading();
     document.getElementById('save-btn').disabled = false;
-    toast('Bill saved! Opening receipt…');
+    toast('Bill saved!');
 
-    // Build receipt and show
     currentBillData = {
       id: savedId, tenant: t, month,
       waterNew, prevReading: _prevReading,
@@ -1045,7 +1097,8 @@ async function saveBill() {
       chargedWater: waterCharged,
       rawWater: computeAutoWater()?.rawCost ?? waterCharged,
       subsidy: computeAutoWater()?.subsidy ?? 0,
-      elec, prevBal, baseRent, total
+      elec, prevBal, baseRent, total,
+      miscLabel, miscAmount
     };
     buildReceiptHTML(currentBillData);
     await openReceiptPreview();
@@ -1081,22 +1134,24 @@ async function editBill(id) {
   _prevReading      = parseFloat(past?.[0]?.water_reading) || parseFloat(t?.initial_water_reading) || 0;
   _prevReadingLabel = past?.[0] ? fmtMonth(past[0].billing_month) : 'Initial';
 
-  document.getElementById('edit-bill-id').value       = b.id;
-  document.getElementById('bill-tenant').value        = String(b.tenant_id);
-  document.getElementById('bill-month').value         = b.billing_month.slice(0, 7);
-  document.getElementById('bill-water-new').value     = b.water_reading;
-  document.getElementById('bill-elec').value          = b.elec_charges;
-  document.getElementById('bill-prev-balance').value  = b.previous_balance;
-  document.getElementById('prev-reading-val').textContent = _prevReading + ' units';
-  document.getElementById('prev-month-val').textContent   = _prevReadingLabel;
-  document.getElementById('balance-hint').textContent     = 'Editing mode';
-  document.getElementById('balance-hint').className       = 'form-hint info';
-  document.getElementById('save-btn').textContent         = '💾 Update Bill';
+  document.getElementById('edit-bill-id').value        = b.id;
+  document.getElementById('bill-tenant').value         = String(b.tenant_id);
+  document.getElementById('bill-month').value          = b.billing_month.slice(0, 7);
+  document.getElementById('bill-water-new').value      = b.water_reading;
+  document.getElementById('bill-elec').value           = b.elec_charges;
+  document.getElementById('bill-misc-label').value     = b.misc_label || '';
+  document.getElementById('bill-misc-amount').value    = b.misc_amount || '';
+  document.getElementById('bill-prev-balance').value   = b.previous_balance;
+  document.getElementById('prev-reading-val').textContent  = _prevReading + ' units';
+  document.getElementById('prev-month-val').textContent    = _prevReadingLabel;
+  document.getElementById('balance-hint').textContent      = 'Editing mode';
+  document.getElementById('balance-hint').className        = 'form-hint info';
+  document.getElementById('save-btn').textContent          = 'Update Bill';
 
   if (t) {
     document.getElementById('selected-tenant-pill').style.display = 'block';
     document.getElementById('pill-name').textContent  = t.house_name;
-    document.getElementById('pill-phone').textContent = '📱 ' + (t.phone_number || '—');
+    document.getElementById('pill-phone').textContent = t.phone_number || '—';
     document.getElementById('pill-rent').textContent  = '₹' + fmt(t.base_rent);
     document.getElementById('pill-cap-note').style.display = isCapped(t) ? 'block' : 'none';
   }
@@ -1112,43 +1167,38 @@ async function editBill(id) {
 function buildReceiptHTML(d) {
   const monthLabel = fmtMonth(d.month);
   const dateStr    = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
-  const units      = typeof d.units === 'number' ? d.units : '—';
-  const liters     = typeof d.units === 'number' ? d.units * 10 : '—';
-  const rawWater   = d.rawWater ?? d.chargedWater;
-  const subsidy    = d.subsidy  ?? 0;
 
-  const subRow = subsidy > 0
-    ? `<tr class="rz-sub-row"><td class="rz-label">Water Subsidy (₹500 cap)</td><td>− ₹ ${fmt(subsidy)}</td></tr>`
+  // Misc row
+  const miscRow = (d.miscAmount && parseFloat(d.miscAmount) > 0)
+    ? `<tr><td class="rz-label">${d.miscLabel || 'Miscellaneous'}</td><td>₹ ${fmt(d.miscAmount)}</td></tr>`
     : '';
+
+  // Previous balance row
   const prevRow = parseFloat(d.prevBal) > 0
     ? `<tr><td class="rz-label">Previous Balance</td><td>₹ ${fmt(d.prevBal)}</td></tr>`
     : '';
 
   document.getElementById('receipt-print-zone').innerHTML = `
     <div class="rz-header">
+      <div class="rz-logo">RentMgr</div>
       <div class="rz-title">Rent Receipt</div>
-      <div class="rz-for">For the Month of ${monthLabel}</div>
-      <div class="rz-unit">Unit: <strong>${d.tenant?.house_name || '—'}</strong></div>
+      <div class="rz-for">${monthLabel}</div>
       <div class="rz-date">Generated: ${dateStr}</div>
     </div>
     <table class="rz-table">
-      <tr><td class="rz-label">Base Rent</td><td>₹ ${fmt(d.baseRent)}</td></tr>
-      <tr style="background:#f8f8f8;">
-        <td class="rz-label">Water (${units} units × 10L × ₹0.22)</td>
-        <td>₹ ${fmt(rawWater)}</td>
-      </tr>
-      ${subRow}
-      <tr><td class="rz-label">Water Charged</td><td>₹ ${fmt(d.chargedWater)}</td></tr>
+      <tr><td class="rz-label">Rent</td><td>₹ ${fmt(d.baseRent)}</td></tr>
+      <tr><td class="rz-label">Water Charges</td><td>₹ ${fmt(d.chargedWater)}</td></tr>
       <tr><td class="rz-label">Electricity Charges</td><td>₹ ${fmt(d.elec)}</td></tr>
+      ${miscRow}
       ${prevRow}
-      <tr class="rz-total-row"><td>TOTAL DUE</td><td>₹ ${fmt(d.total)}</td></tr>
+      <tr class="rz-total-row"><td>Total Due</td><td>₹ ${fmt(d.total)}</td></tr>
     </table>
-    <div class="rz-footer">Kindly pay by the 5th. Thank you! 🙏</div>`;
+    <div class="rz-footer">Kindly pay by the 25th. Thank you.</div>`;
 }
 
 async function openReceiptPreview() {
   document.getElementById('receipt-overlay').classList.add('open');
-  document.getElementById('receipt-img').style.display        = 'none';
+  document.getElementById('receipt-img').style.display         = 'none';
   document.getElementById('receipt-img-loading').style.display = 'block';
   currentReceiptDataUrl = null;
 
@@ -1160,10 +1210,10 @@ async function openReceiptPreview() {
     });
     currentReceiptDataUrl = canvas.toDataURL('image/png');
     document.getElementById('receipt-img').src = currentReceiptDataUrl;
-    document.getElementById('receipt-img').style.display        = 'block';
+    document.getElementById('receipt-img').style.display         = 'block';
     document.getElementById('receipt-img-loading').style.display = 'none';
   } catch (e) {
-    document.getElementById('receipt-img-loading').textContent = '⚠ Preview unavailable. You can still download.';
+    document.getElementById('receipt-img-loading').textContent = 'Preview unavailable. You can still download.';
     console.error('html2canvas:', e);
   }
 }
@@ -1172,10 +1222,12 @@ function previewReceiptOnly() {
   const id = document.getElementById('bill-tenant').value;
   const t  = tenants.find(x => String(x.id) === String(id));
   if (!t) { toast('Select a unit first', 'error'); return; }
-  const nr  = parseFloat(document.getElementById('bill-water-new').value) || 0;
-  const elec = parseFloat(document.getElementById('bill-elec').value) || 0;
-  const prevBal = parseFloat(document.getElementById('bill-prev-balance').value) || 0;
+  const nr         = parseFloat(document.getElementById('bill-water-new').value) || 0;
+  const elec       = parseFloat(document.getElementById('bill-elec').value) || 0;
+  const prevBal    = parseFloat(document.getElementById('bill-prev-balance').value) || 0;
   const waterCharged = parseFloat(document.getElementById('bill-water-charges').value) || 0;
+  const miscLabel  = document.getElementById('bill-misc-label').value.trim();
+  const miscAmount = parseFloat(document.getElementById('bill-misc-amount').value) || 0;
   const auto = computeAutoWater();
   currentBillData = {
     tenant: t, month: document.getElementById('bill-month').value,
@@ -1183,7 +1235,8 @@ function previewReceiptOnly() {
     chargedWater: waterCharged, rawWater: auto?.rawCost ?? waterCharged,
     subsidy: auto?.subsidy ?? 0, elec, prevBal,
     baseRent: parseFloat(t.base_rent) || 0,
-    total: (parseFloat(t.base_rent) || 0) + waterCharged + elec + prevBal
+    total: (parseFloat(t.base_rent) || 0) + waterCharged + elec + miscAmount + prevBal,
+    miscLabel, miscAmount
   };
   buildReceiptHTML(currentBillData);
   openReceiptPreview();
@@ -1202,9 +1255,9 @@ async function viewBillReceipt(billId) {
     .limit(1);
 
   hideLoading();
-  const t      = data.tenants;
-  const prevR  = parseFloat(past?.[0]?.water_reading) || parseFloat(t?.initial_water_reading) || 0;
-  const units  = Math.max(0, parseFloat(data.water_reading) - prevR);
+  const t        = data.tenants;
+  const prevR    = parseFloat(past?.[0]?.water_reading) || parseFloat(t?.initial_water_reading) || 0;
+  const units    = Math.max(0, parseFloat(data.water_reading) - prevR);
   const rawWater = parseFloat((units * 10 * 0.22).toFixed(2));
   const subsidy  = isCapped(t) && rawWater > 500 ? 500 : 0;
   const chargedWater = Math.max(0, rawWater - subsidy);
@@ -1214,7 +1267,8 @@ async function viewBillReceipt(billId) {
     waterNew: data.water_reading, prevReading: prevR, units,
     chargedWater, rawWater, subsidy,
     elec: data.elec_charges, prevBal: data.previous_balance,
-    baseRent: t?.base_rent || 0, total: data.total_amount
+    baseRent: t?.base_rent || 0, total: data.total_amount,
+    miscLabel: data.misc_label || '', miscAmount: data.misc_amount || 0
   };
   buildReceiptHTML(currentBillData);
   await openReceiptPreview();
@@ -1259,64 +1313,114 @@ async function shareReceiptImage() {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //  LIBRARY / LEDGER
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function clearLedgerFilters() {
+  document.getElementById('filter-unit').value   = '';
+  document.getElementById('filter-month').value  = '';
+  document.getElementById('filter-status').value = 'all';
+  loadLedger();
+}
+
 async function loadLedger() {
   const el = document.getElementById('ledger-list');
-  el.innerHTML = '<div class="empty"><div class="spinner" style="margin:0 auto 10px;"></div></div>';
+  el.innerHTML = '<div class="empty"><div class="spinner" style="margin:0 auto 12px;"></div></div>';
 
   const unitFilter   = document.getElementById('filter-unit').value;
   const monthFilter  = document.getElementById('filter-month').value;
   const statusFilter = document.getElementById('filter-status').value;
 
-  let q = db.from('utility_bills')
-    .select('*, tenants(house_name,phone_number)')
-    .order('billing_month', { ascending: false })
-    .limit(200);
+  try {
+    // Build the query step by step — avoid chaining after .limit() to prevent SDK issues
+    let query = db
+      .from('utility_bills')
+      .select('id, tenant_id, billing_month, total_amount, amount_paid, is_sent, tenants(house_name, phone_number)')
+      .order('billing_month', { ascending: false });
 
-  if (unitFilter)  q = q.eq('tenant_id', unitFilter);
-  if (monthFilter) q = q.gte('billing_month', monthFilter + '-01').lte('billing_month', monthFilter + '-31');
+    if (unitFilter) {
+      query = query.eq('tenant_id', unitFilter);
+    }
 
-  const { data, error } = await q;
-  if (error) { el.innerHTML = '<div class="empty">Error loading bills.</div>'; return; }
-  if (!data?.length) { el.innerHTML = '<div class="empty"><div class="empty-icon">📋</div>No bills found.</div>'; return; }
+    // Month filter: match the billing_month column which stores as DATE (YYYY-MM-DD)
+    // We filter by year-month prefix
+    if (monthFilter) {
+      const startDate = monthFilter + '-01';
+      // Last day: set to first of next month minus one day
+      const [yr, mo] = monthFilter.split('-').map(Number);
+      const nextMonth = mo === 12
+        ? `${yr + 1}-01-01`
+        : `${yr}-${String(mo + 1).padStart(2, '0')}-01`;
+      query = query.gte('billing_month', startDate).lt('billing_month', nextMonth);
+    }
 
-  let html = '';
-  data.forEach(b => {
-    const amtPaid = parseFloat(b.amount_paid) || 0;
-    const total   = parseFloat(b.total_amount) || 0;
-    let statusKey = 'unpaid';
-    if (total > 0 && amtPaid >= total) statusKey = 'paid';
-    else if (amtPaid > 0)              statusKey = 'partial';
+    const { data, error } = await query.limit(300);
 
-    if (statusFilter !== 'all' && statusFilter !== statusKey) return;
+    if (error) {
+      console.error('Ledger query error:', error);
+      el.innerHTML = `<div class="empty">Error loading bills.<br><span style="color:var(--red);font-size:10px;">${error.message}</span></div>`;
+      return;
+    }
 
-    const pillMap = {
-      paid:    '<span class="pill pill-paid">✓ Paid</span>',
-      partial: `<span class="pill pill-partial">Partial · ₹${fmt(amtPaid)}</span>`,
-      unpaid:  '<span class="pill pill-unpaid">Unpaid</span>'
-    };
+    if (!data || data.length === 0) {
+      el.innerHTML = '<div class="empty"><div class="empty-icon">□</div>No bills found.<br>Bills you save will appear here.</div>';
+      return;
+    }
 
-    html += `<div class="bill-card">
-      <div class="bill-card-top">
-        <div>
-          <div class="bill-unit">${b.tenants?.house_name || '—'}</div>
-          <div class="bill-month-lbl">📅 ${fmtMonth(b.billing_month)}</div>
-          <div style="margin-top:8px;">${pillMap[statusKey]}</div>
+    // Apply status filter client-side
+    const filtered = data.filter(b => {
+      if (statusFilter === 'all') return true;
+      const amtPaid = parseFloat(b.amount_paid) || 0;
+      const total   = parseFloat(b.total_amount) || 0;
+      if (statusFilter === 'paid')    return total > 0 && amtPaid >= total;
+      if (statusFilter === 'partial') return amtPaid > 0 && amtPaid < total;
+      if (statusFilter === 'unpaid')  return amtPaid <= 0;
+      return true;
+    });
+
+    if (filtered.length === 0) {
+      el.innerHTML = '<div class="empty"><div class="empty-icon">□</div>No bills match this filter.</div>';
+      return;
+    }
+
+    let html = '';
+    filtered.forEach(b => {
+      const amtPaid = parseFloat(b.amount_paid) || 0;
+      const total   = parseFloat(b.total_amount) || 0;
+      let statusKey = 'unpaid';
+      if (total > 0 && amtPaid >= total) statusKey = 'paid';
+      else if (amtPaid > 0)             statusKey = 'partial';
+
+      const pillMap = {
+        paid:    '<span class="pill pill-paid">Paid</span>',
+        partial: `<span class="pill pill-partial">Partial · ₹${fmt(amtPaid)}</span>`,
+        unpaid:  '<span class="pill pill-unpaid">Unpaid</span>'
+      };
+
+      html += `<div class="bill-card">
+        <div class="bill-card-top">
+          <div>
+            <div class="bill-unit">${b.tenants?.house_name || '—'}</div>
+            <div class="bill-month-lbl">${fmtMonth(b.billing_month)}</div>
+            <div style="margin-top:8px;">${pillMap[statusKey]}</div>
+          </div>
+          <div>
+            <div class="bill-total-amt">₹${fmt(total)}</div>
+            ${statusKey !== 'paid' ? `<div class="bill-balance-lbl">Balance: <span style="color:var(--red);">₹${fmt(total - amtPaid)}</span></div>` : ''}
+          </div>
         </div>
-        <div>
-          <div class="bill-total-amt">₹${fmt(b.total_amount)}</div>
-          ${statusKey !== 'paid' ? `<div class="bill-balance-lbl">Bal: <span style="color:var(--red);">₹${fmt(total - amtPaid)}</span></div>` : ''}
+        <hr class="bill-divider"/>
+        <div class="bill-actions">
+          <button class="btn btn-ghost btn-sm" onclick="viewBillReceipt('${b.id}')">View</button>
+          ${statusKey !== 'paid' ? `<button class="btn btn-ghost btn-sm" onclick="openPayModal('${b.id}',${total},${amtPaid})">Pay</button>` : ''}
+          <button class="btn btn-danger btn-sm" onclick="deleteBill('${b.id}')">Delete</button>
         </div>
-      </div>
-      <hr class="bill-divider"/>
-      <div class="bill-actions">
-        <button class="btn btn-ghost btn-sm" onclick="viewBillReceipt('${b.id}')">👁 View</button>
-        ${statusKey !== 'paid' ? `<button class="btn btn-ghost btn-sm" onclick="openPayModal('${b.id}',${total},${amtPaid})">✓ Pay</button>` : ''}
-        <button class="btn btn-danger btn-sm" onclick="deleteBill('${b.id}')">🗑 Delete</button>
-      </div>
-    </div>`;
-  });
+      </div>`;
+    });
 
-  el.innerHTML = html || '<div class="empty">No bills match this filter.</div>';
+    el.innerHTML = html;
+
+  } catch (err) {
+    console.error('loadLedger exception:', err);
+    el.innerHTML = `<div class="empty">Unexpected error.<br><span style="color:var(--red);font-size:10px;">${err.message}</span></div>`;
+  }
 }
 
 async function deleteBill(id) {
