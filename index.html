@@ -236,10 +236,9 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 /* ── OFF-SCREEN RECEIPT RENDER ZONES ── */
 /* ZONE A: Minimal receipt (home share) */
 #receipt-print-minimal{
-  position:fixed;left:-9999px;top:0;width:420px;
-  background:#fff;color:#111;padding:0;
+  position:fixed;left:-9999px;top:0;width:400px;
+  background:#fff;color:#111;padding:30px 24px 24px;
   font-family:'IBM Plex Sans',sans-serif;z-index:-1;
-  border-radius:0;
 }
 /* ZONE B: Detailed receipt (library view) */
 #receipt-print-detailed{
@@ -669,8 +668,8 @@ let _prevReading         = 0;
 let _prevReadingLabel    = '—';
 let localCaps            = {};
 let qrCodeUrl            = null; // loaded from DB / localStorage
-let upiLogosUrl = null;
-  
+let upiLogosUrl          = null; // Google Drive logos image URL
+
 // Meter state
 let camStream            = null;
 let meterSnapshotBlob    = null;
@@ -778,6 +777,13 @@ async function loadQrCode() {
     const { data } = await db.from('app_settings').select('value').eq('key','payment_qr_url').single();
     if (data?.value) { qrCodeUrl = data.value; localStorage.setItem('rentmgr_qr_url', qrCodeUrl); updateQrPreviewUI(); }
   } catch(_) { /* table may not exist yet — localStorage is the fallback */ }
+
+  // Fetch UPI logos image URL (uploaded to Google Drive, stored in app_settings)
+  upiLogosUrl = localStorage.getItem('rentmgr_logos_url') || null;
+  try {
+    const { data: logoRow } = await db.from('app_settings').select('value').eq('key','upi_logos_url').single();
+    if (logoRow?.value) { upiLogosUrl = logoRow.value; localStorage.setItem('rentmgr_logos_url', upiLogosUrl); }
+  } catch(_) {}
 }
 
 function updateQrPreviewUI() {
@@ -798,11 +804,7 @@ function updateQrPreviewUI() {
     rmBtn.style.display = 'none';
   }
 }
-try {
-  const { data: logoData } = await db.from('app_settings').select('value').eq('key','upi_logos_url').single();
-  if (logoData?.value) upiLogosUrl = logoData.value;
-} catch(_) {}
-  
+
 async function uploadQrCode(event) {
   const file = event.target.files?.[0];
   if (!file) return;
@@ -1340,71 +1342,54 @@ async function editBill(id){
 //  'detailed' = library view (full readings + breakdown)
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-// ── SVG logos for UPI apps (inline, no external deps) ──
-function upiLogos(){
-  const gpay=`<svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-    <circle cx="14" cy="14" r="14" fill="#4285F4"/>
-    <text x="14" y="18" text-anchor="middle" font-family="sans-serif" font-weight="700" font-size="11" fill="white">G</text>
-  </svg>`;
-  const phonepe=`<svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-    <circle cx="14" cy="14" r="14" fill="#5F259F"/>
-    <text x="14" y="18" text-anchor="middle" font-family="sans-serif" font-weight="700" font-size="11" fill="white">P</text>
-  </svg>`;
-  const bhim=`<svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-    <circle cx="14" cy="14" r="14" fill="#00B0FF"/>
-    <text x="14" y="18" text-anchor="middle" font-family="sans-serif" font-weight="700" font-size="9" fill="white">BHIM</text>
-  </svg>`;
-  return `<div style="display:flex;justify-content:center;align-items:center;gap:10px;">
-    ${[gpay,phonepe,bhim].map(svg=>`<div style="display:flex;flex-direction:column;align-items:center;gap:2px;">${svg}</div>`).join('')}
-  </div>`;
-}
-
-function buildMinimalReceiptHTML(d) {
+function buildMinimalReceiptHTML(d){
   const monthLabel = fmtMonth(d.month);
-  const dateStr    = new Date().toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
-  const miscRow    = d.miscAmount && parseFloat(d.miscAmount) > 0
-    ? `<tr><td class="rz-label">${d.miscLabel || 'Misc'}</td><td>₹ ${fmt(d.miscAmount)}</td></tr>` : '';
-  const prevRow    = parseFloat(d.prevBal) > 0
-    ? `<tr><td class="rz-label">Previous Balance</td><td>₹ ${fmt(d.prevBal)}</td></tr>` : '';
+  const dateStr    = new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
 
+  const miscRow = d.miscAmount && parseFloat(d.miscAmount) > 0
+    ? `<tr><td style="padding:9px 0;font-size:13px;color:#555;font-weight:500;">${d.miscLabel||'Misc'}</td><td style="padding:9px 0;font-size:13px;text-align:right;font-family:'IBM Plex Mono',monospace;font-weight:600;color:#111;">₹ ${fmt(d.miscAmount)}</td></tr>` : '';
+  const prevRow = parseFloat(d.prevBal) > 0
+    ? `<tr><td style="padding:9px 0;font-size:13px;color:#555;font-weight:500;">Previous Balance</td><td style="padding:9px 0;font-size:13px;text-align:right;font-family:'IBM Plex Mono',monospace;font-weight:600;color:#111;">₹ ${fmt(d.prevBal)}</td></tr>` : '';
+
+  // QR + logos image from Google Drive link stored in app_settings
   const qrSection = qrCodeUrl ? `
-    <div style="border-top:1px solid #f0f0f0;padding:20px 24px;text-align:center;">
-      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:2px;color:#bbb;text-transform:uppercase;margin-bottom:12px;">Scan to Pay</div>
+    <div style="border-top:1px solid #efefef;padding:20px 24px 18px;text-align:center;">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:2px;color:#bbb;text-transform:uppercase;margin-bottom:14px;">Scan to Pay</div>
       <img src="${qrCodeUrl}?t=${Date.now()}"
            crossorigin="anonymous"
-           style="width:160px;height:160px;object-fit:contain;display:block;margin:0 auto 16px;"/>
-      ${upiLogosUrl ? `<img src="${upiLogosUrl}" crossorigin="anonymous" style="max-width:220px;height:auto;display:block;margin:0 auto;opacity:.75;"/>` : ''}
-      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#bbb;margin-top:14px;letter-spacing:.5px;">Please pay by the 25th</div>
+           style="width:170px;height:170px;object-fit:contain;display:block;margin:0 auto 16px;"/>
+      ${upiLogosUrl ? `<img src="${upiLogosUrl}?t=${Date.now()}" crossorigin="anonymous" style="max-width:210px;width:100%;height:auto;display:block;margin:0 auto 14px;opacity:.7;"/>` : ''}
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#aaa;letter-spacing:.5px;">Please pay by the 25th</div>
     </div>` : `
-    <div style="border-top:1px solid #f0f0f0;padding:16px 24px;text-align:center;">
-      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#bbb;letter-spacing:.5px;">Please pay by the 25th</div>
+    <div style="border-top:1px solid #efefef;padding:14px 24px;text-align:center;">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#aaa;letter-spacing:.5px;">Please pay by the 25th</div>
     </div>`;
 
   document.getElementById('receipt-print-minimal').innerHTML = `
-    <div style="background:#111;padding:18px 24px 14px;text-align:center;">
-      <div style="font-family:'Rajdhani',sans-serif;font-size:10px;letter-spacing:3px;color:#f5a623;text-transform:uppercase;margin-bottom:5px;">Rent Receipt</div>
+    <div style="background:#111111;padding:20px 24px 16px;text-align:center;">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:3px;color:#f5a623;text-transform:uppercase;margin-bottom:6px;">Rent Receipt</div>
       <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:#ffffff;letter-spacing:.5px;">For the Month of ${monthLabel}</div>
     </div>
 
-    <div style="background:#f5a623;padding:16px 24px;text-align:center;">
-      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:2px;color:rgba(0,0,0,0.45);text-transform:uppercase;margin-bottom:4px;">Total Due</div>
-      <div style="font-family:'Rajdhani',sans-serif;font-size:44px;font-weight:700;color:#0a0a0b;line-height:1;">₹ ${fmt(d.total)}</div>
-      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:rgba(0,0,0,0.45);margin-top:5px;letter-spacing:.5px;">${dateStr}</div>
+    <div style="background:#f5a623;padding:16px 24px 14px;text-align:center;">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:2px;color:rgba(0,0,0,0.45);text-transform:uppercase;margin-bottom:5px;">Total Due</div>
+      <div style="font-family:'Rajdhani',sans-serif;font-size:46px;font-weight:700;color:#0a0a0b;line-height:1;letter-spacing:1px;">&#8377; ${fmt(d.total)}</div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:rgba(0,0,0,0.4);margin-top:5px;">${dateStr}</div>
     </div>
 
-    <div style="padding:20px 24px 16px;">
+    <div style="padding:18px 24px 4px;">
       <table style="width:100%;border-collapse:collapse;">
         <tr style="border-bottom:1px solid #f0f0f0;">
           <td style="padding:9px 0;font-size:13px;color:#555;font-weight:500;">Rent</td>
-          <td style="padding:9px 0;font-size:13px;text-align:right;font-family:'IBM Plex Mono',monospace;font-weight:600;color:#111;">₹ ${fmt(d.baseRent)}</td>
+          <td style="padding:9px 0;font-size:13px;text-align:right;font-family:'IBM Plex Mono',monospace;font-weight:600;color:#111;">&#8377; ${fmt(d.baseRent)}</td>
         </tr>
         <tr style="border-bottom:1px solid #f0f0f0;">
           <td style="padding:9px 0;font-size:13px;color:#555;font-weight:500;">Water Charges</td>
-          <td style="padding:9px 0;font-size:13px;text-align:right;font-family:'IBM Plex Mono',monospace;font-weight:600;color:#111;">₹ ${fmt(d.chargedWater)}</td>
+          <td style="padding:9px 0;font-size:13px;text-align:right;font-family:'IBM Plex Mono',monospace;font-weight:600;color:#111;">&#8377; ${fmt(d.chargedWater)}</td>
         </tr>
-        <tr style="border-bottom:1px solid #f0f0f0;">
+        <tr style="${(miscRow||prevRow)?'border-bottom:1px solid #f0f0f0;':''}">
           <td style="padding:9px 0;font-size:13px;color:#555;font-weight:500;">Electricity</td>
-          <td style="padding:9px 0;font-size:13px;text-align:right;font-family:'IBM Plex Mono',monospace;font-weight:600;color:#111;">₹ ${fmt(d.elec)}</td>
+          <td style="padding:9px 0;font-size:13px;text-align:right;font-family:'IBM Plex Mono',monospace;font-weight:600;color:#111;">&#8377; ${fmt(d.elec)}</td>
         </tr>
         ${miscRow}${prevRow}
       </table>
@@ -1412,6 +1397,7 @@ function buildMinimalReceiptHTML(d) {
 
     ${qrSection}`;
 }
+
 function buildDetailedReceiptHTML(d){
   const monthLabel=fmtMonth(d.month);
   const dateStr=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
