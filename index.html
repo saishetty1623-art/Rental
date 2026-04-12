@@ -445,13 +445,24 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     <!-- Camera zone -->
     <div class="cam-zone" id="cam-zone">
       <div class="cam-placeholder" id="cam-placeholder">
-        <div class="cam-placeholder-icon">📷</div>
+        <!-- Professional SVG camera icon instead of emoji -->
+        <svg width="52" height="52" viewBox="0 0 52 52" fill="none" style="opacity:.35;margin-bottom:12px;">
+          <rect x="4" y="14" width="44" height="30" rx="5" stroke="currentColor" stroke-width="2.5" fill="none"/>
+          <circle cx="26" cy="29" r="9" stroke="currentColor" stroke-width="2.5" fill="none"/>
+          <circle cx="26" cy="29" r="4.5" fill="currentColor" opacity=".5"/>
+          <path d="M17 14l3-5h12l3 5" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round" fill="none"/>
+          <circle cx="40" cy="21" r="2.5" fill="currentColor" opacity=".6"/>
+        </svg>
         <div class="cam-placeholder-text">Select a unit &amp; tap Start Camera</div>
       </div>
       <video id="cam-video" autoplay playsinline style="display:none;width:100%;"></video>
       <img id="cam-snapshot" style="display:none;width:100%;" alt="Meter snapshot"/>
       <div class="cam-badge" id="cam-live-badge">● LIVE</div>
       <div class="cam-badge" id="cam-snapped-badge">✓ CAPTURED</div>
+      <!-- Torch toggle (shown while live) -->
+      <button id="torch-btn" onclick="toggleTorch()" style="display:none;position:absolute;top:10px;right:10px;background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:7px 10px;cursor:pointer;color:#fff;font-size:13px;letter-spacing:.5px;font-family:var(--font-mono);backdrop-filter:blur(4px);">
+        💡 Flash
+      </button>
     </div>
     <!-- Buttons shown after capture: Recapture + Edit/Gallery -->
     <div class="meter-photo-actions" id="meter-photo-actions">
@@ -461,14 +472,21 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     <!-- Camera controls (while live) -->
     <div id="cam-controls" style="display:none;margin-bottom:14px;">
       <div style="display:flex;gap:10px;">
-        <button class="btn btn-amber" onclick="snapPhoto()" style="flex:2;"><span style="font-size:18px;">⊙</span> Capture</button>
+        <button class="btn btn-amber" onclick="snapPhoto()" style="flex:2;">
+          <!-- SVG shutter icon -->
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="10" cy="10" r="5" fill="currentColor"/></svg>
+          Capture
+        </button>
         <button class="btn btn-danger" onclick="stopCamera()" style="flex:1;font-size:12px;">✕ Stop</button>
       </div>
     </div>
     <!-- Start camera button -->
     <div id="start-cam-wrap">
-      <button class="btn btn-amber" id="btn-start-cam" onclick="startCamera()" disabled>📷 Start Camera</button>
-      <div style="font-family:var(--font-mono);font-size:10px;color:var(--text3);text-align:center;margin-top:8px;">Use rear camera · point at meter display</div>
+      <button class="btn btn-amber" id="btn-start-cam" onclick="startCamera()" disabled>
+        <svg width="18" height="18" viewBox="0 0 52 52" fill="none"><rect x="4" y="14" width="44" height="30" rx="5" stroke="currentColor" stroke-width="3" fill="none"/><circle cx="26" cy="29" r="9" stroke="currentColor" stroke-width="3" fill="none"/><circle cx="26" cy="29" r="4" fill="currentColor"/><path d="M17 14l3-5h12l3 5" stroke="currentColor" stroke-width="3" stroke-linejoin="round" fill="none"/></svg>
+        Start Camera
+      </button>
+      <div style="font-family:var(--font-mono);font-size:10px;color:var(--text3);text-align:center;margin-top:8px;">Use rear camera · point at meter display · tap Flash for dark areas</div>
     </div>
     <!-- Reading confirm box -->
     <div class="reading-confirm-box" id="reading-confirm-box">
@@ -596,7 +614,15 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     <div class="nav-icon-wrap"><span class="nav-icon">+</span></div><span>New Bill</span>
   </button>
   <button class="nav-btn" onclick="showView('meter');loadMeterHistory();" id="nav-meter">
-    <div class="nav-icon-wrap"><span class="nav-icon">📷</span></div><span>Meter</span>
+    <div class="nav-icon-wrap">
+      <svg width="17" height="17" viewBox="0 0 52 52" fill="none">
+        <rect x="4" y="14" width="44" height="30" rx="5" stroke="currentColor" stroke-width="3.5" fill="none"/>
+        <circle cx="26" cy="29" r="9" stroke="currentColor" stroke-width="3.5" fill="none"/>
+        <circle cx="26" cy="29" r="4" fill="currentColor"/>
+        <path d="M17 14l3-5h12l3 5" stroke="currentColor" stroke-width="3.5" stroke-linejoin="round" fill="none"/>
+      </svg>
+    </div>
+    <span>Meter</span>
   </button>
   <button class="nav-btn" onclick="showView('ledger')" id="nav-ledger">
     <div class="nav-icon-wrap"><span class="nav-icon">≡</span></div><span>Library</span>
@@ -1436,59 +1462,88 @@ async function editBill(id){
 
 function buildMinimalReceiptHTML(d){
   const monthLabel = fmtMonth(d.month);
-  const dateStr    = new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+  // Due date: "25 April 2026" — extract month+year from billing month
+  const billDate   = new Date((d.month.length===7 ? d.month+'-01' : d.month)+'T00:00:00');
+  const dueMonth   = billDate.toLocaleDateString('en-IN',{month:'long'});
+  const dueYear    = billDate.getFullYear();
+  const genDate    = new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+  const tenantName = d.tenant?.house_name || '';
+
+  // Only show water if > 0
+  const waterRow = parseFloat(d.chargedWater) > 0
+    ? `<tr style="border-bottom:1px solid #ebebeb;">
+        <td style="padding:11px 0;font-size:14px;color:#333;font-weight:500;">Water Charges</td>
+        <td style="padding:11px 0;font-size:14px;text-align:right;font-family:'IBM Plex Mono',monospace;font-weight:600;color:#111;">&#8377; ${fmt(d.chargedWater)}</td>
+       </tr>` : '';
 
   const miscRow = d.miscAmount && parseFloat(d.miscAmount) > 0
-    ? `<tr><td style="padding:9px 0;font-size:13px;color:#555;font-weight:500;">${d.miscLabel||'Misc'}</td><td style="padding:9px 0;font-size:13px;text-align:right;font-family:'IBM Plex Mono',monospace;font-weight:600;color:#111;">&#8377; ${fmt(d.miscAmount)}</td></tr>` : '';
-  const prevRow = parseFloat(d.prevBal) > 0
-    ? `<tr><td style="padding:9px 0;font-size:13px;color:#555;font-weight:500;">Previous Balance</td><td style="padding:9px 0;font-size:13px;text-align:right;font-family:'IBM Plex Mono',monospace;font-weight:600;color:#111;">&#8377; ${fmt(d.prevBal)}</td></tr>` : '';
+    ? `<tr style="border-bottom:1px solid #ebebeb;">
+        <td style="padding:11px 0;font-size:14px;color:#333;font-weight:500;">${d.miscLabel||'Misc'}</td>
+        <td style="padding:11px 0;font-size:14px;text-align:right;font-family:'IBM Plex Mono',monospace;font-weight:600;color:#111;">&#8377; ${fmt(d.miscAmount)}</td>
+       </tr>` : '';
 
-  // Use pre-fetched base64 so html2canvas renders without any CORS issue
-  const qrImgSrc    = qrCodeBase64   || null;
-  const logoImgSrc  = upiLogosBase64 || null;
+  const prevRow = parseFloat(d.prevBal) > 0
+    ? `<tr style="border-bottom:1px solid #ebebeb;">
+        <td style="padding:11px 0;font-size:14px;color:#c0392b;font-weight:500;">Previous Balance</td>
+        <td style="padding:11px 0;font-size:14px;text-align:right;font-family:'IBM Plex Mono',monospace;font-weight:600;color:#c0392b;">&#8377; ${fmt(d.prevBal)}</td>
+       </tr>` : '';
+
+  // QR uses pre-fetched base64
+  const qrImgSrc   = qrCodeBase64  || null;
+  const logoImgSrc = upiLogosBase64 || null;
 
   const qrSection = qrImgSrc ? `
-    <div style="border-top:1px solid #efefef;padding:20px 24px 18px;text-align:center;">
-      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:2px;color:#bbb;text-transform:uppercase;margin-bottom:14px;">Scan to Pay</div>
-      <img src="${qrImgSrc}" style="width:170px;height:170px;object-fit:contain;display:block;margin:0 auto 14px;"/>
-      ${logoImgSrc ? `<img src="${logoImgSrc}" style="max-width:220px;width:100%;height:auto;display:block;margin:0 auto 14px;"/>` : ''}
-      <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#aaa;letter-spacing:.5px;">Please pay by the 25th</div>
-    </div>` : `
-    <div style="border-top:1px solid #efefef;padding:14px 24px;text-align:center;">
-      <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#aaa;letter-spacing:.5px;">Please pay by the 25th</div>
-    </div>`;
+    <div style="border-top:1px solid #ebebeb;padding:22px 28px 20px;text-align:center;background:#fafafa;">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:2.5px;color:#bbb;text-transform:uppercase;margin-bottom:14px;">Scan to Pay</div>
+      <img src="${qrImgSrc}" style="width:168px;height:168px;object-fit:contain;display:block;margin:0 auto ${logoImgSrc?'12px':'16px'};"/>
+      ${logoImgSrc ? `<img src="${logoImgSrc}" style="max-width:200px;width:100%;height:auto;display:block;margin:0 auto 16px;"/>` : ''}
+    </div>` : '';
 
   document.getElementById('receipt-print-minimal').innerHTML = `
-    <div style="background:#111111;padding:20px 24px 16px;text-align:center;">
-      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:3px;color:#f5a623;text-transform:uppercase;margin-bottom:6px;">Rent Receipt</div>
-      <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:#ffffff;letter-spacing:.5px;">For the Month of ${monthLabel}</div>
+
+    <!-- HEADER: month label only, no house name -->
+    <div style="background:#111111;padding:20px 28px 15px;text-align:center;">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:3px;color:#f5a623;text-transform:uppercase;margin-bottom:7px;">Rent Receipt</div>
+      <div style="font-family:'Rajdhani',sans-serif;font-size:19px;font-weight:600;color:#ffffff;letter-spacing:.5px;">For the Month of ${monthLabel}</div>
+      ${tenantName ? `<div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:rgba(255,255,255,0.4);margin-top:5px;letter-spacing:.5px;">${tenantName}</div>` : ''}
     </div>
 
-    <div style="background:#f5a623;padding:16px 24px 14px;text-align:center;">
-      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:2px;color:rgba(0,0,0,0.45);text-transform:uppercase;margin-bottom:5px;">Total Due</div>
-      <div style="font-family:'Rajdhani',sans-serif;font-size:46px;font-weight:700;color:#0a0a0b;line-height:1;letter-spacing:1px;">&#8377; ${fmt(d.total)}</div>
-      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:rgba(0,0,0,0.4);margin-top:5px;">${dateStr}</div>
+    <!-- TOTAL BAND: slimmer -->
+    <div style="background:#f5a623;padding:14px 28px 12px;text-align:center;">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:2px;color:rgba(0,0,0,0.4);text-transform:uppercase;margin-bottom:4px;">Total Amount Due</div>
+      <div style="font-family:'Rajdhani',sans-serif;font-size:48px;font-weight:700;color:#0a0a0b;line-height:1;letter-spacing:1px;">&#8377; ${fmt(d.total)}</div>
     </div>
 
-    <div style="padding:18px 24px 4px;">
+    <!-- BREAKDOWN -->
+    <div style="padding:20px 28px 0;">
       <table style="width:100%;border-collapse:collapse;">
-        <tr style="border-bottom:1px solid #f0f0f0;">
-          <td style="padding:9px 0;font-size:13px;color:#555;font-weight:500;">Rent</td>
-          <td style="padding:9px 0;font-size:13px;text-align:right;font-family:'IBM Plex Mono',monospace;font-weight:600;color:#111;">&#8377; ${fmt(d.baseRent)}</td>
+        <tr style="border-bottom:1px solid #ebebeb;">
+          <td style="padding:11px 0;font-size:14px;color:#333;font-weight:500;">Rent</td>
+          <td style="padding:11px 0;font-size:14px;text-align:right;font-family:'IBM Plex Mono',monospace;font-weight:600;color:#111;">&#8377; ${fmt(d.baseRent)}</td>
         </tr>
-        <tr style="border-bottom:1px solid #f0f0f0;">
-          <td style="padding:9px 0;font-size:13px;color:#555;font-weight:500;">Water Charges</td>
-          <td style="padding:9px 0;font-size:13px;text-align:right;font-family:'IBM Plex Mono',monospace;font-weight:600;color:#111;">&#8377; ${fmt(d.chargedWater)}</td>
-        </tr>
-        <tr style="${(miscRow||prevRow)?'border-bottom:1px solid #f0f0f0;':''}">
-          <td style="padding:9px 0;font-size:13px;color:#555;font-weight:500;">Electricity</td>
-          <td style="padding:9px 0;font-size:13px;text-align:right;font-family:'IBM Plex Mono',monospace;font-weight:600;color:#111;">&#8377; ${fmt(d.elec)}</td>
+        ${waterRow}
+        <tr style="${(miscRow||prevRow)?'border-bottom:1px solid #ebebeb;':''}">
+          <td style="padding:11px 0;font-size:14px;color:#333;font-weight:500;">Electricity</td>
+          <td style="padding:11px 0;font-size:14px;text-align:right;font-family:'IBM Plex Mono',monospace;font-weight:600;color:#111;">&#8377; ${fmt(d.elec)}</td>
         </tr>
         ${miscRow}${prevRow}
       </table>
     </div>
 
-    ${qrSection}`;
+    <!-- DUE DATE BAND -->
+    <div style="margin:20px 28px 0;background:#111111;border-radius:8px;padding:12px 18px;display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:2px;color:#f5a623;text-transform:uppercase;margin-bottom:3px;">Due Date</div>
+        <div style="font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;color:#ffffff;letter-spacing:.5px;">25 ${dueMonth} ${dueYear}</div>
+      </div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:rgba(255,255,255,0.35);text-align:right;">Generated<br/>${genDate}</div>
+    </div>
+
+    <!-- QR SECTION -->
+    ${qrSection}
+
+    <!-- BOTTOM PADDING -->
+    <div style="height:16px;"></div>`;
 }
 
 function buildDetailedReceiptHTML(d){
@@ -1804,10 +1859,13 @@ async function loadLastMeterReading(tenantId){
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  METER — CAMERA
+//  METER — CAMERA (with flashlight/torch support)
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+let torchOn = false;
+
 async function startCamera(){
   if(!meterSelectedTenant){toast('Select a unit first','error');return;}
+  torchOn = false;
   try{
     camStream=await navigator.mediaDevices.getUserMedia({
       video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080}},audio:false});
@@ -1822,17 +1880,51 @@ async function startCamera(){
     document.getElementById('meter-photo-actions').classList.remove('show');
     document.getElementById('reading-confirm-box').classList.remove('show');
     document.getElementById('meter-save-wrap').style.display='none';
+
+    // Show torch button only if device supports it
+    try {
+      const track = camStream.getVideoTracks()[0];
+      const caps  = track.getCapabilities();
+      if (caps.torch) {
+        const btn = document.getElementById('torch-btn');
+        btn.style.display = 'block';
+        btn.textContent   = '💡 Flash';
+        btn.style.background = 'rgba(0,0,0,.55)';
+      }
+    } catch(_) {}
+
   } catch(err){
     toast('Camera access denied: '+err.message,'error');
   }
 }
 
+async function toggleTorch(){
+  if(!camStream) return;
+  try{
+    const track = camStream.getVideoTracks()[0];
+    torchOn = !torchOn;
+    await track.applyConstraints({ advanced:[{ torch: torchOn }] });
+    const btn = document.getElementById('torch-btn');
+    btn.textContent   = torchOn ? '💡 ON' : '💡 Flash';
+    btn.style.background = torchOn ? 'rgba(245,166,35,.75)' : 'rgba(0,0,0,.55)';
+  } catch(e){ toast('Torch not available on this device','error'); }
+}
+
 function stopCamera(){
-  if(camStream){ camStream.getTracks().forEach(t=>t.stop()); camStream=null; }
+  // Always turn off torch first
+  if(camStream){
+    try{
+      const track = camStream.getVideoTracks()[0];
+      if(track.getCapabilities()?.torch) track.applyConstraints({advanced:[{torch:false}]});
+    } catch(_){}
+    camStream.getTracks().forEach(t=>t.stop()); camStream=null;
+  }
+  torchOn = false;
   const vid=document.getElementById('cam-video');
   if(vid){ vid.srcObject=null; vid.style.display='none'; }
   document.getElementById('cam-live-badge')?.classList.remove('live');
   document.getElementById('cam-controls').style.display='none';
+  document.getElementById('torch-btn').style.display='none';
   if(meterSelectedTenant) document.getElementById('btn-start-cam').disabled=false;
 }
 
@@ -1914,7 +2006,7 @@ function onMeterReadingInput(){
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  METER — SAVE (with cache-bust fix on upload URL)
+//  METER — SAVE  (storage delete bug fixed)
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 async function saveMeterReading(){
   if(!meterSelectedTenant){toast('No unit selected','error');return;}
@@ -1922,55 +2014,84 @@ async function saveMeterReading(){
   const readingVal=parseFloat(document.getElementById('meter-reading-input').value);
   if(isNaN(readingVal)){toast('Enter the meter reading','error');return;}
 
-  showLoading('UPLOADING PHOTO…');
+  showLoading('SAVING…');
   try{
-    const tenantId=String(meterSelectedTenant.id);
-    const now=new Date();
-    // *** FIX: use timestamp in filename → guarantees a fresh URL every capture ***
-    const newPath=`${tenantId}/${now.getTime()}.jpg`;
+    const tenantId = String(meterSelectedTenant.id);
+    const now      = new Date();
+    const newPath  = `${tenantId}/${now.getTime()}.jpg`;
 
-    // 1. Delete old photo from storage (if any)
-    try{
-      const {data:existing}=await db.from('meter_readings').select('id,photo_path')
-        .eq('tenant_id',tenantId).order('captured_at',{ascending:false}).limit(1);
-      if(existing?.[0]?.photo_path){
-        await db.storage.from(METER_BUCKET).remove([existing[0].photo_path]);
-        await db.from('meter_readings').delete().eq('id',existing[0].id);
+    // ── STEP 1: Fetch ALL existing records for this tenant ──
+    // (not just the latest — delete every old one to keep storage clean)
+    const { data: existing, error: fetchErr } = await db
+      .from('meter_readings')
+      .select('id, photo_path')
+      .eq('tenant_id', tenantId);
+
+    if (fetchErr) console.warn('Fetch existing readings error:', fetchErr.message);
+
+    if (existing && existing.length > 0) {
+      // Delete all old storage files
+      const pathsToDelete = existing
+        .map(r => r.photo_path)
+        .filter(p => p && p.trim() !== '');
+
+      if (pathsToDelete.length > 0) {
+        const { error: storageErr } = await db.storage
+          .from(METER_BUCKET)
+          .remove(pathsToDelete);
+        if (storageErr) console.warn('Storage delete error:', storageErr.message);
+        else console.log('Deleted old photos:', pathsToDelete);
       }
-    } catch(e){ console.warn('Remove old reading:',e); }
 
-    // 2. Upload new photo
-    let photoUrl=null;
-    const {error:upErr}=await db.storage.from(METER_BUCKET).upload(newPath,meterSnapshotBlob,
-      {contentType:'image/jpeg',upsert:true});
-    if(upErr){ console.warn('Upload failed:',upErr.message); }
-    else{
-      const {data:urlData}=db.storage.from(METER_BUCKET).getPublicUrl(newPath);
-      // *** FIX: getPublicUrl gives a stable CDN URL — the timestamp in the path is the cache-buster ***
-      photoUrl=urlData?.publicUrl||null;
+      // Delete all old DB rows
+      const idsToDelete = existing.map(r => r.id);
+      const { error: dbDelErr } = await db
+        .from('meter_readings')
+        .delete()
+        .in('id', idsToDelete);
+      if (dbDelErr) console.warn('DB delete error:', dbDelErr.message);
     }
 
-    // 3. Save reading to DB
-    const {error:dbErr}=await db.from('meter_readings').insert({
-      tenant_id:tenantId,reading_value:readingVal,
-      photo_url:photoUrl,photo_path:newPath,captured_at:now.toISOString()
+    // ── STEP 2: Upload new photo ──
+    let photoUrl = null;
+    const { error: upErr } = await db.storage
+      .from(METER_BUCKET)
+      .upload(newPath, meterSnapshotBlob, { contentType:'image/jpeg', upsert:true });
+
+    if (upErr) {
+      // Upload failed — still save the reading without a photo
+      console.warn('Photo upload failed:', upErr.message);
+      toast('Photo upload failed — saving reading only.');
+    } else {
+      const { data: urlData } = db.storage.from(METER_BUCKET).getPublicUrl(newPath);
+      photoUrl = urlData?.publicUrl || null;
+    }
+
+    // ── STEP 3: Insert fresh DB record ──
+    const { error: insErr } = await db.from('meter_readings').insert({
+      tenant_id:     tenantId,
+      reading_value: readingVal,
+      photo_url:     photoUrl,
+      photo_path:    newPath,
+      captured_at:   now.toISOString()
     });
-    if(dbErr) throw dbErr;
+    if (insErr) throw insErr;
 
     hideLoading();
-    toast(`Reading ${readingVal} units saved for ${meterSelectedTenant.house_name}!`);
+    toast(`${meterSelectedTenant.house_name}: ${readingVal} units saved!`);
 
-    meterSnapshotBlob=null;
-    const snap=document.getElementById('cam-snapshot');
-    if(snap._objUrl){URL.revokeObjectURL(snap._objUrl);snap._objUrl=null;}
+    // Reset UI
+    meterSnapshotBlob = null;
+    const snap = document.getElementById('cam-snapshot');
+    if(snap._objUrl){ URL.revokeObjectURL(snap._objUrl); snap._objUrl=null; }
     resetMeterCapUI();
     await loadLastMeterReading(tenantId);
     await loadMeterHistory();
 
   } catch(err){
     hideLoading();
-    toast('Save failed: '+err.message,'error');
-    console.error('saveMeterReading:',err);
+    toast('Save failed: '+err.message, 'error');
+    console.error('saveMeterReading:', err);
   }
 }
 
