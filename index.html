@@ -1467,6 +1467,7 @@ function buildMinimalReceiptHTML(d){
   const dueMonth   = billDate.toLocaleDateString('en-IN',{month:'long'});
   const dueYear    = billDate.getFullYear();
   const genDate    = new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+  const tenantName = d.tenant?.house_name || '';
 
   // Only show water if > 0
   const waterRow = parseFloat(d.chargedWater) > 0
@@ -1500,10 +1501,11 @@ function buildMinimalReceiptHTML(d){
 
   document.getElementById('receipt-print-minimal').innerHTML = `
 
-    <!-- HEADER: month label only -->
+    <!-- HEADER: month label only, no house name -->
     <div style="background:#111111;padding:20px 28px 15px;text-align:center;">
       <div style="font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:3px;color:#f5a623;text-transform:uppercase;margin-bottom:7px;">Rent Receipt</div>
       <div style="font-family:'Rajdhani',sans-serif;font-size:19px;font-weight:600;color:#ffffff;letter-spacing:.5px;">For the Month of ${monthLabel}</div>
+      ${tenantName ? `<div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:rgba(255,255,255,0.4);margin-top:5px;letter-spacing:.5px;">${tenantName}</div>` : ''}
     </div>
 
     <!-- TOTAL BAND: slimmer -->
@@ -2004,7 +2006,7 @@ function onMeterReadingInput(){
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  METER — SAVE  (with full diagnostics)
+//  METER — SAVE  (storage delete bug fixed)
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 async function saveMeterReading(){
   if(!meterSelectedTenant){toast('No unit selected','error');return;}
@@ -2018,67 +2020,67 @@ async function saveMeterReading(){
     const now      = new Date();
     const newPath  = `${tenantId}/${now.getTime()}.jpg`;
 
-    // ── STEP 1: Delete old storage files + DB rows ──
-    const { data: existing } = await db
-      .from('meter_readings').select('id, photo_path').eq('tenant_id', tenantId);
-    if (existing?.length > 0) {
-      const paths = existing.map(r=>r.photo_path).filter(Boolean);
-      if (paths.length) await db.storage.from(METER_BUCKET).remove(paths);
-      await db.from('meter_readings').delete().in('id', existing.map(r=>r.id));
+    // ── STEP 1: Fetch ALL existing records for this tenant ──
+    // (not just the latest — delete every old one to keep storage clean)
+    const { data: existing, error: fetchErr } = await db
+      .from('meter_readings')
+      .select('id, photo_path')
+      .eq('tenant_id', tenantId);
+
+    if (fetchErr) console.warn('Fetch existing readings error:', fetchErr.message);
+
+    if (existing && existing.length > 0) {
+      // Delete all old storage files
+      const pathsToDelete = existing
+        .map(r => r.photo_path)
+        .filter(p => p && p.trim() !== '');
+
+      if (pathsToDelete.length > 0) {
+        const { error: storageErr } = await db.storage
+          .from(METER_BUCKET)
+          .remove(pathsToDelete);
+        if (storageErr) console.warn('Storage delete error:', storageErr.message);
+        else console.log('Deleted old photos:', pathsToDelete);
+      }
+
+      // Delete all old DB rows
+      const idsToDelete = existing.map(r => r.id);
+      const { error: dbDelErr } = await db
+        .from('meter_readings')
+        .delete()
+        .in('id', idsToDelete);
+      if (dbDelErr) console.warn('DB delete error:', dbDelErr.message);
     }
 
-    // ── STEP 2: Upload photo ──
+    // ── STEP 2: Upload new photo ──
     let photoUrl = null;
     const { error: upErr } = await db.storage
       .from(METER_BUCKET)
       .upload(newPath, meterSnapshotBlob, { contentType:'image/jpeg', upsert:true });
 
     if (upErr) {
-      console.error('UPLOAD FAILED:', upErr);
+      // Upload failed — still save the reading without a photo
+      console.warn('Photo upload failed:', upErr.message);
+      toast('Photo upload failed — saving reading only.');
     } else {
       const { data: urlData } = db.storage.from(METER_BUCKET).getPublicUrl(newPath);
       photoUrl = urlData?.publicUrl || null;
-      console.log('Photo uploaded. URL:', photoUrl);
     }
 
-    // ── STEP 3: Try inserting with photo columns first ──
-    // If the table is missing photo_url / photo_path columns the insert will error.
-    // We then fall back to inserting just the reading, and show a clear message.
-    let saveError = null;
-
-    const { error: e1 } = await db.from('meter_readings').insert({
+    // ── STEP 3: Insert fresh DB record ──
+    const { error: insErr } = await db.from('meter_readings').insert({
       tenant_id:     tenantId,
       reading_value: readingVal,
       photo_url:     photoUrl,
       photo_path:    newPath,
       captured_at:   now.toISOString()
     });
-
-    if (e1) {
-      console.warn('Insert with photo columns failed:', e1.message);
-      // Fallback: insert without photo columns
-      const { error: e2 } = await db.from('meter_readings').insert({
-        tenant_id:     tenantId,
-        reading_value: readingVal,
-        captured_at:   now.toISOString()
-      });
-      if (e2) throw e2;
-      saveError = e1.message;
-    }
+    if (insErr) throw insErr;
 
     hideLoading();
+    toast(`${meterSelectedTenant.house_name}: ${readingVal} units saved!`);
 
-    if (saveError) {
-      // Reading saved but photo not linked — table missing columns
-      toast('⚠ Reading saved but photo not linked. Add columns — see below.', 'error');
-      // Show inline SQL instructions
-      showColumnFixInstructions();
-    } else if (!photoUrl) {
-      toast(`Reading saved (${readingVal} units). Photo upload failed — check console.`);
-    } else {
-      toast(`✓ ${meterSelectedTenant.house_name}: ${readingVal} units + photo saved!`);
-    }
-
+    // Reset UI
     meterSnapshotBlob = null;
     const snap = document.getElementById('cam-snapshot');
     if(snap._objUrl){ URL.revokeObjectURL(snap._objUrl); snap._objUrl=null; }
@@ -2093,28 +2095,8 @@ async function saveMeterReading(){
   }
 }
 
-// Shows a SQL fix box in the meter history section
-function showColumnFixInstructions(){
-  const el = document.getElementById('meter-history');
-  if(!el) return;
-  el.innerHTML = `
-    <div style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.3);border-radius:12px;padding:16px;margin-bottom:14px;">
-      <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:2px;color:var(--red);text-transform:uppercase;margin-bottom:10px;">⚠ Table Missing Columns</div>
-      <div style="font-family:var(--font-mono);font-size:11px;color:var(--text2);line-height:1.7;margin-bottom:12px;">
-        Your <code style="color:var(--amber);">meter_readings</code> table is missing <code style="color:var(--amber);">photo_url</code> and <code style="color:var(--amber);">photo_path</code> columns.<br/>
-        Run this SQL in <strong>Supabase → SQL Editor</strong>:
-      </div>
-      <div style="background:#0a0a0b;border-radius:8px;padding:12px;font-family:var(--font-mono);font-size:11px;color:#22c55e;line-height:1.8;word-break:break-all;">
-        ALTER TABLE meter_readings<br/>
-        ADD COLUMN IF NOT EXISTS photo_url text,<br/>
-        ADD COLUMN IF NOT EXISTS photo_path text;
-      </div>
-      <button class="btn btn-amber" style="margin-top:12px;" onclick="loadMeterHistory()">↻ Reload after running SQL</button>
-    </div>`;
-}
-
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  METER — HISTORY
+//  METER — HISTORY (cache-bust on displayed images)
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 async function loadMeterHistory(){
   const el=document.getElementById('meter-history'); if(!el) return;
@@ -2130,31 +2112,11 @@ async function loadMeterHistory(){
     el.innerHTML=data.map(mr=>{
       const capDate=new Date(mr.captured_at).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
       const capTime=new Date(mr.captured_at).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
-
-      // Add cache-buster so browser doesn't serve stale version
-      const rawUrl = mr.photo_url || null;
-      const displayUrl = rawUrl ? rawUrl + '?t=' + new Date(mr.captured_at).getTime() : null;
-
-      // Image with onerror fallback — if bucket isn't public the img will fail
-      // and we show a "View Link" button instead so user can still verify
-      const imgPart = displayUrl
-        ? `<img class="meter-hist-img"
-               src="${displayUrl}"
-               alt="Meter"
-               onclick="openPhotoFull('${displayUrl}')"
-               onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
-           />
-           <div class="meter-hist-img-ph" style="display:none;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11px;color:var(--amber);cursor:pointer;" onclick="openPhotoFull('${displayUrl}')">
-             <span style="font-size:18px;">🖼</span>
-             <span style="font-family:var(--font-mono);font-size:8px;text-align:center;padding:0 4px;">Tap to view</span>
-           </div>`
-        : `<div class="meter-hist-img-ph">📷</div>`;
-
-      // Show the raw URL as a small link for debugging
-      const urlDebug = rawUrl
-        ? `<a href="${rawUrl}" target="_blank" style="font-family:var(--font-mono);font-size:8px;color:var(--blue);word-break:break-all;display:block;margin-top:4px;opacity:.6;">View photo ↗</a>`
-        : `<span style="font-family:var(--font-mono);font-size:8px;color:var(--red);">No photo URL stored</span>`;
-
+      // *** FIX: always add cache-buster timestamp to photo URL ***
+      const displayUrl=mr.photo_url?mr.photo_url+'?t='+new Date(mr.captured_at).getTime():null;
+      const imgPart=displayUrl
+        ?`<img class="meter-hist-img" src="${displayUrl}" alt="Meter" onclick="openPhotoFull('${displayUrl}')"/>`
+        :`<div class="meter-hist-img-ph">📷</div>`;
       return `<div class="meter-hist-card">
         <div class="meter-hist-top">
           ${imgPart}
@@ -2162,7 +2124,6 @@ async function loadMeterHistory(){
             <div class="meter-hist-unit">${mr.tenants?.house_name||'—'}</div>
             <div class="meter-hist-reading">${mr.reading_value} <span style="font-size:11px;color:var(--text3);">units</span></div>
             <div class="meter-hist-meta">${capDate} · ${capTime}</div>
-            ${urlDebug}
             <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;">
               <button class="btn btn-ghost btn-sm" onclick="useMeterReadingInBill('${mr.tenant_id}','${mr.reading_value}')">Use in Bill</button>
               <button class="btn btn-danger btn-sm" onclick="deleteMeterReading('${mr.id}','${mr.photo_path||''}')">Delete</button>
