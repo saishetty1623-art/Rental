@@ -2020,36 +2020,26 @@ async function saveMeterReading(){
     const now      = new Date();
     const newPath  = `${tenantId}/${now.getTime()}.jpg`;
 
-    // ── STEP 1: Fetch ALL existing records for this tenant ──
-    // (not just the latest — delete every old one to keep storage clean)
+    // ── STEP 1: ONLY delete records from TODAY ──
+    // This allows you to redo a mistake today without wiping last month's history.
+    const today = todayYMD(); 
     const { data: existing, error: fetchErr } = await db
       .from('meter_readings')
       .select('id, photo_path')
-      .eq('tenant_id', tenantId);
+      .eq('tenant_id', tenantId)
+      .gte('captured_at', today + 'T00:00:00'); 
 
     if (fetchErr) console.warn('Fetch existing readings error:', fetchErr.message);
 
     if (existing && existing.length > 0) {
-      // Delete all old storage files
-      const pathsToDelete = existing
-        .map(r => r.photo_path)
-        .filter(p => p && p.trim() !== '');
-
+      // Delete today's old storage files
+      const pathsToDelete = existing.map(r => r.photo_path).filter(p => p);
       if (pathsToDelete.length > 0) {
-        const { error: storageErr } = await db.storage
-          .from(METER_BUCKET)
-          .remove(pathsToDelete);
-        if (storageErr) console.warn('Storage delete error:', storageErr.message);
-        else console.log('Deleted old photos:', pathsToDelete);
+        await db.storage.from(METER_BUCKET).remove(pathsToDelete);
       }
-
-      // Delete all old DB rows
+      // Delete today's old DB rows
       const idsToDelete = existing.map(r => r.id);
-      const { error: dbDelErr } = await db
-        .from('meter_readings')
-        .delete()
-        .in('id', idsToDelete);
-      if (dbDelErr) console.warn('DB delete error:', dbDelErr.message);
+      await db.from('meter_readings').delete().in('id', idsToDelete);
     }
 
     // ── STEP 2: Upload new photo ──
@@ -2058,11 +2048,7 @@ async function saveMeterReading(){
       .from(METER_BUCKET)
       .upload(newPath, meterSnapshotBlob, { contentType:'image/jpeg', upsert:true });
 
-    if (upErr) {
-      // Upload failed — still save the reading without a photo
-      console.warn('Photo upload failed:', upErr.message);
-      toast('Photo upload failed — saving reading only.');
-    } else {
+    if (!upErr) {
       const { data: urlData } = db.storage.from(METER_BUCKET).getPublicUrl(newPath);
       photoUrl = urlData?.publicUrl || null;
     }
@@ -2160,15 +2146,22 @@ function useMeterReadingInBill(tenantId,readingValue){
   },100);
 }
 
-async function deleteMeterReading(id,photoPath){
+async function deleteMeterReading(id, photoPath){
   if(!confirm('Delete this meter capture?')) return;
   showLoading('DELETING');
   if(photoPath) await db.storage.from(METER_BUCKET).remove([photoPath]).catch(e=>console.warn(e));
   const {error}=await db.from('meter_readings').delete().eq('id',id);
   hideLoading();
   if(error){toast('Delete failed: '+error.message,'error');return;}
-  toast('Capture deleted.'); loadMeterHistory();
-}
-</script>
+  toast('Capture deleted.'); 
+  
+  // Refresh the history list below
+  await loadMeterHistory();
+  
+  // ── FIX: Refresh the top Hero UI if we have a unit selected ──
+  if (meterSelectedTenant) {
+    await loadLastMeterReading(meterSelectedTenant.id);
+  }
+}</script>
 </body>
 </html>
