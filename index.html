@@ -52,12 +52,62 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .view{display:none;}
 .view.active{display:block;}
 
-/* ── LOADING ── */
-.loading-overlay{position:fixed;inset:0;background:rgba(10,10,11,.9);display:flex;align-items:center;justify-content:center;z-index:8000;flex-direction:column;gap:14px;backdrop-filter:blur(8px);}
-.loading-overlay.hidden{display:none;}
-.spinner{width:30px;height:30px;border:2px solid var(--border);border-top-color:var(--amber);border-radius:50%;animation:spin .7s linear infinite;}
-@keyframes spin{to{transform:rotate(360deg);}}
-.loading-text{font-family:var(--font-mono);font-size:10px;color:var(--text3);letter-spacing:2.5px;}
+/* ── PREMIUM GLOBAL LOADING OVERLAY ── */
+.loading-overlay {
+  position: fixed; inset: 0;
+  background: rgba(10, 10, 11, 0.85); /* Semi-transparent dark background */
+  backdrop-filter: blur(8px); /* Beautiful glass effect over your app */
+  display: flex; align-items: center; justify-content: center;
+  z-index: 8000; flex-direction: column; gap: 24px;
+  /* Smooth fade in and out */
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+
+/* Instead of instantly disappearing, it fades out smoothly */
+.loading-overlay.hidden {
+  opacity: 0; 
+  visibility: hidden; 
+}
+
+/* Glowing Double-Ring Spinner */
+.spinner {
+  width: 50px; height: 50px;
+  border: 3px solid rgba(245, 166, 35, 0.1);
+  border-top-color: var(--amber);
+  border-radius: 50%;
+  position: relative;
+  box-shadow: 0 0 20px rgba(245, 166, 35, 0.2);
+  /* A dynamic, snapping spin */
+  animation: spin 1s cubic-bezier(0.68, -0.25, 0.265, 1.25) infinite;
+}
+
+/* The reverse inner ring */
+.spinner::before {
+  content: ''; position: absolute;
+  inset: -10px; border: 2px solid transparent;
+  border-bottom-color: var(--amber2);
+  border-radius: 50%;
+  animation: spin 1.5s linear infinite reverse;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* The text that says "SAVING...", "PLEASE WAIT", etc. */
+.loading-text {
+  font-family: var(--font-head);
+  font-size: 16px; font-weight: 700;
+  color: var(--amber);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  animation: pulseText 1.5s ease-in-out infinite;
+}
+
+@keyframes pulseText {
+  0%, 100% { opacity: 0.5; transform: scale(0.98); }
+  50% { opacity: 1; transform: scale(1.02); text-shadow: 0 0 12px rgba(245,166,35,0.4); }
+}
 
 /* ── STAT GRID ── */
 .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;}
