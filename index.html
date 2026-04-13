@@ -322,7 +322,10 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     <div class="logo-text">Rent<span>Mgr</span></div>
     <div class="status-dot"></div>
   </div>
-  <div class="date-chip" id="current-date"></div>
+ <div style="display:flex;align-items:center;gap:12px;">
+    <div class="date-chip" id="current-date"></div>
+    <button class="btn btn-ghost btn-sm" onclick="showView('analytics');loadAnalytics();" style="min-height:28px;padding:0 10px;font-size:10px;border-color:var(--amber);color:var(--amber);">📊 Analytics</button>
+  </div>
 </div>
 
 <div class="content">
@@ -335,16 +338,35 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
       <div class="stat-card"><div class="stat-label">Collected</div><div class="stat-value" id="stat-collected">—</div><div class="stat-sub">This month</div></div>
     </div>
     
+    <div class="view" id="view-analytics">
+    <div class="section-label amber">Financial Overview</div>
+    
     <div class="card" style="margin-bottom:18px;">
       <div class="card-header"><span class="card-title">💧 BWSSB vs Collected</span></div>
       <div class="card-body">
-        <div style="display:flex;gap:10px;margin-bottom:14px;">
-          <input type="number" id="bwssb-input" class="form-input" placeholder="Owner's BWSSB Bill (₹)" inputmode="decimal"/>
-          <button class="btn btn-amber btn-sm" onclick="saveBwssbBill()" style="width:auto;padding:0 16px;">Save</button>
+        <div style="display:flex;gap:8px;margin-bottom:14px;">
+          <input type="month" id="bwssb-month" class="form-input" onchange="loadAnalytics()" style="flex:1;padding:8px;font-size:13px;" />
+          <input type="number" id="bwssb-input" class="form-input" placeholder="Owner Bill (₹)" inputmode="decimal" style="flex:1.5;padding:8px;font-size:13px;" />
+          <button class="btn btn-amber btn-sm" onclick="saveBwssbBill()" style="width:auto;padding:0 12px;">Save</button>
         </div>
-        <canvas id="waterChart" height="150"></canvas>
+        <canvas id="waterChart" height="160"></canvas>
       </div>
     </div>
+
+    <div class="section-label blue">Water Consumption Trends</div>
+    
+    <div class="card">
+      <div class="card-header">
+        <select class="form-select" id="trend-unit-select" onchange="loadConsumptionTrend()" style="padding:6px 10px;font-size:12px;height:auto;background:var(--bg3);">
+          <option value="">— Select Unit to view history —</option>
+        </select>
+      </div>
+      <div class="card-body">
+        <canvas id="trendChart" height="180" style="display:none;"></canvas>
+        <div id="trend-empty" class="empty" style="padding:20px;">Select a unit above to see usage trends.</div>
+      </div>
+    </div>
+  </div>
 
     <div class="section-label red">Pending &amp; Partial</div>
     <div id="active-bills"></div>
@@ -942,7 +964,7 @@ async function loadTenants() {
 }
 
 function populateTenantDropdowns() {
-  [['bill-tenant','— Choose unit —'],['filter-unit','All Units'],['meter-unit-select','— Choose unit —']].forEach(([id,def])=>{
+  [['bill-tenant','— Choose unit —'],['filter-unit','All Units'],['meter-unit-select','— Choose unit —'], ['trend-unit-select', '— Select Unit to view history —']].forEach(([id,def])=>{
     const sel = document.getElementById(id); if(!sel) return;
     const cur = sel.value;
     while(sel.options.length>1) sel.remove(1);
@@ -1014,21 +1036,45 @@ async function saveTenant() {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //  CHART LOGIC
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-async function renderWaterChart(ym, tenantWaterCharged) {
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  NEW ANALYTICS & TRENDS LOGIC
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+let trendChartInstance = null;
+
+async function loadAnalytics() {
+  const ymInput = document.getElementById('bwssb-month');
+  if (!ymInput.value) ymInput.value = getDefaultBillingMonth();
+  const ym = ymInput.value;
+
+  const {data: bills} = await db.from('utility_bills')
+    .select('*, tenants(base_rent)')
+    .eq('is_active', true)
+    .like('billing_month', `${ym}%`);
+  
+  let tenantWaterCharged = 0;
+  (bills || []).forEach(b => {
+      const baseRent = parseFloat(b.tenants?.base_rent) || 0;
+      const total = parseFloat(b.total_amount) || 0;
+      const elec = parseFloat(b.elec_charges) || 0;
+      const misc = parseFloat(b.misc_amount) || 0;
+      const prev = parseFloat(b.previous_balance) || 0;
+      const water = total - baseRent - elec - misc - prev;
+      tenantWaterCharged += Math.max(0, water);
+  });
+
   let bwssbAmt = 0;
   try {
     const { data } = await db.from('bwssb_bills').select('amount').eq('month', ym).single();
     if (data) bwssbAmt = parseFloat(data.amount);
   } catch(_) {}
-
   document.getElementById('bwssb-input').value = bwssbAmt || '';
+
   const ctx = document.getElementById('waterChart');
   if (waterChartInstance) waterChartInstance.destroy();
-
   waterChartInstance = new Chart(ctx, {
     type: 'bar',
     data: {
-      labels: ['Water Recovery (₹)'],
+      labels: ['Water Cost (₹)'],
       datasets: [
         { label: 'Paid to BWSSB', data: [bwssbAmt], backgroundColor: '#ef4444', borderRadius: 4 },
         { label: 'Charged to Tenants', data: [tenantWaterCharged], backgroundColor: '#22c55e', borderRadius: 4 }
@@ -1045,17 +1091,89 @@ async function renderWaterChart(ym, tenantWaterCharged) {
   });
 }
 
+async function loadConsumptionTrend() {
+  const tenantId = document.getElementById('trend-unit-select').value;
+  const ctx = document.getElementById('trendChart');
+  const emptyMsg = document.getElementById('trend-empty');
+  
+  if (!tenantId) {
+    if (trendChartInstance) trendChartInstance.destroy();
+    ctx.style.display = 'none';
+    emptyMsg.style.display = 'block';
+    return;
+  }
+
+  showLoading('LOADING TRENDS...');
+  const t = tenants.find(x => String(x.id) === String(tenantId));
+  let startValue = parseFloat(t?.initial_water_reading) || 0;
+
+  const {data, error} = await db.from('utility_bills')
+    .select('billing_month, water_reading')
+    .eq('tenant_id', tenantId)
+    .eq('is_active', true)
+    .order('billing_month', {ascending: true});
+
+  hideLoading();
+
+  if (error || !data || data.length === 0) {
+    if (trendChartInstance) trendChartInstance.destroy();
+    ctx.style.display = 'none';
+    emptyMsg.style.display = 'block';
+    emptyMsg.textContent = 'No billing history found.';
+    return;
+  }
+
+  ctx.style.display = 'block';
+  emptyMsg.style.display = 'none';
+
+  const labels = [];
+  const consumption = [];
+  let rollingPrev = startValue;
+
+  data.forEach(b => {
+    const current = parseFloat(b.water_reading) || 0;
+    consumption.push(Math.max(0, current - rollingPrev));
+    labels.push(fmtMonth(b.billing_month).split(' ')[0]);
+    rollingPrev = current;
+  });
+
+  if (trendChartInstance) trendChartInstance.destroy();
+  trendChartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Units Consumed',
+        data: consumption,
+        borderColor: '#60a5fa',
+        backgroundColor: 'rgba(96, 165, 250, 0.1)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.3,
+        pointBackgroundColor: '#f5a623'
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { labels: { color: '#e8e8ec' } } },
+      scales: {
+        y: { grid: { color: '#2a2a32' }, ticks: { color: '#a0a0b0' }, beginAtZero: true },
+        x: { grid: { color: '#2a2a32' }, ticks: { color: '#a0a0b0' } }
+      }
+    }
+  });
+}
+
 async function saveBwssbBill() {
   const amt = parseFloat(document.getElementById('bwssb-input').value) || 0;
-  const ym = document.getElementById('bill-month').value || getDefaultBillingMonth();
-  showLoading('SAVING BWSSB...');
+  const ym = document.getElementById('bwssb-month').value || getDefaultBillingMonth();
+  showLoading('SAVING...');
   const { error } = await db.from('bwssb_bills').upsert({ month: ym, amount: amt });
   hideLoading();
   if (error) { toast('Error: ' + error.message, 'error'); return; }
   toast('BWSSB Bill Saved!');
-  loadDashboard();
+  loadAnalytics();
 }
-
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //  DASHBOARD
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
