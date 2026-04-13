@@ -330,7 +330,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 
 <div class="content">
 
-  <div class="view active" id="view-dashboard">
+<div class="view active" id="view-dashboard">
     <div class="stat-grid">
       <div class="stat-card"><div class="stat-label">Monthly Rent</div><div class="stat-value" id="stat-rent">—</div><div class="stat-sub">All units</div></div>
       <div class="stat-card"><div class="stat-label">Total Bills</div><div class="stat-value" id="stat-bills">—</div><div class="stat-sub">All time</div></div>
@@ -338,7 +338,11 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
       <div class="stat-card"><div class="stat-label">Collected</div><div class="stat-value" id="stat-collected">—</div><div class="stat-sub">This month</div></div>
     </div>
     
-    <div class="view" id="view-analytics">
+    <div class="section-label red">Pending &amp; Partial</div>
+    <div id="active-bills"></div>
+    <div class="section-label green">Fully Paid</div>
+    <div id="paid-bills"></div>
+  </div> <div class="view" id="view-analytics">
     <div class="section-label amber">Financial Overview</div>
     
     <div class="card" style="margin-bottom:18px;">
@@ -796,13 +800,17 @@ function toast(msg, type='success'){
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function showView(name){
   if(!document.getElementById('view-meter').classList.contains('active') && name!=='meter') stopCamera();
+  
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(n=>n.classList.remove('active'));
+  
   document.getElementById('view-'+name).classList.add('active');
   document.getElementById('nav-'+name)?.classList.add('active');
+  
   if(name==='ledger')    loadLedger();
   if(name==='dashboard') loadDashboard();
   if(name==='meter')     loadMeterHistory();
+  if(name==='analytics') loadAnalytics(); // <-- Ensures charts draw immediately
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
