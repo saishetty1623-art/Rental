@@ -560,7 +560,7 @@ input[type="month"] {
       </select>
     </div>
     <div class="filter-strip-row2">
-      <input type="month" class="form-input" id="filter-month" onchange="loadLedger()" placeholder="Filter month"/>
+      <input type="text" class="form-input" id="filter-month" onchange="loadLedger()" placeholder="Filter month" onfocus="this.type='month'" onblur="if(!this.value) this.type='text'"/>
       <button class="btn btn-ghost" onclick="clearLedgerFilters()" style="font-size:12px;min-height:0;padding:0 10px;height:48px;">Clear</button>
     </div>
     <div id="ledger-list"></div>
