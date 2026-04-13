@@ -312,6 +312,26 @@ input[type="month"]{color-scheme:dark;}
   .stat-grid,.analytics-summary-grid{grid-template-columns:repeat(4,1fr);}
   .filter-strip{grid-template-columns:1fr 1fr 1fr;}
 }
+  /* ── MAGIC PLACEHOLDER FOR MONTH INPUT ── */
+/* 1. Hide the ugly dashes when empty */
+#filter-month:invalid { 
+    color: transparent; 
+}
+/* 2. Show our custom placeholder instead */
+#filter-month:invalid::before { 
+    content: 'Filter month'; 
+    color: var(--text3); 
+    position: absolute; 
+    pointer-events: none; 
+}
+/* 3. When tapped or filled, show the real white text */
+#filter-month:focus, #filter-month:valid { 
+    color: var(--text) !important; 
+}
+/* 4. Hide our custom placeholder when typing */
+#filter-month:focus::before { 
+    display: none !important; 
+}
 </style>
 </head>
 <body>
@@ -572,7 +592,7 @@ input[type="month"]{color-scheme:dark;}
     </select>
   </div>
   <div class="filter-strip-row2">
-    <input type="text" class="form-input" id="filter-month" onchange="loadLedger()" placeholder="Filter month" onfocus="this.type='month'" onblur="if(!this.value) this.type='text'"/>
+<input type="month" class="form-input" id="filter-month" onchange="loadLedger()" required />
     <button class="btn btn-ghost" onclick="clearLedgerFilters()" style="font-size:12px;min-height:0;padding:0 10px;height:48px;">Clear</button>
   </div>
   <div id="ledger-list"></div>
