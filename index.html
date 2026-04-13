@@ -1052,12 +1052,64 @@ async function saveTenant() {
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  CHART LOGIC
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  NEW ANALYTICS & TRENDS LOGIC
+//  ANALYTICS & CHARTS LOGIC
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 let trendChartInstance = null;
+let waterChartInstance = null; // Added back the missing chart variable!
+
+// ─── THIS FUNCTION WAS MISSING ───
+async function loadAnalytics() {
+  const ymInput = document.getElementById('bwssb-month');
+  if (!ymInput.value) ymInput.value = getDefaultBillingMonth();
+  const ym = ymInput.value;
+
+  // 1. Calculate Tenant Water Charged
+  const {data: bills} = await db.from('utility_bills')
+    .select('*, tenants(base_rent)')
+    .eq('is_active', true)
+    .like('billing_month', `${ym}%`);
+  
+  let tenantWaterCharged = 0;
+  (bills || []).forEach(b => {
+      const baseRent = parseFloat(b.tenants?.base_rent) || 0;
+      const total = parseFloat(b.total_amount) || 0;
+      const elec = parseFloat(b.elec_charges) || 0;
+      const misc = parseFloat(b.misc_amount) || 0;
+      const prev = parseFloat(b.previous_balance) || 0;
+      const water = total - baseRent - elec - misc - prev;
+      tenantWaterCharged += Math.max(0, water);
+  });
+
+  // 2. Fetch BWSSB Bill (This handles historical tracking & editing!)
+  let bwssbAmt = 0;
+  try {
+    const { data } = await db.from('bwssb_bills').select('amount').eq('month', ym).single();
+    if (data) bwssbAmt = parseFloat(data.amount);
+  } catch(_) {}
+  document.getElementById('bwssb-input').value = bwssbAmt || '';
+
+  // 3. Render Bar Chart
+  const ctx = document.getElementById('waterChart');
+  if (waterChartInstance) waterChartInstance.destroy();
+  waterChartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Water Cost (₹)'],
+      datasets: [
+        { label: 'Paid to BWSSB', data: [bwssbAmt], backgroundColor: '#ef4444', borderRadius: 4 },
+        { label: 'Charged to Tenants', data: [tenantWaterCharged], backgroundColor: '#22c55e', borderRadius: 4 }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { labels: { color: '#e8e8ec' } } },
+      scales: {
+        y: { beginAtZero: true, grid: { color: '#2a2a32' }, ticks: { color: '#a0a0b0' } },
+        x: { grid: { display: false }, ticks: { color: '#a0a0b0' } }
+      }
+    }
+  });
+}
 
 async function loadConsumptionTrend() {
   const selection = document.getElementById('trend-unit-select').value;
@@ -1087,7 +1139,6 @@ async function loadConsumptionTrend() {
 
     ctx.style.display = 'block'; emptyMsg.style.display = 'none';
 
-    // We need to fetch the PREVIOUS month's reading for each unit to get consumption
     const labels = [];
     const consumptionValues = [];
 
