@@ -305,6 +305,17 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
   .stat-grid{grid-template-columns:repeat(4,1fr);}
   .filter-strip{grid-template-columns:1fr 1fr 1fr;}
 }
+  /* This makes the icon white so it's visible on your black background */
+input[type="month"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    opacity: 0.8;
+    cursor: pointer;
+}
+
+/* This tells the phone to use "Dark Mode" rules for this input */
+input[type="month"] {
+    color-scheme: dark;
+}
 </style>
 </head>
 <body>
@@ -362,15 +373,14 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     <div class="card">
       <div class="card-header">
         <select class="form-select" id="trend-unit-select" onchange="loadConsumptionTrend()" style="padding:6px 10px;font-size:12px;height:auto;background:var(--bg3);">
-          <option value="">— Select Unit to view history —</option>
-        </select>
+          <option value="all">📊 All Units (Comparison)</option>
+          </select>
       </div>
       <div class="card-body">
-        <canvas id="trendChart" height="180" style="display:none;"></canvas>
-        <div id="trend-empty" class="empty" style="padding:20px;">Select a unit above to see usage trends.</div>
+        <canvas id="trendChart" height="200"></canvas>
+        <div id="trend-empty" class="empty" style="display:none;padding:20px;">No data found for this selection.</div>
       </div>
     </div>
-  </div>
 
     <div class="section-label red">Pending &amp; Partial</div>
     <div id="active-bills"></div>
@@ -1049,127 +1059,134 @@ async function saveTenant() {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 let trendChartInstance = null;
 
-async function loadAnalytics() {
-  const ymInput = document.getElementById('bwssb-month');
-  if (!ymInput.value) ymInput.value = getDefaultBillingMonth();
-  const ym = ymInput.value;
-
-  const {data: bills} = await db.from('utility_bills')
-    .select('*, tenants(base_rent)')
-    .eq('is_active', true)
-    .like('billing_month', `${ym}%`);
-  
-  let tenantWaterCharged = 0;
-  (bills || []).forEach(b => {
-      const baseRent = parseFloat(b.tenants?.base_rent) || 0;
-      const total = parseFloat(b.total_amount) || 0;
-      const elec = parseFloat(b.elec_charges) || 0;
-      const misc = parseFloat(b.misc_amount) || 0;
-      const prev = parseFloat(b.previous_balance) || 0;
-      const water = total - baseRent - elec - misc - prev;
-      tenantWaterCharged += Math.max(0, water);
-  });
-
-  let bwssbAmt = 0;
-  try {
-    const { data } = await db.from('bwssb_bills').select('amount').eq('month', ym).single();
-    if (data) bwssbAmt = parseFloat(data.amount);
-  } catch(_) {}
-  document.getElementById('bwssb-input').value = bwssbAmt || '';
-
-  const ctx = document.getElementById('waterChart');
-  if (waterChartInstance) waterChartInstance.destroy();
-  waterChartInstance = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: ['Water Cost (₹)'],
-      datasets: [
-        { label: 'Paid to BWSSB', data: [bwssbAmt], backgroundColor: '#ef4444', borderRadius: 4 },
-        { label: 'Charged to Tenants', data: [tenantWaterCharged], backgroundColor: '#22c55e', borderRadius: 4 }
-      ]
-    },
-    options: {
-      responsive: true,
-      plugins: { legend: { labels: { color: '#e8e8ec', font: { family: "'IBM Plex Mono', monospace" } } } },
-      scales: {
-        y: { grid: { color: '#2a2a32' }, ticks: { color: '#a0a0b0' }, beginAtZero: true },
-        x: { grid: { display: false }, ticks: { color: '#a0a0b0' } }
-      }
-    }
-  });
-}
-
 async function loadConsumptionTrend() {
-  const tenantId = document.getElementById('trend-unit-select').value;
+  const selection = document.getElementById('trend-unit-select').value;
   const ctx = document.getElementById('trendChart');
   const emptyMsg = document.getElementById('trend-empty');
   
-  if (!tenantId) {
-    if (trendChartInstance) trendChartInstance.destroy();
-    ctx.style.display = 'none';
-    emptyMsg.style.display = 'block';
-    return;
-  }
+  showLoading('FETCHING DATA...');
 
-  showLoading('LOADING TRENDS...');
-  const t = tenants.find(x => String(x.id) === String(tenantId));
-  let startValue = parseFloat(t?.initial_water_reading) || 0;
+  if (selection === 'all') {
+    // ─── ALL UNITS COMPARISON (BAR CHART) ───
+    const ym = document.getElementById('bwssb-month').value || getDefaultBillingMonth();
+    
+    const { data, error } = await db.from('utility_bills')
+      .select('water_reading, tenant_id, tenants(house_name, initial_water_reading)')
+      .eq('is_active', true)
+      .like('billing_month', `${ym}%`);
 
-  const {data, error} = await db.from('utility_bills')
-    .select('billing_month, water_reading')
-    .eq('tenant_id', tenantId)
-    .eq('is_active', true)
-    .order('billing_month', {ascending: true});
+    hideLoading();
 
-  hideLoading();
-
-  if (error || !data || data.length === 0) {
-    if (trendChartInstance) trendChartInstance.destroy();
-    ctx.style.display = 'none';
-    emptyMsg.style.display = 'block';
-    emptyMsg.textContent = 'No billing history found.';
-    return;
-  }
-
-  ctx.style.display = 'block';
-  emptyMsg.style.display = 'none';
-
-  const labels = [];
-  const consumption = [];
-  let rollingPrev = startValue;
-
-  data.forEach(b => {
-    const current = parseFloat(b.water_reading) || 0;
-    consumption.push(Math.max(0, current - rollingPrev));
-    labels.push(fmtMonth(b.billing_month).split(' ')[0]);
-    rollingPrev = current;
-  });
-
-  if (trendChartInstance) trendChartInstance.destroy();
-  trendChartInstance = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: labels,
-      datasets: [{
-        label: 'Units Consumed',
-        data: consumption,
-        borderColor: '#60a5fa',
-        backgroundColor: 'rgba(96, 165, 250, 0.1)',
-        borderWidth: 2,
-        fill: true,
-        tension: 0.3,
-        pointBackgroundColor: '#f5a623'
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: { legend: { labels: { color: '#e8e8ec' } } },
-      scales: {
-        y: { grid: { color: '#2a2a32' }, ticks: { color: '#a0a0b0' }, beginAtZero: true },
-        x: { grid: { color: '#2a2a32' }, ticks: { color: '#a0a0b0' } }
-      }
+    if (error || !data || data.length === 0) {
+      if (trendChartInstance) trendChartInstance.destroy();
+      ctx.style.display = 'none';
+      emptyMsg.style.display = 'block';
+      emptyMsg.textContent = `No bills found for ${fmtMonth(ym)}`;
+      return;
     }
-  });
+
+    ctx.style.display = 'block'; emptyMsg.style.display = 'none';
+
+    // We need to fetch the PREVIOUS month's reading for each unit to get consumption
+    const labels = [];
+    const consumptionValues = [];
+
+    for (const b of data) {
+      const { data: prev } = await db.from('utility_bills')
+        .select('water_reading')
+        .eq('tenant_id', b.tenant_id)
+        .eq('is_active', true)
+        .lt('billing_month', ym + '-01')
+        .order('billing_month', {ascending: false})
+        .limit(1);
+
+      const lastReading = prev?.[0]?.water_reading || b.tenants?.initial_water_reading || 0;
+      const unitsUsed = Math.max(0, (parseFloat(b.water_reading) || 0) - lastReading);
+      
+      labels.push(b.tenants?.house_name || 'Unit');
+      consumptionValues.push(unitsUsed);
+    }
+
+    if (trendChartInstance) trendChartInstance.destroy();
+    trendChartInstance = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: `Units Consumed (${fmtMonth(ym).split(' ')[0]})`,
+          data: consumptionValues,
+          backgroundColor: '#60a5fa',
+          borderRadius: 4
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { labels: { color: '#e8e8ec' } } },
+        scales: {
+          y: { beginAtZero: true, grid: { color: '#2a2a32' }, ticks: { color: '#a0a0b0' } },
+          x: { grid: { display: false }, ticks: { color: '#a0a0b0' } }
+        }
+      }
+    });
+
+  } else {
+    // ─── INDIVIDUAL UNIT TREND (LINE CHART) ───
+    const tenantId = selection;
+    const t = tenants.find(x => String(x.id) === String(tenantId));
+    let rollingPrev = parseFloat(t?.initial_water_reading) || 0;
+
+    const {data, error} = await db.from('utility_bills')
+      .select('billing_month, water_reading')
+      .eq('tenant_id', tenantId)
+      .eq('is_active', true)
+      .order('billing_month', {ascending: true});
+
+    hideLoading();
+
+    if (error || !data || data.length === 0) {
+      if (trendChartInstance) trendChartInstance.destroy();
+      ctx.style.display = 'none';
+      emptyMsg.style.display = 'block';
+      return;
+    }
+
+    ctx.style.display = 'block'; emptyMsg.style.display = 'none';
+
+    const labels = [];
+    const consumption = [];
+
+    data.forEach(b => {
+      const current = parseFloat(b.water_reading) || 0;
+      consumption.push(Math.max(0, current - rollingPrev));
+      labels.push(fmtMonth(b.billing_month).split(' ')[0]);
+      rollingPrev = current;
+    });
+
+    if (trendChartInstance) trendChartInstance.destroy();
+    trendChartInstance = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: `${t.house_name} Consumption History`,
+          data: consumption,
+          borderColor: '#f5a623',
+          backgroundColor: 'rgba(245, 166, 35, 0.1)',
+          fill: true,
+          tension: 0.3,
+          pointRadius: 4
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { labels: { color: '#e8e8ec' } } },
+        scales: {
+          y: { beginAtZero: true, grid: { color: '#2a2a32' }, ticks: { color: '#a0a0b0' } },
+          x: { grid: { color: '#2a2a32' }, ticks: { color: '#a0a0b0' } }
+        }
+      }
+    });
+  }
 }
 
 async function saveBwssbBill() {
