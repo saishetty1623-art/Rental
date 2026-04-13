@@ -1472,7 +1472,8 @@ function buildMinimalReceiptHTML(d){
   const dueMonth   = billDate.toLocaleDateString('en-IN',{month:'long'});
   const dueYear    = billDate.getFullYear();
   const genDate    = new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
-
+  const tenantName = d.tenant?.house_name || '';
+  
   // Only show water if > 0
   const waterRow = parseFloat(d.chargedWater) > 0
     ? `<tr style="border-bottom:1px solid #ebebeb;">
@@ -1509,7 +1510,7 @@ function buildMinimalReceiptHTML(d){
     <div style="background:#111111;padding:20px 28px 15px;text-align:center;">
       <div style="font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:3px;color:#f5a623;text-transform:uppercase;margin-bottom:7px;">Rent Receipt</div>
       <div style="font-family:'Rajdhani',sans-serif;font-size:19px;font-weight:600;color:#ffffff;letter-spacing:.5px;">For the Month of ${monthLabel}</div>
-      ${tenantName ? `<div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:rgba(255,255,255,0.4);margin-top:5px;letter-spacing:.5px;">${tenantName}</div>` : ''}
+
     </div>
 
     <!-- TOTAL BAND: slimmer -->
