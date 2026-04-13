@@ -1177,6 +1177,9 @@ async function saveBwssbBill() {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //  DASHBOARD
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  DASHBOARD
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 async function loadDashboard() {
   const now=new Date();
   const ym=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
@@ -1194,19 +1197,6 @@ async function loadDashboard() {
   document.getElementById('stat-bills').textContent=bills.length;
   const collected=bills.filter(b=>b.billing_month?.startsWith(ym)).reduce((s,b)=>s+(parseFloat(b.amount_paid)||0),0);
   document.getElementById('stat-collected').textContent='₹'+fmtK(collected);
-
-  // Chart data calc
-  let currentMonthWaterCharged = 0;
-  bills.filter(b => b.billing_month?.startsWith(ym)).forEach(b => {
-      const baseRent = parseFloat(b.tenants?.base_rent) || 0;
-      const total = parseFloat(b.total_amount) || 0;
-      const elec = parseFloat(b.elec_charges) || 0;
-      const misc = parseFloat(b.misc_amount) || 0;
-      const prev = parseFloat(b.previous_balance) || 0;
-      const water = total - baseRent - elec - misc - prev;
-      currentMonthWaterCharged += Math.max(0, water);
-  });
-  renderWaterChart(ym, currentMonthWaterCharged);
 
   const latestMap={};
   bills.forEach(b=>{if(!latestMap[b.tenant_id]) latestMap[b.tenant_id]=b;});
