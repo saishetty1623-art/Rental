@@ -2333,12 +2333,27 @@ function onMeterReadingInput() {
   const val      = parseFloat(document.getElementById('meter-reading-input').value);
   const diff     = document.getElementById('rcb-diff-text');
   const saveWrap = document.getElementById('meter-save-wrap');
+
   if (!isNaN(val) && meterSnapshotBlob) {
-    saveWrap.style.display = 'block';
-    if (val > meterPrevReading)     { diff.textContent = `▲ ${val - meterPrevReading} units used`; diff.style.color = 'var(--green)'; }
-    else if (val === meterPrevReading) { diff.textContent = 'Same as previous'; diff.style.color = 'var(--amber)'; }
-    else                            { diff.textContent = '⚠ Reading lower than previous!'; diff.style.color = 'var(--red)'; }
-  } else { saveWrap.style.display = 'none'; diff.textContent = ''; }
+    if (val < meterPrevReading) {
+      // Block save — reading is invalid
+      saveWrap.style.display = 'none';
+      diff.textContent = `⛔ Cannot be less than previous reading (${meterPrevReading} units)`;
+      diff.style.color = 'var(--red)';
+    } else {
+      saveWrap.style.display = 'block';
+      if (val > meterPrevReading) {
+        diff.textContent = `▲ ${val - meterPrevReading} units used`;
+        diff.style.color = 'var(--green)';
+      } else {
+        diff.textContent = 'Same as previous reading';
+        diff.style.color = 'var(--amber)';
+      }
+    }
+  } else {
+    saveWrap.style.display = 'none';
+    diff.textContent = '';
+  }
 }
 
 async function saveMeterReading() {
@@ -2346,7 +2361,11 @@ async function saveMeterReading() {
   if (!meterSnapshotBlob)   { toast('No photo captured', 'error'); return; }
   const readingVal = parseFloat(document.getElementById('meter-reading-input').value);
   if (isNaN(readingVal))    { toast('Enter the meter reading', 'error'); return; }
-
+  if (readingVal < meterPrevReading) {
+  toast(`Reading (${readingVal}) cannot be less than previous reading (${meterPrevReading} units)`, 'error');
+  return;
+}
+  
   showLoading('SAVING…');
   try {
     const tenantId = String(meterSelectedTenant.id);
