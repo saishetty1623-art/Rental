@@ -55,21 +55,16 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 /* ── PREMIUM GLOBAL LOADING OVERLAY ── */
 .loading-overlay {
   position: fixed; inset: 0;
-  background: rgba(10, 10, 11, 0.85); /* Semi-transparent dark background */
-  backdrop-filter: blur(8px); /* Beautiful glass effect over your app */
+  background: rgba(10, 10, 11, 0.85);
+  backdrop-filter: blur(8px);
   display: flex; align-items: center; justify-content: center;
   z-index: 8000; flex-direction: column; gap: 24px;
-  /* Smooth fade in and out */
   transition: opacity 0.4s ease, visibility 0.4s ease;
 }
-
-/* Instead of instantly disappearing, it fades out smoothly */
 .loading-overlay.hidden {
   opacity: 0; 
   visibility: hidden; 
 }
-
-/* Glowing Double-Ring Spinner */
 .spinner {
   width: 50px; height: 50px;
   border: 3px solid rgba(245, 166, 35, 0.1);
@@ -77,11 +72,8 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
   border-radius: 50%;
   position: relative;
   box-shadow: 0 0 20px rgba(245, 166, 35, 0.2);
-  /* A dynamic, snapping spin */
   animation: spin 1s cubic-bezier(0.68, -0.25, 0.265, 1.25) infinite;
 }
-
-/* The reverse inner ring */
 .spinner::before {
   content: ''; position: absolute;
   inset: -10px; border: 2px solid transparent;
@@ -89,12 +81,9 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
   border-radius: 50%;
   animation: spin 1.5s linear infinite reverse;
 }
-
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
-
-/* The text that says "SAVING...", "PLEASE WAIT", etc. */
 .loading-text {
   font-family: var(--font-head);
   font-size: 16px; font-weight: 700;
@@ -103,7 +92,6 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
   text-transform: uppercase;
   animation: pulseText 1.5s ease-in-out infinite;
 }
-
 @keyframes pulseText {
   0%, 100% { opacity: 0.5; transform: scale(0.98); }
   50% { opacity: 1; transform: scale(1.02); text-shadow: 0 0 12px rgba(245,166,35,0.4); }
@@ -366,22 +354,18 @@ input[type="month"]{color-scheme:dark;}
   .filter-strip{grid-template-columns:1fr 1fr 1fr;}
 }
   /* ── MAGIC PLACEHOLDER FOR MONTH INPUT ── */
-/* 1. Hide the ugly dashes when empty */
 #filter-month:invalid { 
     color: transparent; 
 }
-/* 2. Show our custom placeholder instead */
 #filter-month:invalid::before { 
     content: 'Filter month'; 
     color: var(--text3); 
     position: absolute; 
     pointer-events: none; 
 }
-/* 3. When tapped or filled, show the real white text */
 #filter-month:focus, #filter-month:valid { 
     color: var(--text) !important; 
 }
-/* 4. Hide our custom placeholder when typing */
 #filter-month:focus::before { 
     display: none !important; 
 }
@@ -428,7 +412,6 @@ input[type="month"]{color-scheme:dark;}
 <div class="view" id="view-analytics">
   <div class="section-label amber">Monthly Overview</div>
 
-  <!-- Month selector & BWSSB input -->
   <div class="card" style="margin-bottom:14px;">
     <div class="card-header"><span class="card-title">💧 BWSSB vs Collected</span></div>
     <div class="card-body">
@@ -444,7 +427,6 @@ input[type="month"]{color-scheme:dark;}
     </div>
   </div>
 
-  <!-- Per-unit collection breakdown -->
   <div class="section-label blue">Collection Breakdown</div>
   <div class="card" style="margin-bottom:14px;">
     <div class="card-header">
@@ -456,7 +438,6 @@ input[type="month"]{color-scheme:dark;}
     </div>
   </div>
 
-  <!-- Consumption trend charts -->
   <div class="section-label blue">Water Consumption Trends</div>
   <div class="card">
     <div class="card-header">
@@ -828,7 +809,7 @@ const METER_BUCKET = 'meter-photos';
 const QR_BUCKET    = 'payment-qr';
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  GLOBAL STATE  (declared ONCE each)
+//  GLOBAL STATE
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 let tenants               = [];
 let currentBillData       = null;
@@ -843,7 +824,6 @@ let upiLogosUrl           = null;
 let qrCodeBase64          = null;
 let upiLogosBase64        = null;
 
-// Chart instances  (one declaration each — the earlier duplicate was the bug)
 let waterChartInstance    = null;
 let trendChartInstance    = null;
 
@@ -1161,11 +1141,8 @@ async function loadAnalytics() {
   const ym = ymInput.value;
 
   document.getElementById('breakdown-month-title').textContent = fmtMonth(ym);
-
-  // Show chart loading spinners
   document.getElementById('water-chart-loading').classList.remove('hidden');
 
-  // ── Fetch bills for this month ──
   const { data: bills } = await db.from('utility_bills')
     .select('*, tenants(base_rent,house_name,water_cap)')
     .eq('is_active', true)
@@ -1182,7 +1159,6 @@ async function loadAnalytics() {
     tenantWaterCharged += Math.max(0, total - baseRent - elec - misc - prev);
   });
 
-  // ── Fetch BWSSB Bill ──
   let bwssbAmt = 0;
   try {
     const { data } = await db.from('bwssb_bills').select('amount').eq('month', ym).single();
@@ -1190,7 +1166,6 @@ async function loadAnalytics() {
   } catch(_) {}
   document.getElementById('bwssb-input').value = bwssbAmt || '';
 
-  // ── BWSSB Bar Chart ──
   const waterCtx = document.getElementById('waterChart');
   if (waterChartInstance) { waterChartInstance.destroy(); waterChartInstance = null; }
   waterChartInstance = new Chart(waterCtx, {
@@ -1219,10 +1194,7 @@ async function loadAnalytics() {
   });
   document.getElementById('water-chart-loading').classList.add('hidden');
 
-  // ── Per-unit collection breakdown ──
   renderCollectionBreakdown(bills || [], ym);
-
-  // ── Trigger trend chart ──
   await loadConsumptionTrend();
 }
 
@@ -1294,7 +1266,6 @@ async function loadConsumptionTrend() {
   const ym = document.getElementById('bwssb-month').value || getDefaultBillingMonth();
 
   if (selection === 'all') {
-    // ── All-units comparison bar chart for selected month ──
     const { data, error } = await db.from('utility_bills')
       .select('water_reading,tenant_id,tenants(house_name,initial_water_reading)')
       .eq('is_active', true)
@@ -1353,7 +1324,6 @@ async function loadConsumptionTrend() {
     });
 
   } else {
-    // ── Individual unit history line chart ──
     const t = tenants.find(x => String(x.id) === String(selection));
     let rollingPrev = parseFloat(t?.initial_water_reading) || 0;
 
@@ -1850,10 +1820,17 @@ function buildMinimalReceiptHTML(d) {
   const dueYear    = billDate.getFullYear();
   const genDate    = new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
 
+  // ── Conditional rows (only shown when value > 0) ──
   const waterRow = parseFloat(d.chargedWater) > 0
     ? `<tr style="border-bottom:1px solid #ebebeb;">
         <td style="padding:11px 0;font-size:14px;color:#333;font-weight:500;">Water Charges</td>
         <td style="padding:11px 0;font-size:14px;text-align:right;font-family:'IBM Plex Mono',monospace;font-weight:600;color:#111;">&#8377; ${fmt(d.chargedWater)}</td>
+       </tr>` : '';
+
+  const elecRow = parseFloat(d.elec) > 0
+    ? `<tr style="border-bottom:1px solid #ebebeb;">
+        <td style="padding:11px 0;font-size:14px;color:#333;font-weight:500;">Electricity</td>
+        <td style="padding:11px 0;font-size:14px;text-align:right;font-family:'IBM Plex Mono',monospace;font-weight:600;color:#111;">&#8377; ${fmt(d.elec)}</td>
        </tr>` : '';
 
   const miscRow = d.miscAmount && parseFloat(d.miscAmount) > 0
@@ -1894,10 +1871,7 @@ function buildMinimalReceiptHTML(d) {
           <td style="padding:11px 0;font-size:14px;text-align:right;font-family:'IBM Plex Mono',monospace;font-weight:600;color:#111;">&#8377; ${fmt(d.baseRent)}</td>
         </tr>
         ${waterRow}
-        <tr style="${(miscRow||prevRow)?'border-bottom:1px solid #ebebeb;':''}">
-          <td style="padding:11px 0;font-size:14px;color:#333;font-weight:500;">Electricity</td>
-          <td style="padding:11px 0;font-size:14px;text-align:right;font-family:'IBM Plex Mono',monospace;font-weight:600;color:#111;">&#8377; ${fmt(d.elec)}</td>
-        </tr>
+        ${elecRow}
         ${miscRow}${prevRow}
       </table>
     </div>
@@ -1920,8 +1894,13 @@ function buildDetailedReceiptHTML(d) {
   const rawWater   = d.rawWater ?? d.chargedWater;
   const subsidy    = d.subsidy ?? 0;
 
+  // ── Conditional rows (only shown when value > 0) ──
+  const elecRow = parseFloat(d.elec) > 0
+    ? `<tr><td class="rz-label">Electricity Charges</td><td>₹ ${fmt(d.elec)}</td></tr>` : '';
+
   const miscRow = d.miscAmount && parseFloat(d.miscAmount) > 0
     ? `<tr><td class="rz-label">${d.miscLabel||'Misc'}</td><td>₹ ${fmt(d.miscAmount)}</td></tr>` : '';
+
   const prevRow = parseFloat(d.prevBal) > 0
     ? `<tr><td class="rz-label">Previous Balance</td><td>₹ ${fmt(d.prevBal)}</td></tr>` : '';
 
@@ -1949,7 +1928,7 @@ function buildDetailedReceiptHTML(d) {
       <tr style="background:#f8f8f8;"><td class="rz-label">Gross Water (${units}u × 10L × ₹0.22)</td><td>₹ ${fmt(rawWater)}</td></tr>
       ${subRow}
       <tr><td class="rz-label">Water Charged</td><td>₹ ${fmt(d.chargedWater)}</td></tr>
-      <tr><td class="rz-label">Electricity Charges</td><td>₹ ${fmt(d.elec)}</td></tr>
+      ${elecRow}
       ${miscRow}${prevRow}
       <tr class="rz-total-row"><td>Total Due</td><td>₹ ${fmt(d.total)}</td></tr>
     </table>
