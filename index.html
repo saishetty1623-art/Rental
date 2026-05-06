@@ -859,7 +859,6 @@ const isCapped = t => !!(t && (t.water_cap || localCaps[String(t.id)]));
 
 function getDefaultBillingMonth() {
   const now = new Date();
-  if (now.getDate() < 10) now.setMonth(now.getMonth() - 1);
   return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
 }
 
