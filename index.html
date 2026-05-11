@@ -2182,64 +2182,49 @@ async function downloadReceipt() {
   a.href = currentReceiptDataUrl; a.click(); toast('Downloaded!');
 }
 
-// ── FIX 2: WhatsApp share — copies image to clipboard, then opens the tenant's
-// specific WhatsApp chat via wa.me deep link so they can paste it directly.
+
 async function shareReceiptImage() {
   if (!currentReceiptDataUrl) { toast('Receipt image not ready', 'error'); return; }
+
+  // Mark bill as sent in the background
   if (currentBillData?.id) {
-    db.from('utility_bills').update({is_sent:true}).eq('id', currentBillData.id).then(() => loadDashboard());
+    db.from('utility_bills').update({ is_sent: true }).eq('id', currentBillData.id)
+      .then(() => loadDashboard());
   }
 
-  const blob = await (await fetch(currentReceiptDataUrl)).blob();
-  const file = new File([blob], 'RentBill.png', {type:'image/png'});
-
-  // Get the tenant's phone number (strip any non-digits)
+  const blob  = await (await fetch(currentReceiptDataUrl)).blob();
   const phone = (currentBillData?.tenant?.phone_number || '').replace(/\D/g, '');
 
-  // Try native share first (works on Android with proper WhatsApp integration)
-  if (navigator.canShare && navigator.canShare({files:[file]})) {
-    try {
-      await navigator.share({files:[file], title:'Rent Bill'});
-      return;
-    } catch(err) {
-      // User cancelled or share failed — fall through to clipboard approach
-      if (err.name === 'AbortError') return;
-    }
-  }
-
-  // Clipboard + wa.me deep link approach
+  // 1. Try to copy the image to the clipboard so the user can paste in WhatsApp
   let clipboardOk = false;
   try {
-    await navigator.clipboard.write([new ClipboardItem({'image/png': blob})]);
+    await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
     clipboardOk = true;
-  } catch(_) {}
-
-  if (phone) {
-    if (clipboardOk) {
-      toast('Image copied! Opening WhatsApp — paste it in the chat.');
-    } else {
-      // Clipboard failed — download instead so they can attach manually
-      const a = document.createElement('a');
-      a.download = `RentBill_${currentBillData?.tenant?.house_name||'unit'}.png`;
-      a.href = currentReceiptDataUrl; a.click();
-      toast('Downloaded — tap Attach in WhatsApp to send.');
-    }
-    // Open the specific tenant's WhatsApp chat
-    // Small delay so the toast is visible before the app switch
-    setTimeout(() => {
-      window.open(`https://wa.me/${phone}`, '_blank');
-    }, 600);
-  } else {
-    // No phone number on file
-    if (clipboardOk) {
-      toast('Image copied! Paste into WhatsApp Web.');
-    } else {
-      const a = document.createElement('a');
-      a.download = `RentBill_${currentBillData?.tenant?.house_name||'unit'}.png`;
-      a.href = currentReceiptDataUrl; a.click();
-      toast('Downloaded — attach it in WhatsApp.');
-    }
+  } catch (_) {
+    // Clipboard write not supported (common on Firefox/some Android WebViews)
   }
+
+  // 2. Build the wa.me deep-link
+  //    - With a phone number  → opens that specific chat directly
+  //    - Without a phone number → opens WhatsApp home so user can pick the chat
+  const waUrl = phone
+    ? `https://wa.me/${phone}`
+    : `https://wa.me/`;
+
+  // 3. Show feedback toast, then open WhatsApp
+  if (clipboardOk) {
+    toast('Image copied! Opening WhatsApp — paste it in the chat (hold-tap → Paste).');
+  } else {
+    // Clipboard failed: download the file so they can attach it manually
+    const a = document.createElement('a');
+    a.download = `RentBill_${currentBillData?.tenant?.house_name || 'unit'}.png`;
+    a.href = currentReceiptDataUrl;
+    a.click();
+    toast('Image downloaded — tap Attach (📎) in WhatsApp to send.');
+  }
+
+  // Small delay so the toast renders before the app-switch
+  setTimeout(() => window.open(waUrl, '_blank'), 700);
 }
 
 // ── LIBRARY / LEDGER — with active badge tracking
