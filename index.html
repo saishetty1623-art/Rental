@@ -2122,6 +2122,8 @@ function previewReceiptOnly() {
   showReceipt(d, 'minimal');
 }
 
+// ── FIX 1: viewBillReceipt now reads water charges directly from stored total_amount
+// instead of recalculating from scratch. This preserves manual overrides.
 async function viewBillReceipt(billId, type='detailed') {
   showLoading('LOADING');
   const { data, error } = await db.from('utility_bills').select('*, tenants(*)').eq('id', billId).single();
@@ -2135,15 +2137,31 @@ async function viewBillReceipt(billId, type='detailed') {
   const t     = data.tenants;
   const prevR = parseFloat(past?.[0]?.water_reading) || parseFloat(t?.initial_water_reading) || 0;
   const units = Math.max(0, parseFloat(data.water_reading) - prevR);
+
+  // Back-calculate what was actually charged for water from the stored total_amount.
+  // This preserves manual overrides — we do NOT recalculate from the formula.
+  const baseRent   = parseFloat(t?.base_rent) || 0;
+  const elec       = parseFloat(data.elec_charges) || 0;
+  const misc       = parseFloat(data.misc_amount) || 0;
+  const prevBal    = parseFloat(data.previous_balance) || 0;
+  const storedTotal = parseFloat(data.total_amount) || 0;
+  // chargedWater = total - rent - elec - misc - prevBal (clamped to ≥0)
+  const chargedWater = Math.max(0, parseFloat((storedTotal - baseRent - elec - misc - prevBal).toFixed(2)));
+
+  // rawWater is still the formula-based gross cost (for the detailed receipt's meter section)
   const rawWater = parseFloat((units * 10 * 0.22).toFixed(2));
-  const { charged: chargedWater, subsidy } = applyWaterSubsidy(rawWater, isCapped(t));
+
+  // Subsidy shown is the difference between raw and charged (only meaningful in detailed view)
+  const subsidy = Math.max(0, parseFloat((rawWater - chargedWater).toFixed(2)));
 
   const d = {
     id: billId, tenant: t, month: data.billing_month?.slice(0,7),
     waterNew: data.water_reading, prevReading: prevR, units,
-    chargedWater, rawWater, subsidy,
-    elec: data.elec_charges, prevBal: data.previous_balance,
-    baseRent: t?.base_rent || 0, total: data.total_amount,
+    chargedWater,   // what was actually billed (preserves manual overrides)
+    rawWater,       // formula gross (for the detailed reading section)
+    subsidy,
+    elec, prevBal,
+    baseRent, total: storedTotal,
     miscLabel: data.misc_label || '', miscAmount: data.misc_amount || 0,
     notes: data.notes || ''
   };
@@ -2164,21 +2182,63 @@ async function downloadReceipt() {
   a.href = currentReceiptDataUrl; a.click(); toast('Downloaded!');
 }
 
+// ── FIX 2: WhatsApp share — copies image to clipboard, then opens the tenant's
+// specific WhatsApp chat via wa.me deep link so they can paste it directly.
 async function shareReceiptImage() {
   if (!currentReceiptDataUrl) { toast('Receipt image not ready', 'error'); return; }
   if (currentBillData?.id) {
     db.from('utility_bills').update({is_sent:true}).eq('id', currentBillData.id).then(() => loadDashboard());
   }
+
   const blob = await (await fetch(currentReceiptDataUrl)).blob();
   const file = new File([blob], 'RentBill.png', {type:'image/png'});
+
+  // Get the tenant's phone number (strip any non-digits)
+  const phone = (currentBillData?.tenant?.phone_number || '').replace(/\D/g, '');
+
+  // Try native share first (works on Android with proper WhatsApp integration)
   if (navigator.canShare && navigator.canShare({files:[file]})) {
-    try { await navigator.share({files:[file], title:'Rent Bill'}); return; } catch(_) {}
+    try {
+      await navigator.share({files:[file], title:'Rent Bill'});
+      return;
+    } catch(err) {
+      // User cancelled or share failed — fall through to clipboard approach
+      if (err.name === 'AbortError') return;
+    }
   }
+
+  // Clipboard + wa.me deep link approach
+  let clipboardOk = false;
   try {
     await navigator.clipboard.write([new ClipboardItem({'image/png': blob})]);
-    toast('Image copied! Paste into WhatsApp Web.');
-  } catch {
-    downloadReceipt(); toast('Downloaded — attach it in WhatsApp.');
+    clipboardOk = true;
+  } catch(_) {}
+
+  if (phone) {
+    if (clipboardOk) {
+      toast('Image copied! Opening WhatsApp — paste it in the chat.');
+    } else {
+      // Clipboard failed — download instead so they can attach manually
+      const a = document.createElement('a');
+      a.download = `RentBill_${currentBillData?.tenant?.house_name||'unit'}.png`;
+      a.href = currentReceiptDataUrl; a.click();
+      toast('Downloaded — tap Attach in WhatsApp to send.');
+    }
+    // Open the specific tenant's WhatsApp chat
+    // Small delay so the toast is visible before the app switch
+    setTimeout(() => {
+      window.open(`https://wa.me/${phone}`, '_blank');
+    }, 600);
+  } else {
+    // No phone number on file
+    if (clipboardOk) {
+      toast('Image copied! Paste into WhatsApp Web.');
+    } else {
+      const a = document.createElement('a');
+      a.download = `RentBill_${currentBillData?.tenant?.house_name||'unit'}.png`;
+      a.href = currentReceiptDataUrl; a.click();
+      toast('Downloaded — attach it in WhatsApp.');
+    }
   }
 }
 
