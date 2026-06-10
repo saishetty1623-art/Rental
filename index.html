@@ -867,11 +867,11 @@ input[type="month"]{color-scheme:dark;}
       <div class="stat-sub">This month</div>
     </div>
     <div class="stat-card blue-accent">
-      <span class="stat-icon">📄</span>
-      <div class="stat-label">Total Bills</div>
-      <div class="stat-value" id="stat-bills" style="color:var(--blue);">—</div>
-      <div class="stat-sub">All time</div>
-    </div>
+  <span class="stat-icon">📄</span>
+  <div class="stat-label">Bills This Month</div>
+  <div class="stat-value" id="stat-bills" style="color:var(--blue);">—</div>
+  <div class="stat-sub" id="stat-bills-month"></div>
+</div>
   </div>
 
   <div class="section-label red">⚡ Pending &amp; Partial</div>
@@ -1987,7 +1987,7 @@ async function loadDashboard() {
   if (error) { toast('Dashboard error: ' + error.message, 'error'); return; }
 
   const bills = allBills || [];
-  document.getElementById('stat-bills').textContent = bills.length;
+  const monthBills = bills.filter(b => b.billing_month?.startsWith(ym)); document.getElementById('stat-bills').textContent = monthBills.length; document.getElementById('stat-bills-month').textContent = new Date().toLocaleDateString('en-IN',{month:'short',year:'numeric'});
 
   const collected = bills.filter(b => b.billing_month?.startsWith(ym)).reduce((s, b) => s + (parseFloat(b.amount_paid) || 0), 0);
   document.getElementById('stat-collected').textContent = '₹' + fmtK(collected);
