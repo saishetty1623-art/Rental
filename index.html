@@ -14,7 +14,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-/* ── TOKENS ── */
 :root{
   --bg:#0a0a0b;--bg2:#111114;--bg3:#18181d;--border:#2a2a32;
   --amber:#f5a623;--amber2:#e8932a;--amber-dim:rgba(245,166,35,0.12);--amber-glow:rgba(245,166,35,0.25);
@@ -28,7 +27,6 @@ html{font-size:16px;}
 body{background:var(--bg);color:var(--text2);font-family:var(--font-body);min-height:100vh;overflow-x:hidden;-webkit-tap-highlight-color:transparent;padding-bottom:calc(var(--nav-h) + var(--safe-bottom) + 16px);}
 body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:.25;}
 
-/* ── TOP BAR ── */
 .topbar{position:sticky;top:0;z-index:100;background:rgba(10,10,11,0.96);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;backdrop-filter:blur(16px);}
 .topbar-left{display:flex;align-items:center;gap:10px;}
 .logo-mark{width:30px;height:30px;background:var(--amber);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 0 12px rgba(245,166,35,0.35);}
@@ -39,7 +37,6 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.85)}}
 .date-chip{font-family:var(--font-mono);font-size:10px;color:var(--text3);background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:3px 10px;}
 
-/* ── BOTTOM NAV ── */
 .bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(10,10,11,0.97);border-top:1px solid var(--border);display:flex;height:calc(var(--nav-h) + var(--safe-bottom));padding-bottom:var(--safe-bottom);backdrop-filter:blur(16px);}
 .nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;background:none;border:none;padding:8px 2px;color:var(--text3);font-family:var(--font-body);font-size:8.5px;font-weight:600;transition:color .15s;letter-spacing:.5px;text-transform:uppercase;position:relative;}
 .nav-btn.active{color:var(--amber);}
@@ -47,12 +44,10 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .nav-icon-wrap{width:34px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:9px;border:1px solid transparent;transition:all .2s;margin-bottom:1px;}
 .nav-icon{font-size:15px;line-height:1;}
 
-/* ── CONTENT ── */
 .content{padding:14px;max-width:600px;margin:0 auto;}
 .view{display:none;}
 .view.active{display:block;}
 
-/* ── LOADING OVERLAY ── */
 .loading-overlay{position:fixed;inset:0;background:rgba(10,10,11,0.88);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;z-index:8000;flex-direction:column;gap:24px;transition:opacity 0.4s ease,visibility 0.4s ease;}
 .loading-overlay.hidden{opacity:0;visibility:hidden;}
 .spinner{width:50px;height:50px;border:3px solid rgba(245,166,35,0.1);border-top-color:var(--amber);border-radius:50%;position:relative;box-shadow:0 0 20px rgba(245,166,35,0.2);animation:spin 1s cubic-bezier(0.68,-0.25,0.265,1.25) infinite;}
@@ -61,7 +56,6 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .loading-text{font-family:var(--font-head);font-size:16px;font-weight:700;color:var(--amber);letter-spacing:4px;text-transform:uppercase;animation:pulseText 1.5s ease-in-out infinite;}
 @keyframes pulseText{0%,100%{opacity:0.5;transform:scale(0.98);}50%{opacity:1;transform:scale(1.02);text-shadow:0 0 12px rgba(245,166,35,0.4);}}
 
-/* ── STAT GRID ── */
 .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;}
 .stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:15px;position:relative;overflow:hidden;transition:border-color .2s;}
 .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--amber),transparent);}
@@ -73,7 +67,6 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .stat-value{font-family:var(--font-head);font-size:28px;font-weight:700;color:var(--amber);line-height:1;}
 .stat-sub{font-size:10px;color:var(--text3);margin-top:4px;font-family:var(--font-mono);}
 
-/* ── SECTION LABEL ── */
 .section-label{display:flex;align-items:center;gap:10px;margin:18px 0 10px;font-family:var(--font-mono);font-size:9px;font-weight:600;letter-spacing:2px;color:var(--text3);text-transform:uppercase;}
 .section-label::after{content:'';flex:1;height:1px;background:var(--border);}
 .section-label.red{color:var(--red);}
@@ -81,7 +74,6 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .section-label.amber{color:var(--amber);}
 .section-label.blue{color:var(--blue);}
 
-/* ── BILL CARD ── */
 .bill-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:15px;margin-bottom:10px;transition:border-color .2s;}
 .bill-card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
 .bill-unit{font-family:var(--font-head);font-size:20px;font-weight:700;color:var(--text);letter-spacing:.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;}
@@ -91,29 +83,24 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .bill-divider{border:none;border-top:1px solid var(--border);margin:10px 0;}
 .bill-actions{display:flex;gap:7px;flex-wrap:wrap;}
 
-/* ── STATUS PILLS ── */
 .pill{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-family:var(--font-mono);font-size:9px;letter-spacing:1px;text-transform:uppercase;font-weight:500;}
 .pill-unpaid{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.25);}
 .pill-partial{background:var(--amber-dim);color:var(--amber);border:1px solid rgba(245,166,35,.25);}
 .pill-paid{background:var(--green-dim);color:var(--green);border:1px solid rgba(34,197,94,.25);}
 
-/* ── PAY SUCCESS FLASH ── */
 @keyframes payFlash{0%{background:rgba(34,197,94,.18);}100%{background:var(--bg2);}}
 .pay-success-flash{animation:payFlash .9s ease;}
 
-/* ── TENANT HERO ── */
 .tenant-hero{background:linear-gradient(135deg,var(--bg2) 0%,#1a1a22 100%);border:1px solid var(--border);border-radius:var(--rl);padding:16px;margin-bottom:14px;position:relative;overflow:hidden;}
 .tenant-hero::before{content:'';position:absolute;top:-40px;right:-40px;width:120px;height:120px;background:var(--amber-dim);border-radius:50%;filter:blur(30px);}
 .hero-unit{font-family:var(--font-head);font-size:24px;font-weight:700;color:var(--text);}
 .hero-phone{font-family:var(--font-mono);font-size:11px;color:var(--text3);margin-top:3px;}
 .hero-rent{font-family:var(--font-head);font-size:20px;font-weight:700;color:var(--amber);}
 
-/* ── READING BAR ── */
 .reading-bar{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
 .reading-lbl{font-family:var(--font-mono);font-size:9px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px;}
 .reading-val{font-family:var(--font-mono);font-size:15px;color:var(--text);font-weight:500;}
 
-/* ── FORM ── */
 .form-group{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;}
 .form-label{font-family:var(--font-mono);font-size:10px;letter-spacing:1.5px;color:var(--text3);text-transform:uppercase;}
 .form-input,.form-select{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-family:var(--font-body);font-size:16px;padding:13px 14px;outline:none;transition:border-color .15s;width:100%;-webkit-appearance:none;appearance:none;}
@@ -125,7 +112,6 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .form-hint.warn{color:var(--amber);}
 .form-hint.ok{color:var(--green);}
 
-/* ── ELECTRICITY HIGHLIGHT ── */
 .elec-highlight-group{background:rgba(96,165,250,0.07);border:1.5px solid rgba(96,165,250,0.4);border-radius:var(--rl);padding:14px;margin-bottom:12px;position:relative;}
 .elec-highlight-group::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--blue),transparent);border-radius:var(--rl) var(--rl) 0 0;}
 .elec-highlight-group .form-label{color:var(--blue);font-size:11px;letter-spacing:2px;}
@@ -133,7 +119,6 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .elec-highlight-group .form-input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(96,165,250,0.12);}
 .elec-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(96,165,250,0.12);border:1px solid rgba(96,165,250,0.3);color:var(--blue);border-radius:20px;padding:2px 10px;font-family:var(--font-mono);font-size:8px;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;}
 
-/* ── FILTER ROW — IMPROVED ── */
 .filter-panel{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:14px;margin-bottom:14px;}
 .filter-panel-title{font-family:var(--font-mono);font-size:9px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:6px;}
 .filter-panel-title::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--amber);}
@@ -154,13 +139,11 @@ input[type="month"].filter-month-styled{color-scheme:dark;padding-right:28px;}
 .filter-active-badge{display:none;background:var(--amber-dim);border:1px solid rgba(245,166,35,.3);color:var(--amber);border-radius:20px;padding:2px 8px;font-family:var(--font-mono);font-size:8px;letter-spacing:1px;align-items:center;}
 .filter-active-badge.show{display:flex;}
 
-/* ── WATER ROW ── */
 .water-row{display:flex;gap:8px;align-items:flex-end;}
 .water-row .form-input{flex:1;}
 .water-reset-btn{flex-shrink:0;background:var(--bg3);border:1px solid var(--amber);color:var(--amber);border-radius:var(--r);padding:0 12px;height:50px;font-family:var(--font-mono);font-size:10px;cursor:pointer;transition:all .15s;display:none;letter-spacing:.5px;}
 .water-reset-btn.show{display:flex;align-items:center;justify-content:center;}
 
-/* ── CALC BOX ── */
 .calc-box{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:14px;}
 .calc-title{font-family:var(--font-mono);font-size:9px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-bottom:10px;}
 .calc-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;font-family:var(--font-mono);font-size:11px;color:var(--text3);border-bottom:1px solid rgba(42,42,50,.5);}
@@ -169,21 +152,17 @@ input[type="month"].filter-month-styled{color-scheme:dark;padding-right:28px;}
 .calc-val{color:var(--text2);}
 .calc-row.discount .calc-val{color:var(--green);}
 
-/* ── TWO COL ── */
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 
-/* ── MISC BLOCK ── */
 .misc-block{background:var(--bg3);border:1px dashed rgba(245,166,35,.3);border-radius:var(--r);padding:14px;margin-bottom:12px;}
 .misc-block-title{font-family:var(--font-mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--amber);margin-bottom:10px;}
 
-/* ── NOTES BLOCK ── */
 .notes-block{background:var(--bg3);border:1px dashed rgba(96,165,250,.25);border-radius:var(--r);padding:14px;margin-bottom:12px;}
 .notes-block-title{font-family:var(--font-mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--blue);margin-bottom:10px;}
 .notes-textarea{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);color:var(--text2);font-family:var(--font-body);font-size:14px;padding:10px 12px;outline:none;width:100%;resize:vertical;min-height:72px;transition:border-color .15s;}
 .notes-textarea:focus{border-color:var(--blue);}
 .notes-textarea::placeholder{color:var(--text3);}
 
-/* ── BUTTONS ── */
 .btn{font-family:var(--font-body);font-weight:600;font-size:14px;padding:13px 16px;border-radius:var(--r);border:none;cursor:pointer;transition:all .15s;letter-spacing:.3px;display:flex;align-items:center;justify-content:center;gap:7px;width:100%;min-height:48px;}
 .btn-amber{background:var(--amber);color:#0a0a0b;}
 .btn-amber:active{background:var(--amber2);transform:scale(.98);}
@@ -194,15 +173,16 @@ input[type="month"].filter-month-styled{color-scheme:dark;padding-right:28px;}
 .btn-danger{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2);font-size:13px;}
 .btn-danger:active{background:rgba(239,68,68,.2);}
 .btn-blue{background:rgba(96,165,250,.12);color:var(--blue);border:1px solid rgba(96,165,250,.25);font-size:13px;}
+/* FIX 1: Remind button style — compact inline */
+.btn-remind{background:rgba(245,166,35,.08);color:var(--amber);border:1px solid rgba(245,166,35,.25);font-size:11px;}
+.btn-remind:active{background:rgba(245,166,35,.18);}
 .btn-sm{padding:7px 12px;font-size:11px;min-height:32px;width:auto;}
 .btn:disabled{opacity:.4;cursor:not-allowed;}
 .btn-row{display:flex;gap:10px;margin-top:10px;}
 .btn-row .btn{flex:1;}
 
-/* ── STICKY SAVE BAR ── */
 .sticky-save-bar{position:sticky;bottom:calc(var(--nav-h) + var(--safe-bottom));z-index:90;background:rgba(10,10,11,0.97);border-top:1px solid var(--border);padding:10px 0 6px;backdrop-filter:blur(16px);margin:0 -14px;padding-left:14px;padding-right:14px;}
 
-/* ── TOGGLE ── */
 .toggle-row{display:flex;align-items:center;justify-content:space-between;padding:13px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);margin-bottom:12px;cursor:pointer;}
 .toggle-lbl{font-size:13px;color:var(--text);}
 .toggle-sub{font-family:var(--font-mono);font-size:9px;color:var(--text3);margin-top:2px;}
@@ -211,43 +191,28 @@ input[type="month"].filter-month-styled{color-scheme:dark;padding-right:28px;}
 .toggle::after{content:'';position:absolute;width:18px;height:18px;background:#fff;border-radius:50%;top:3px;left:3px;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.4);}
 .toggle.on::after{transform:translateX(18px);}
 
-/* ── CARD ── */
 .card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;margin-bottom:14px;}
 .card-header{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg3);}
 .card-title{font-family:var(--font-mono);font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--text);}
 .card-body{padding:14px;}
 
-/* ── MONTH NAV ── */
 .month-nav{display:flex;align-items:center;gap:8px;margin-bottom:14px;}
 .month-nav-btn{background:var(--bg3);border:1px solid var(--border);color:var(--text2);width:38px;height:38px;border-radius:var(--r);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;}
 .month-nav-btn:hover{border-color:var(--amber);color:var(--amber);}
 .month-nav-label{flex:1;text-align:center;font-family:var(--font-head);font-size:17px;font-weight:700;color:var(--text);letter-spacing:.5px;}
 .month-nav-sub{font-family:var(--font-mono);font-size:9px;color:var(--text3);letter-spacing:1px;display:block;margin-top:2px;}
 
-/* ── DATA TABLE ── */
 .data-table{width:100%;border-collapse:collapse;}
 .data-table th{font-family:var(--font-mono);font-size:9px;letter-spacing:1.5px;color:var(--text3);text-transform:uppercase;padding:10px 14px;text-align:left;background:var(--bg3);border-bottom:1px solid var(--border);}
 .data-table td{padding:11px 14px;font-size:13px;border-bottom:1px solid rgba(42,42,50,.5);vertical-align:middle;}
 .data-table tr:last-child td{border-bottom:none;}
 
-/* ── EMPTY ── */
 .empty{padding:36px 20px;text-align:center;color:var(--text3);font-family:var(--font-mono);font-size:11px;letter-spacing:1px;line-height:1.8;}
 .empty-icon{font-size:28px;margin-bottom:10px;opacity:.6;}
 
-/* ── PULL TO REFRESH ── */
 .ptr-indicator{text-align:center;padding:8px;font-family:var(--font-mono);font-size:10px;color:var(--amber);letter-spacing:1.5px;display:none;}
 .ptr-indicator.show{display:block;}
 
-/* ── REMINDER CARD ── */
-.reminder-card{background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.2);border-radius:var(--rl);padding:13px 15px;margin-bottom:8px;display:flex;align-items:center;gap:12px;}
-.reminder-card-icon{font-size:20px;flex-shrink:0;}
-.reminder-card-body{flex:1;min-width:0;}
-.reminder-card-unit{font-family:var(--font-head);font-size:16px;font-weight:700;color:var(--text);}
-.reminder-card-sub{font-family:var(--font-mono);font-size:9px;color:var(--text3);margin-top:2px;letter-spacing:.5px;}
-.reminder-btn{background:none;border:1px solid rgba(239,68,68,.3);color:var(--red);border-radius:var(--r);padding:6px 12px;font-family:var(--font-mono);font-size:9px;cursor:pointer;white-space:nowrap;letter-spacing:.5px;transition:all .15s;flex-shrink:0;}
-.reminder-btn:active{background:rgba(239,68,68,.12);}
-
-/* ── METER TAB ── */
 .meter-unit-hero{background:linear-gradient(135deg,var(--bg2) 0%,#1c1a24 100%);border:1px solid rgba(245,166,35,.2);border-radius:var(--rl);padding:16px;margin-bottom:14px;display:none;}
 .meter-unit-hero.show{display:block;}
 .meter-hero-name{font-family:var(--font-head);font-size:22px;font-weight:700;color:var(--text);}
@@ -284,13 +249,11 @@ input[type="month"].filter-month-styled{color-scheme:dark;padding-right:28px;}
 
 #gallery-file-input{display:none;}
 
-/* ── QR SETTINGS SECTION ── */
 .qr-preview-wrap{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:12px;text-align:center;}
 .qr-preview-img{max-width:160px;max-height:160px;border-radius:8px;border:2px solid var(--amber);margin-bottom:10px;display:block;margin-left:auto;margin-right:auto;}
 .qr-empty-placeholder{width:120px;height:120px;background:var(--bg2);border:2px dashed rgba(245,166,35,.3);border-radius:8px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:28px;opacity:.5;}
 #qr-file-input{display:none;}
 
-/* ── RECEIPT OVERLAY ── */
 #receipt-overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:500;display:none;flex-direction:column;overflow:hidden;backdrop-filter:blur(10px);}
 #receipt-overlay.open{display:flex;}
 .receipt-sheet{background:var(--bg2);border-top:1px solid var(--border);border-radius:20px 20px 0 0;margin-top:auto;max-height:92vh;overflow-y:auto;padding-bottom:calc(16px + var(--safe-bottom));animation:slideUp .3s ease;}
@@ -303,11 +266,9 @@ input[type="month"].filter-month-styled{color-scheme:dark;padding-right:28px;}
 .receipt-img{width:100%;border-radius:var(--r);display:block;box-shadow:0 4px 24px rgba(0,0,0,.4);}
 .receipt-acts{padding:0 14px 14px;display:flex;flex-direction:column;gap:8px;}
 
-/* ── OFF-SCREEN RECEIPT RENDER ZONES ── */
 #receipt-print-minimal{position:fixed;left:-9999px;top:0;width:400px;background:#fff;color:#111;padding:30px 24px 24px;font-family:'IBM Plex Sans',sans-serif;z-index:-1;}
 #receipt-print-detailed{position:fixed;left:-9999px;top:120px;width:400px;background:#fff;color:#111;padding:30px 24px 24px;font-family:'IBM Plex Sans',sans-serif;z-index:-1;}
 
-/* SHARED receipt styles */
 .rz-header{text-align:center;margin-bottom:18px;padding-bottom:14px;border-bottom:2px solid #111;}
 .rz-title{font-family:'Rajdhani',sans-serif;font-size:24px;font-weight:700;color:#111;text-transform:uppercase;letter-spacing:1px;}
 .rz-for{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#555;margin-top:4px;}
@@ -337,25 +298,21 @@ input[type="month"].filter-month-styled{color-scheme:dark;padding-right:28px;}
 .rz-reading-key{font-size:12px;color:#555;}
 .rz-reading-val{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:#111;}
 
-/* ── PAY MODAL ── */
 #pay-modal{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:600;display:none;align-items:flex-end;backdrop-filter:blur(4px);}
 #pay-modal.open{display:flex;}
 .pay-sheet{background:var(--bg2);border:1px solid var(--border);border-radius:20px 20px 0 0;width:100%;padding:22px 16px calc(22px + var(--safe-bottom));animation:slideUp .25s ease;}
 .pay-sheet-title{font-family:var(--font-mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:14px;}
 
-/* ── PAY CONFIRM BANNER ── */
 .pay-confirm-banner{background:var(--green-dim);border:1px solid rgba(34,197,94,.3);border-radius:var(--r);padding:12px 16px;margin-bottom:12px;display:none;align-items:center;gap:10px;}
 .pay-confirm-banner.show{display:flex;}
 .pay-confirm-banner-icon{font-size:20px;}
 .pay-confirm-banner-text{font-family:var(--font-mono);font-size:11px;color:var(--green);letter-spacing:.5px;}
 
-/* ── PHOTO FULL VIEW ── */
 #photo-full-overlay{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:700;display:none;align-items:center;justify-content:center;padding:20px;}
 #photo-full-overlay.open{display:flex;}
 #photo-full-overlay img{max-width:100%;max-height:100%;border-radius:var(--r);}
 #photo-full-close{position:absolute;top:16px;right:16px;background:var(--bg2);border:1px solid var(--border);color:var(--text2);width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;}
 
-/* ── TOAST ── */
 #toast{position:fixed;bottom:calc(var(--nav-h) + 10px + var(--safe-bottom));right:14px;left:14px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:12px 16px;font-size:13px;color:var(--text);z-index:9000;transform:translateY(14px);opacity:0;transition:all .25s;display:flex;align-items:center;gap:8px;font-family:var(--font-body);}
 #toast.show{transform:translateY(0);opacity:1;}
 #toast.success{border-color:var(--green);}
@@ -364,7 +321,6 @@ input[type="month"].filter-month-styled{color-scheme:dark;padding-right:28px;}
 .today-reading-chip{display:none;align-items:center;gap:6px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);border-radius:20px;padding:4px 12px;font-family:var(--font-mono);font-size:10px;color:var(--green);letter-spacing:.5px;margin-bottom:10px;}
 .today-reading-chip.show{display:flex;}
 
-/* ── ANALYTICS ── */
 .analytics-unit-row{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid rgba(42,42,50,.4);}
 .analytics-unit-row:last-child{border-bottom:none;}
 .analytics-unit-name{font-family:var(--font-head);font-size:15px;font-weight:600;color:var(--text);}
@@ -377,7 +333,6 @@ input[type="month"].filter-month-styled{color-scheme:dark;padding-right:28px;}
 .chart-loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(17,17,20,.6);border-radius:var(--r);font-family:var(--font-mono);font-size:10px;color:var(--text3);gap:8px;}
 .chart-loading.hidden{display:none;}
 
-/* ── EXPORT STRIP ── */
 .export-strip{display:flex;gap:8px;margin-bottom:14px;}
 .export-strip .btn{font-size:11px;min-height:36px;padding:0 14px;width:auto;}
 
@@ -414,7 +369,7 @@ input[type="month"]{color-scheme:dark;}
 
 <div class="content">
 
-<!-- ── DASHBOARD ── -->
+<!-- DASHBOARD -->
 <div class="view active" id="view-dashboard">
   <div class="ptr-indicator" id="ptr-indicator">↓ Refreshing…</div>
   <div class="stat-grid">
@@ -444,17 +399,13 @@ input[type="month"]{color-scheme:dark;}
     </div>
   </div>
 
-  <!-- Reminders Section -->
-  <div class="section-label amber">🔔 Reminders</div>
-  <div id="dash-reminders"></div>
-
   <div class="section-label red">⚡ Pending &amp; Partial</div>
   <div id="dash-active-bills"></div>
   <div class="section-label green">✓ Fully Paid</div>
   <div id="dash-paid-bills"></div>
 </div>
 
-<!-- ── ANALYTICS ── -->
+<!-- ANALYTICS -->
 <div class="view" id="view-analytics">
   <div class="section-label amber">Monthly Overview</div>
 
@@ -498,7 +449,8 @@ input[type="month"]{color-scheme:dark;}
     <button class="btn btn-ghost" onclick="exportAllCSV()">⬇ Export All Bills CSV</button>
   </div>
 
-  <div class="section-label blue">Water Consumption Trends</div>
+  <!-- FIX 4: Chart title updated to reflect ₹ billed, not units -->
+  <div class="section-label blue">Water Charges Trends (₹)</div>
   <div class="card">
     <div class="card-header">
       <select class="form-select" id="trend-unit-select" onchange="loadConsumptionTrend()" style="padding:6px 10px;font-size:12px;height:auto;background:var(--bg3);">
@@ -515,10 +467,9 @@ input[type="month"]{color-scheme:dark;}
   </div>
 </div>
 
-<!-- ── NEW BILL ── -->
+<!-- NEW BILL -->
 <div class="view" id="view-new-bill">
   <input type="hidden" id="edit-bill-id" value=""/>
-  <!-- FIX 3: Unit selector first, visible at top -->
   <div class="form-group">
     <label class="form-label">Rental Unit</label>
     <select class="form-select" id="bill-tenant" onchange="onTenantSelect()">
@@ -567,7 +518,6 @@ input[type="month"]{color-scheme:dark;}
     <span class="form-hint" id="water-calc-hint"></span>
   </div>
 
-  <!-- FIX 4: Electricity highlighted -->
   <div class="elec-highlight-group">
     <div class="elec-badge">⚡ Manual Entry Required</div>
     <div class="form-group" style="margin-bottom:0;">
@@ -607,13 +557,12 @@ input[type="month"]{color-scheme:dark;}
     <button class="btn btn-ghost" onclick="previewReceiptOnly()" style="flex:1;">Preview Receipt</button>
   </div>
 
-  <!-- FIX 5: Sticky save bar -->
   <div class="sticky-save-bar">
     <button class="btn btn-amber" onclick="saveBill()" id="save-btn">💾 Save &amp; Generate Bill</button>
   </div>
 </div>
 
-<!-- ── METER ── -->
+<!-- METER -->
 <div class="view" id="view-meter">
   <div class="form-group">
     <label class="form-label">Select Rental Unit</label>
@@ -689,7 +638,7 @@ input[type="month"]{color-scheme:dark;}
   <input type="file" id="gallery-file-input" accept="image/*" onchange="onGalleryFileSelected(event)"/>
 </div>
 
-<!-- ── LEDGER ── -->
+<!-- LEDGER -->
 <div class="view" id="view-ledger">
   <div class="filter-panel">
     <div class="filter-panel-title">
@@ -733,7 +682,7 @@ input[type="month"]{color-scheme:dark;}
   <div id="ledger-list"></div>
 </div>
 
-<!-- ── SETTINGS ── -->
+<!-- SETTINGS -->
 <div class="view" id="view-settings">
   <div class="card">
     <div class="card-header">
@@ -809,7 +758,8 @@ input[type="month"]{color-scheme:dark;}
   <button class="nav-btn active" onclick="showView('dashboard')" id="nav-dashboard">
     <div class="nav-icon-wrap"><span class="nav-icon">⌂</span></div><span>Home</span>
   </button>
-  <button class="nav-btn" onclick="showView('new-bill');clearBillForm();" id="nav-new-bill">
+  <!-- FIX 2: Auto-open dropdown when tapping New Bill -->
+  <button class="nav-btn" onclick="showView('new-bill');clearBillForm();autoOpenUnitDropdown();" id="nav-new-bill">
     <div class="nav-icon-wrap"><span class="nav-icon">+</span></div><span>New Bill</span>
   </button>
   <button class="nav-btn" onclick="showView('meter');loadMeterHistory();" id="nav-meter">
@@ -831,7 +781,7 @@ input[type="month"]{color-scheme:dark;}
   </button>
 </nav>
 
-<!-- ── RECEIPT OVERLAY ── -->
+<!-- RECEIPT OVERLAY -->
 <div id="receipt-overlay">
   <div style="flex:1;" onclick="closeReceipt()"></div>
   <div class="receipt-sheet">
@@ -858,7 +808,7 @@ input[type="month"]{color-scheme:dark;}
   </div>
 </div>
 
-<!-- ── PAY MODAL ── -->
+<!-- PAY MODAL -->
 <div id="pay-modal">
   <div class="pay-sheet">
     <div class="pay-sheet-title">Record Payment</div>
@@ -881,13 +831,13 @@ input[type="month"]{color-scheme:dark;}
   </div>
 </div>
 
-<!-- ── PHOTO FULL VIEW ── -->
+<!-- PHOTO FULL VIEW -->
 <div id="photo-full-overlay" onclick="closePhotoFull()">
   <button id="photo-full-close" onclick="closePhotoFull()">✕</button>
   <img id="photo-full-img" src="" alt="Meter photo"/>
 </div>
 
-<!-- ── RECEIPT RENDER ZONES ── -->
+<!-- RECEIPT RENDER ZONES -->
 <div id="receipt-print-minimal"></div>
 <div id="receipt-print-detailed"></div>
 
@@ -905,8 +855,6 @@ const db = createClient(SUPABASE_URL, SUPABASE_ANON);
 
 const METER_BUCKET = 'meter-photos';
 const QR_BUCKET    = 'payment-qr';
-
-// How many months of meter photos to keep (current + N-1 previous)
 const METER_PHOTO_RETENTION_MONTHS = 2;
 
 let tenants               = [];
@@ -977,14 +925,6 @@ function stepYM(ym, delta) {
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
 }
 
-// Returns a YYYY-MM string from a date/ISO string
-function getYMFromDate(dateStr) {
-  try {
-    const d = new Date(dateStr);
-    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
-  } catch { return null; }
-}
-
 function showLoading(msg='PLEASE WAIT') {
   document.getElementById('loading-text').textContent = msg;
   document.getElementById('loading-overlay').classList.remove('hidden');
@@ -997,6 +937,20 @@ function toast(msg, type='success') {
   clearTimeout(el._t); el._t = setTimeout(() => { el.className = ''; }, 3500);
 }
 
+// FIX 2: Auto-open unit dropdown for new bill
+function autoOpenUnitDropdown() {
+  setTimeout(() => {
+    const sel = document.getElementById('bill-tenant');
+    if (!sel) return;
+    sel.focus();
+    // Try native click to open the dropdown
+    try {
+      const event = new MouseEvent('mousedown', { bubbles: true, cancelable: true });
+      sel.dispatchEvent(event);
+    } catch(e) {}
+  }, 120);
+}
+
 function showView(name) {
   if (!document.getElementById('view-meter').classList.contains('active') && name !== 'meter') stopCamera();
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
@@ -1007,7 +961,6 @@ function showView(name) {
   if (name === 'dashboard') loadDashboard();
   if (name === 'meter')     loadMeterHistory();
   if (name === 'analytics') { analyticsYM = getCurrentYM(); loadAnalytics(); }
-  // FIX 3: scroll to top when switching views
   window.scrollTo(0, 0);
 }
 
@@ -1035,6 +988,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('current-date').textContent =
     new Date().toLocaleDateString('en-IN', {weekday:'short',day:'2-digit',month:'short'});
   document.getElementById('bill-month').value = getDefaultBillingMonth();
+
+  // FIX 3: Set library filter-month to current month on init
+  document.getElementById('filter-month').value = getCurrentYM();
+
   showLoading('LOADING');
   await loadTenants();
   await loadDashboard();
@@ -1366,6 +1323,7 @@ function renderCollectionBreakdown(bills, ym) {
   rateEl.style.color = collectionRate >= 80 ? 'var(--green)' : collectionRate >= 50 ? 'var(--amber)' : 'var(--red)';
 }
 
+// FIX 4: Show water charges in ₹ (billed amount), not units consumed
 async function loadConsumptionTrend() {
   const selection = document.getElementById('trend-unit-select').value;
   const ctx       = document.getElementById('trendChart');
@@ -1378,8 +1336,9 @@ async function loadConsumptionTrend() {
   loadingEl.classList.remove('hidden');
 
   if (selection === 'all') {
+    // All units comparison for selected month — show water billed (₹) per unit
     const { data, error } = await db.from('utility_bills')
-      .select('water_reading,tenant_id,tenants(house_name,initial_water_reading)')
+      .select('water_reading,tenant_id,total_amount,elec_charges,misc_amount,previous_balance,tenants(house_name,base_rent)')
       .eq('is_active', true)
       .gte('billing_month', ym + '-01')
       .lt('billing_month', nextMonthStr(ym));
@@ -1394,15 +1353,16 @@ async function loadConsumptionTrend() {
       return;
     }
 
-    const labels = [], consumptionValues = [];
+    const labels = [], waterBilledValues = [];
     for (const b of data) {
-      const { data: prev } = await db.from('utility_bills')
-        .select('water_reading').eq('tenant_id', b.tenant_id).eq('is_active', true)
-        .lt('billing_month', ym + '-01').order('billing_month', {ascending: false}).limit(1);
-      const lastReading = prev?.[0]?.water_reading || b.tenants?.initial_water_reading || 0;
-      const unitsUsed   = Math.max(0, (parseFloat(b.water_reading) || 0) - lastReading);
+      const baseRent = parseFloat(b.tenants?.base_rent) || 0;
+      const total    = parseFloat(b.total_amount) || 0;
+      const elec     = parseFloat(b.elec_charges) || 0;
+      const misc     = parseFloat(b.misc_amount) || 0;
+      const prev     = parseFloat(b.previous_balance) || 0;
+      const waterCharged = Math.max(0, total - baseRent - elec - misc - prev);
       labels.push(b.tenants?.house_name || 'Unit');
-      consumptionValues.push(unitsUsed);
+      waterBilledValues.push(parseFloat(waterCharged.toFixed(2)));
     }
 
     if (trendChartInstance) { trendChartInstance.destroy(); trendChartInstance = null; }
@@ -1411,8 +1371,8 @@ async function loadConsumptionTrend() {
       data: {
         labels,
         datasets: [{
-          label: `Units consumed (${fmtMonth(ym)})`,
-          data: consumptionValues,
+          label: `Water Billed — ${fmtMonth(ym)} (₹)`,
+          data: waterBilledValues,
           backgroundColor: 'rgba(96,165,250,.6)',
           borderColor: '#60a5fa',
           borderWidth: 1,
@@ -1421,19 +1381,21 @@ async function loadConsumptionTrend() {
       },
       options: {
         responsive: true,
-        plugins: { legend: { labels: { color: '#e8e8ec' } } },
+        plugins: { legend: { labels: { color: '#e8e8ec' } }, tooltip: { callbacks: { label: ctx => ' ₹' + fmt(ctx.raw) } } },
         scales: {
-          y: { beginAtZero: true, grid: { color: '#2a2a32' }, ticks: { color: '#a0a0b0' } },
+          y: { beginAtZero: true, grid: { color: '#2a2a32' }, ticks: { color: '#a0a0b0', callback: v => '₹' + fmtK(v) } },
           x: { grid: { display: false }, ticks: { color: '#e8e8ec' } }
         }
       }
     });
   } else {
+    // Single unit trend — show water charged (₹) per bill over time
     const t = tenants.find(x => String(x.id) === String(selection));
-    let rollingPrev = parseFloat(t?.initial_water_reading) || 0;
 
     const { data, error } = await db.from('utility_bills')
-      .select('billing_month,water_reading').eq('tenant_id', selection).eq('is_active', true)
+      .select('billing_month,total_amount,elec_charges,misc_amount,previous_balance,tenants(base_rent)')
+      .eq('tenant_id', selection)
+      .eq('is_active', true)
       .order('billing_month', {ascending: true});
 
     loadingEl.classList.add('hidden');
@@ -1446,12 +1408,16 @@ async function loadConsumptionTrend() {
       return;
     }
 
-    const labels = [], consumption = [];
+    const labels = [], waterBilled = [];
     data.forEach(b => {
-      const current = parseFloat(b.water_reading) || 0;
-      consumption.push(Math.max(0, current - rollingPrev));
+      const baseRent = parseFloat(b.tenants?.base_rent || t?.base_rent) || 0;
+      const total    = parseFloat(b.total_amount) || 0;
+      const elec     = parseFloat(b.elec_charges) || 0;
+      const misc     = parseFloat(b.misc_amount) || 0;
+      const prev     = parseFloat(b.previous_balance) || 0;
+      const wCharged = Math.max(0, total - baseRent - elec - misc - prev);
+      waterBilled.push(parseFloat(wCharged.toFixed(2)));
       labels.push(fmtMonth(b.billing_month).split(' ')[0]);
-      rollingPrev = current;
     });
 
     if (trendChartInstance) { trendChartInstance.destroy(); trendChartInstance = null; }
@@ -1460,8 +1426,8 @@ async function loadConsumptionTrend() {
       data: {
         labels,
         datasets: [{
-          label: `${t?.house_name || 'Unit'} — Units/Month`,
-          data: consumption,
+          label: `${t?.house_name || 'Unit'} — Water Charged (₹)`,
+          data: waterBilled,
           borderColor: '#f5a623',
           backgroundColor: 'rgba(245,166,35,.1)',
           fill: true, tension: 0.35, pointRadius: 4,
@@ -1470,9 +1436,9 @@ async function loadConsumptionTrend() {
       },
       options: {
         responsive: true,
-        plugins: { legend: { labels: { color: '#e8e8ec' } } },
+        plugins: { legend: { labels: { color: '#e8e8ec' } }, tooltip: { callbacks: { label: ctx => ' ₹' + fmt(ctx.raw) } } },
         scales: {
-          y: { beginAtZero: true, grid: { color: '#2a2a32' }, ticks: { color: '#a0a0b0' } },
+          y: { beginAtZero: true, grid: { color: '#2a2a32' }, ticks: { color: '#a0a0b0', callback: v => '₹' + fmtK(v) } },
           x: { grid: { color: '#2a2a3230' }, ticks: { color: '#a0a0b0' } }
         }
       }
@@ -1550,8 +1516,6 @@ async function exportAllCSV() {
   toast('All bills exported!');
 }
 
-// ── FIX 2: Dashboard stats — pending now shows total outstanding amount (not unit count)
-// and uses actual total_amount including all charges, not just base rent
 async function loadDashboard() {
   const now = new Date();
   const ym  = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
@@ -1573,7 +1537,6 @@ async function loadDashboard() {
     .reduce((s, b) => s + (parseFloat(b.amount_paid) || 0), 0);
   document.getElementById('stat-collected').textContent = '₹' + fmtK(collected);
 
-  // FIX 2: Show total outstanding amount across ALL bills (not just unit count)
   const latestMap = {};
   bills.forEach(b => { if (!latestMap[b.tenant_id]) latestMap[b.tenant_id] = b; });
   const latest = Object.values(latestMap);
@@ -1583,16 +1546,7 @@ async function loadDashboard() {
     const total = parseFloat(b.total_amount) || 0;
     return s + Math.max(0, total - paid);
   }, 0);
-  // Show amount if > 0, else show count of unpaid
-  const unpaidCount = latest.filter(b => (parseFloat(b.amount_paid) || 0) < (parseFloat(b.total_amount) || 0)).length;
-  if (totalPending > 0) {
-    document.getElementById('stat-unpaid').textContent = '₹' + fmtK(totalPending);
-  } else {
-    document.getElementById('stat-unpaid').textContent = '0';
-  }
-
-  // FIX 6: Render reminders for unpaid/partial bills
-  renderReminders(latest);
+  document.getElementById('stat-unpaid').textContent = totalPending > 0 ? '₹' + fmtK(totalPending) : '0';
 
   const activeEl = document.getElementById('dash-active-bills');
   const paidEl   = document.getElementById('dash-paid-bills');
@@ -1616,12 +1570,24 @@ async function loadDashboard() {
     else if (isPartial)  pill = `<span class="pill pill-partial">Partial · ₹${fmt(amtPaid)} paid</span>`;
     else                 pill = '<span class="pill pill-unpaid">Unpaid</span>';
 
+    // FIX 1: Build remind button for unpaid/partial — inline in actions
+    const phone = (b.tenants?.phone_number || '').replace(/\D/g,'');
+    const msg = encodeURIComponent(
+      `Hi, this is a gentle reminder that your rent for ${fmtMonth(b.billing_month)} is due.\n` +
+      `Amount: ₹${fmt(total)}${isPartial ? `\nAlready paid: ₹${fmt(amtPaid)}\nBalance due: ₹${fmt(balance)}` : ''}\n\nPlease pay at your earliest convenience. Thank you! 🙏`
+    );
+    const waUrl = phone ? `https://wa.me/${phone}?text=${msg}` : `https://wa.me/?text=${msg}`;
+    const remindBtn = !isPaid
+      ? `<button class="btn btn-remind btn-sm" onclick="window.open('${waUrl}','_blank')">📲 Remind</button>`
+      : '';
+
     const actions = isPaid
       ? `<button class="btn btn-ghost btn-sm" onclick="viewBillReceipt('${b.id}','minimal')">Share</button>
          <button class="btn btn-ghost btn-sm" onclick="editBill('${b.id}')">Edit</button>`
       : `<button class="btn btn-green btn-sm" onclick="openPayModal('${b.id}',${total},${amtPaid})">Full Pay</button>
          <button class="btn btn-ghost btn-sm" onclick="openPayModal('${b.id}',${total},${amtPaid},true)">Partial</button>
          <button class="btn btn-ghost btn-sm" onclick="viewBillReceipt('${b.id}','minimal')">Share</button>
+         ${remindBtn}
          <button class="btn btn-ghost btn-sm" onclick="editBill('${b.id}')">Edit</button>`;
 
     const card = `<div class="bill-card" id="bill-card-${b.id}">
@@ -1646,46 +1612,6 @@ async function loadDashboard() {
 
   if (!activeEl.innerHTML) activeEl.innerHTML = '<div style="color:var(--green);font-family:var(--font-mono);font-size:11px;padding:10px 0;letter-spacing:1px;">All caught up. No pending bills.</div>';
   if (!paidEl.innerHTML)   paidEl.innerHTML   = '<div class="empty"><div class="empty-icon">□</div>No fully paid bills yet.</div>';
-}
-
-// FIX 6: Render reminder cards for unpaid/partial bills
-function renderReminders(latestBills) {
-  const el = document.getElementById('dash-reminders');
-  const unpaid = latestBills.filter(b => {
-    const paid  = parseFloat(b.amount_paid) || 0;
-    const total = parseFloat(b.total_amount) || 0;
-    return total > 0 && paid < total;
-  });
-
-  if (!unpaid.length) {
-    el.innerHTML = `<div style="background:var(--green-dim);border:1px solid rgba(34,197,94,.2);border-radius:var(--rl);padding:12px 16px;margin-bottom:12px;display:flex;align-items:center;gap:10px;">
-      <span style="font-size:18px;">🎉</span>
-      <span style="font-family:var(--font-mono);font-size:10px;color:var(--green);letter-spacing:.5px;">All units are up to date!</span>
-    </div>`;
-    return;
-  }
-
-  el.innerHTML = unpaid.map(b => {
-    const paid    = parseFloat(b.amount_paid) || 0;
-    const total   = parseFloat(b.total_amount) || 0;
-    const balance = total - paid;
-    const phone   = (b.tenants?.phone_number || '').replace(/\D/g,'');
-    const isPartial = paid > 0;
-    const msg = encodeURIComponent(
-      `Hi, this is a gentle reminder that your rent for ${fmtMonth(b.billing_month)} is due.\n` +
-      `Amount: ₹${fmt(total)}${isPartial ? `\nAlready paid: ₹${fmt(paid)}\nBalance due: ₹${fmt(balance)}` : ''}\n\nPlease pay at your earliest convenience. Thank you! 🙏`
-    );
-    const waUrl = phone ? `https://wa.me/${phone}?text=${msg}` : `https://wa.me/?text=${msg}`;
-
-    return `<div class="reminder-card">
-      <span class="reminder-card-icon">${isPartial ? '⏳' : '🔔'}</span>
-      <div class="reminder-card-body">
-        <div class="reminder-card-unit">${b.tenants?.house_name || '—'}</div>
-        <div class="reminder-card-sub">${fmtMonth(b.billing_month)} · Balance ₹${fmt(balance)}</div>
-      </div>
-      <button class="reminder-btn" onclick="window.open('${waUrl}','_blank')">📲 Remind</button>
-    </div>`;
-  }).join('');
 }
 
 function openPayModal(billId, total, currentPaid, partialOnly=false) {
@@ -1722,18 +1648,14 @@ async function submitPayment() {
     : `₹${fmt(adding)} recorded. Remaining: ₹${fmt(total - newPaid)}`;
 
   const banner = document.getElementById('pay-confirm-banner');
-  const bannerText = document.getElementById('pay-confirm-text');
-  bannerText.textContent = msg;
+  document.getElementById('pay-confirm-text').textContent = msg;
   banner.classList.add('show');
 
   const card = document.getElementById('bill-card-' + id);
   if (card) card.classList.add('pay-success-flash');
 
   await loadDashboard();
-  setTimeout(() => {
-    closePayModal();
-    toast(msg);
-  }, 1100);
+  setTimeout(() => { closePayModal(); toast(msg); }, 1100);
 }
 
 function clearBillForm() {
@@ -2320,6 +2242,7 @@ function clearLedgerFilters() {
   loadLedger();
 }
 
+// FIX 3: loadLedger now uses filter-month (which defaults to current month on init)
 async function loadLedger() {
   updateFilterActiveBadge();
   const el = document.getElementById('ledger-list');
@@ -2400,7 +2323,7 @@ async function deleteBill(id) {
   toast('Bill safely archived.'); loadLedger(); loadDashboard();
 }
 
-// ── METER TAB ──
+// METER TAB
 
 function onMeterUnitSelect() {
   const id = document.getElementById('meter-unit-select').value;
@@ -2612,42 +2535,24 @@ function onMeterReadingInput() {
   }
 }
 
-// ── FIX 1: Smart meter photo retention
-// Keep photos for current month + 1 previous month only (per tenant).
-// Text records (readings without photos) are kept forever.
 async function pruneOldMeterPhotos(tenantId) {
   try {
-    const now = new Date();
     const currentYM = getCurrentYM();
     const prevYM    = stepYM(currentYM, -1);
-    // Cutoff: keep current month and previous month's photos
     const cutoffDate = prevYM + '-01T00:00:00';
-
-    // Get all active records for this tenant older than our retention window
     const { data: old } = await db.from('meter_readings')
       .select('id,photo_path,captured_at')
       .eq('tenant_id', tenantId)
       .eq('is_active', true)
       .lt('captured_at', cutoffDate);
-
     if (!old || old.length === 0) return;
-
-    // Delete photos from storage but keep the text record (set photo_path/photo_url to null)
     const pathsToDelete = old.map(r => r.photo_path).filter(p => p && p.trim() !== '');
-    if (pathsToDelete.length > 0) {
-      await db.storage.from(METER_BUCKET).remove(pathsToDelete);
-    }
-
-    // Nullify the photo columns but keep the reading record
+    if (pathsToDelete.length > 0) await db.storage.from(METER_BUCKET).remove(pathsToDelete);
     const idsToNullify = old.map(r => r.id);
     if (idsToNullify.length > 0) {
-      await db.from('meter_readings')
-        .update({ photo_path: null, photo_url: null })
-        .in('id', idsToNullify);
+      await db.from('meter_readings').update({ photo_path: null, photo_url: null }).in('id', idsToNullify);
     }
-  } catch(e) {
-    console.warn('pruneOldMeterPhotos error (non-fatal):', e);
-  }
+  } catch(e) { console.warn('pruneOldMeterPhotos error (non-fatal):', e); }
 }
 
 async function saveMeterReading() {
@@ -2666,8 +2571,6 @@ async function saveMeterReading() {
     const newPath  = `${tenantId}/${now.getTime()}.jpg`;
     const today    = todayYMD();
 
-    // FIX 1: Only replace same-day records (not all records for this tenant)
-    // This prevents deleting previous month's record when adding current month's
     const { data: todayRecords } = await db.from('meter_readings')
       .select('id,photo_path').eq('tenant_id', tenantId)
       .gte('captured_at', today + 'T00:00:00')
@@ -2699,14 +2602,10 @@ async function saveMeterReading() {
 
     hideLoading();
     toast(`${meterSelectedTenant.house_name}: ${readingVal} units saved!`);
-
-    // FIX 1: After saving, prune old photos (keep current + previous month)
     pruneOldMeterPhotos(tenantId);
-
     meterSnapshotBlob = null;
     const snap = document.getElementById('cam-snapshot');
     if (snap._objUrl) { URL.revokeObjectURL(snap._objUrl); snap._objUrl = null; }
-
     resetMeterCapUI();
     await loadLastMeterReading(tenantId);
     await loadMeterHistory();
@@ -2722,7 +2621,6 @@ async function loadMeterHistory() {
   const el = document.getElementById('meter-history'); if (!el) return;
   el.innerHTML = '<div class="empty"><div class="spinner" style="margin:0 auto 12px;"></div></div>';
   try {
-    // FIX 1: Only show last 2 months of captures in the UI (current + previous month)
     const currentYM  = getCurrentYM();
     const prevYM     = stepYM(currentYM, -1);
     const cutoffDate = prevYM + '-01T00:00:00';
@@ -2730,7 +2628,7 @@ async function loadMeterHistory() {
     const { data, error } = await db.from('meter_readings')
       .select('*,tenants(house_name)')
       .eq('is_active', true)
-      .gte('captured_at', cutoffDate)   // only last 2 months in UI
+      .gte('captured_at', cutoffDate)
       .order('captured_at', {ascending: false})
       .limit(40);
 
