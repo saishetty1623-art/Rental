@@ -125,6 +125,14 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .form-hint.warn{color:var(--amber);}
 .form-hint.ok{color:var(--green);}
 
+/* ── ELECTRICITY HIGHLIGHT ── */
+.elec-highlight-group{background:rgba(96,165,250,0.07);border:1.5px solid rgba(96,165,250,0.4);border-radius:var(--rl);padding:14px;margin-bottom:12px;position:relative;}
+.elec-highlight-group::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--blue),transparent);border-radius:var(--rl) var(--rl) 0 0;}
+.elec-highlight-group .form-label{color:var(--blue);font-size:11px;letter-spacing:2px;}
+.elec-highlight-group .form-input{border-color:rgba(96,165,250,0.35);font-size:18px;font-weight:600;}
+.elec-highlight-group .form-input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(96,165,250,0.12);}
+.elec-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(96,165,250,0.12);border:1px solid rgba(96,165,250,0.3);color:var(--blue);border-radius:20px;padding:2px 10px;font-family:var(--font-mono);font-size:8px;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;}
+
 /* ── FILTER ROW — IMPROVED ── */
 .filter-panel{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:14px;margin-bottom:14px;}
 .filter-panel-title{font-family:var(--font-mono);font-size:9px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:6px;}
@@ -191,6 +199,9 @@ input[type="month"].filter-month-styled{color-scheme:dark;padding-right:28px;}
 .btn-row{display:flex;gap:10px;margin-top:10px;}
 .btn-row .btn{flex:1;}
 
+/* ── STICKY SAVE BAR ── */
+.sticky-save-bar{position:sticky;bottom:calc(var(--nav-h) + var(--safe-bottom));z-index:90;background:rgba(10,10,11,0.97);border-top:1px solid var(--border);padding:10px 0 6px;backdrop-filter:blur(16px);margin:0 -14px;padding-left:14px;padding-right:14px;}
+
 /* ── TOGGLE ── */
 .toggle-row{display:flex;align-items:center;justify-content:space-between;padding:13px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);margin-bottom:12px;cursor:pointer;}
 .toggle-lbl{font-size:13px;color:var(--text);}
@@ -226,6 +237,15 @@ input[type="month"].filter-month-styled{color-scheme:dark;padding-right:28px;}
 /* ── PULL TO REFRESH ── */
 .ptr-indicator{text-align:center;padding:8px;font-family:var(--font-mono);font-size:10px;color:var(--amber);letter-spacing:1.5px;display:none;}
 .ptr-indicator.show{display:block;}
+
+/* ── REMINDER CARD ── */
+.reminder-card{background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.2);border-radius:var(--rl);padding:13px 15px;margin-bottom:8px;display:flex;align-items:center;gap:12px;}
+.reminder-card-icon{font-size:20px;flex-shrink:0;}
+.reminder-card-body{flex:1;min-width:0;}
+.reminder-card-unit{font-family:var(--font-head);font-size:16px;font-weight:700;color:var(--text);}
+.reminder-card-sub{font-family:var(--font-mono);font-size:9px;color:var(--text3);margin-top:2px;letter-spacing:.5px;}
+.reminder-btn{background:none;border:1px solid rgba(239,68,68,.3);color:var(--red);border-radius:var(--r);padding:6px 12px;font-family:var(--font-mono);font-size:9px;cursor:pointer;white-space:nowrap;letter-spacing:.5px;transition:all .15s;flex-shrink:0;}
+.reminder-btn:active{background:rgba(239,68,68,.12);}
 
 /* ── METER TAB ── */
 .meter-unit-hero{background:linear-gradient(135deg,var(--bg2) 0%,#1c1a24 100%);border:1px solid rgba(245,166,35,.2);border-radius:var(--rl);padding:16px;margin-bottom:14px;display:none;}
@@ -406,9 +426,9 @@ input[type="month"]{color-scheme:dark;}
     </div>
     <div class="stat-card red-accent">
       <span class="stat-icon">⚠️</span>
-      <div class="stat-label">Pending</div>
+      <div class="stat-label">Total Pending</div>
       <div class="stat-value" id="stat-unpaid" style="color:var(--red);">—</div>
-      <div class="stat-sub">Unpaid units</div>
+      <div class="stat-sub">Incl. balances</div>
     </div>
     <div class="stat-card green-accent">
       <span class="stat-icon">✅</span>
@@ -423,6 +443,11 @@ input[type="month"]{color-scheme:dark;}
       <div class="stat-sub">All time</div>
     </div>
   </div>
+
+  <!-- Reminders Section -->
+  <div class="section-label amber">🔔 Reminders</div>
+  <div id="dash-reminders"></div>
+
   <div class="section-label red">⚡ Pending &amp; Partial</div>
   <div id="dash-active-bills"></div>
   <div class="section-label green">✓ Fully Paid</div>
@@ -493,6 +518,7 @@ input[type="month"]{color-scheme:dark;}
 <!-- ── NEW BILL ── -->
 <div class="view" id="view-new-bill">
   <input type="hidden" id="edit-bill-id" value=""/>
+  <!-- FIX 3: Unit selector first, visible at top -->
   <div class="form-group">
     <label class="form-label">Rental Unit</label>
     <select class="form-select" id="bill-tenant" onchange="onTenantSelect()">
@@ -540,10 +566,16 @@ input[type="month"]{color-scheme:dark;}
     </div>
     <span class="form-hint" id="water-calc-hint"></span>
   </div>
-  <div class="form-group">
-    <label class="form-label">Electricity Charges (₹)</label>
-    <input type="number" class="form-input" id="bill-elec" placeholder="0" inputmode="decimal" oninput="recalculate()"/>
+
+  <!-- FIX 4: Electricity highlighted -->
+  <div class="elec-highlight-group">
+    <div class="elec-badge">⚡ Manual Entry Required</div>
+    <div class="form-group" style="margin-bottom:0;">
+      <label class="form-label">⚡ Electricity Charges (₹)</label>
+      <input type="number" class="form-input" id="bill-elec" placeholder="Enter electricity amount" inputmode="decimal" oninput="recalculate()" autocomplete="off"/>
+    </div>
   </div>
+
   <div class="misc-block">
     <div class="misc-block-title">Miscellaneous Charge (optional)</div>
     <div class="two-col">
@@ -574,7 +606,11 @@ input[type="month"]{color-scheme:dark;}
   <div style="display:flex;gap:10px;margin-bottom:10px;">
     <button class="btn btn-ghost" onclick="previewReceiptOnly()" style="flex:1;">Preview Receipt</button>
   </div>
-  <button class="btn btn-amber" onclick="saveBill()" id="save-btn">Save &amp; Generate Bill</button>
+
+  <!-- FIX 5: Sticky save bar -->
+  <div class="sticky-save-bar">
+    <button class="btn btn-amber" onclick="saveBill()" id="save-btn">💾 Save &amp; Generate Bill</button>
+  </div>
 </div>
 
 <!-- ── METER ── -->
@@ -655,8 +691,6 @@ input[type="month"]{color-scheme:dark;}
 
 <!-- ── LEDGER ── -->
 <div class="view" id="view-ledger">
-
-  <!-- IMPROVED FILTER PANEL -->
   <div class="filter-panel">
     <div class="filter-panel-title">
       Filters
@@ -696,7 +730,6 @@ input[type="month"]{color-scheme:dark;}
       <button class="filter-clear-btn" onclick="clearLedgerFilters()">✕ Clear Filters</button>
     </div>
   </div>
-
   <div id="ledger-list"></div>
 </div>
 
@@ -744,9 +777,7 @@ input[type="month"]{color-scheme:dark;}
         <button class="btn btn-danger" id="qr-remove-btn" onclick="removeQrCode()" style="display:none;">✕ Remove</button>
       </div>
       <input type="file" id="qr-file-input" accept="image/*" onchange="uploadQrCode(event)" style="display:none;"/>
-
       <div style="border-top:1px solid var(--border);margin-bottom:20px;"></div>
-
       <div style="font-family:var(--font-mono);font-size:9px;letter-spacing:1.5px;color:var(--text3);text-transform:uppercase;margin-bottom:8px;">UPI App Logos Strip (optional)</div>
       <div class="qr-preview-wrap" id="logos-preview-wrap">
         <div id="logos-empty-ph" class="qr-empty-placeholder" style="width:180px;height:44px;border-radius:4px;">—</div>
@@ -875,6 +906,9 @@ const db = createClient(SUPABASE_URL, SUPABASE_ANON);
 const METER_BUCKET = 'meter-photos';
 const QR_BUCKET    = 'payment-qr';
 
+// How many months of meter photos to keep (current + N-1 previous)
+const METER_PHOTO_RETENTION_MONTHS = 2;
+
 let tenants               = [];
 let currentBillData       = null;
 let currentReceiptDataUrl = null;
@@ -943,6 +977,14 @@ function stepYM(ym, delta) {
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
 }
 
+// Returns a YYYY-MM string from a date/ISO string
+function getYMFromDate(dateStr) {
+  try {
+    const d = new Date(dateStr);
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+  } catch { return null; }
+}
+
 function showLoading(msg='PLEASE WAIT') {
   document.getElementById('loading-text').textContent = msg;
   document.getElementById('loading-overlay').classList.remove('hidden');
@@ -965,6 +1007,8 @@ function showView(name) {
   if (name === 'dashboard') loadDashboard();
   if (name === 'meter')     loadMeterHistory();
   if (name === 'analytics') { analyticsYM = getCurrentYM(); loadAnalytics(); }
+  // FIX 3: scroll to top when switching views
+  window.scrollTo(0, 0);
 }
 
 (function initPTR() {
@@ -1506,6 +1550,8 @@ async function exportAllCSV() {
   toast('All bills exported!');
 }
 
+// ── FIX 2: Dashboard stats — pending now shows total outstanding amount (not unit count)
+// and uses actual total_amount including all charges, not just base rent
 async function loadDashboard() {
   const now = new Date();
   const ym  = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
@@ -1527,11 +1573,26 @@ async function loadDashboard() {
     .reduce((s, b) => s + (parseFloat(b.amount_paid) || 0), 0);
   document.getElementById('stat-collected').textContent = '₹' + fmtK(collected);
 
+  // FIX 2: Show total outstanding amount across ALL bills (not just unit count)
   const latestMap = {};
   bills.forEach(b => { if (!latestMap[b.tenant_id]) latestMap[b.tenant_id] = b; });
   const latest = Object.values(latestMap);
+
+  const totalPending = latest.reduce((s, b) => {
+    const paid  = parseFloat(b.amount_paid) || 0;
+    const total = parseFloat(b.total_amount) || 0;
+    return s + Math.max(0, total - paid);
+  }, 0);
+  // Show amount if > 0, else show count of unpaid
   const unpaidCount = latest.filter(b => (parseFloat(b.amount_paid) || 0) < (parseFloat(b.total_amount) || 0)).length;
-  document.getElementById('stat-unpaid').textContent = unpaidCount;
+  if (totalPending > 0) {
+    document.getElementById('stat-unpaid').textContent = '₹' + fmtK(totalPending);
+  } else {
+    document.getElementById('stat-unpaid').textContent = '0';
+  }
+
+  // FIX 6: Render reminders for unpaid/partial bills
+  renderReminders(latest);
 
   const activeEl = document.getElementById('dash-active-bills');
   const paidEl   = document.getElementById('dash-paid-bills');
@@ -1585,6 +1646,46 @@ async function loadDashboard() {
 
   if (!activeEl.innerHTML) activeEl.innerHTML = '<div style="color:var(--green);font-family:var(--font-mono);font-size:11px;padding:10px 0;letter-spacing:1px;">All caught up. No pending bills.</div>';
   if (!paidEl.innerHTML)   paidEl.innerHTML   = '<div class="empty"><div class="empty-icon">□</div>No fully paid bills yet.</div>';
+}
+
+// FIX 6: Render reminder cards for unpaid/partial bills
+function renderReminders(latestBills) {
+  const el = document.getElementById('dash-reminders');
+  const unpaid = latestBills.filter(b => {
+    const paid  = parseFloat(b.amount_paid) || 0;
+    const total = parseFloat(b.total_amount) || 0;
+    return total > 0 && paid < total;
+  });
+
+  if (!unpaid.length) {
+    el.innerHTML = `<div style="background:var(--green-dim);border:1px solid rgba(34,197,94,.2);border-radius:var(--rl);padding:12px 16px;margin-bottom:12px;display:flex;align-items:center;gap:10px;">
+      <span style="font-size:18px;">🎉</span>
+      <span style="font-family:var(--font-mono);font-size:10px;color:var(--green);letter-spacing:.5px;">All units are up to date!</span>
+    </div>`;
+    return;
+  }
+
+  el.innerHTML = unpaid.map(b => {
+    const paid    = parseFloat(b.amount_paid) || 0;
+    const total   = parseFloat(b.total_amount) || 0;
+    const balance = total - paid;
+    const phone   = (b.tenants?.phone_number || '').replace(/\D/g,'');
+    const isPartial = paid > 0;
+    const msg = encodeURIComponent(
+      `Hi, this is a gentle reminder that your rent for ${fmtMonth(b.billing_month)} is due.\n` +
+      `Amount: ₹${fmt(total)}${isPartial ? `\nAlready paid: ₹${fmt(paid)}\nBalance due: ₹${fmt(balance)}` : ''}\n\nPlease pay at your earliest convenience. Thank you! 🙏`
+    );
+    const waUrl = phone ? `https://wa.me/${phone}?text=${msg}` : `https://wa.me/?text=${msg}`;
+
+    return `<div class="reminder-card">
+      <span class="reminder-card-icon">${isPartial ? '⏳' : '🔔'}</span>
+      <div class="reminder-card-body">
+        <div class="reminder-card-unit">${b.tenants?.house_name || '—'}</div>
+        <div class="reminder-card-sub">${fmtMonth(b.billing_month)} · Balance ₹${fmt(balance)}</div>
+      </div>
+      <button class="reminder-btn" onclick="window.open('${waUrl}','_blank')">📲 Remind</button>
+    </div>`;
+  }).join('');
 }
 
 function openPayModal(billId, total, currentPaid, partialOnly=false) {
@@ -1649,7 +1750,7 @@ function clearBillForm() {
   document.getElementById('selected-tenant-pill').style.display = 'none';
   document.getElementById('prev-reading-val').textContent = '—';
   document.getElementById('prev-month-val').textContent = '—';
-  document.getElementById('save-btn').textContent = 'Save & Generate Bill';
+  document.getElementById('save-btn').textContent = '💾 Save & Generate Bill';
   document.getElementById('water-reset-btn').classList.remove('show');
   document.getElementById('water-calc-hint').textContent = '';
   document.getElementById('water-units-hint').textContent = '';
@@ -1925,7 +2026,7 @@ async function editBill(id) {
   document.getElementById('prev-month-val').textContent  = _prevReadingLabel;
   document.getElementById('balance-hint').textContent    = 'Editing mode';
   document.getElementById('balance-hint').className      = 'form-hint info';
-  document.getElementById('save-btn').textContent        = 'Update Bill';
+  document.getElementById('save-btn').textContent        = '💾 Update Bill';
 
   if (t) {
     document.getElementById('selected-tenant-pill').style.display = 'block';
@@ -2122,8 +2223,6 @@ function previewReceiptOnly() {
   showReceipt(d, 'minimal');
 }
 
-// ── FIX 1: viewBillReceipt now reads water charges directly from stored total_amount
-// instead of recalculating from scratch. This preserves manual overrides.
 async function viewBillReceipt(billId, type='detailed') {
   showLoading('LOADING');
   const { data, error } = await db.from('utility_bills').select('*, tenants(*)').eq('id', billId).single();
@@ -2138,28 +2237,19 @@ async function viewBillReceipt(billId, type='detailed') {
   const prevR = parseFloat(past?.[0]?.water_reading) || parseFloat(t?.initial_water_reading) || 0;
   const units = Math.max(0, parseFloat(data.water_reading) - prevR);
 
-  // Back-calculate what was actually charged for water from the stored total_amount.
-  // This preserves manual overrides — we do NOT recalculate from the formula.
-  const baseRent   = parseFloat(t?.base_rent) || 0;
-  const elec       = parseFloat(data.elec_charges) || 0;
-  const misc       = parseFloat(data.misc_amount) || 0;
-  const prevBal    = parseFloat(data.previous_balance) || 0;
+  const baseRent    = parseFloat(t?.base_rent) || 0;
+  const elec        = parseFloat(data.elec_charges) || 0;
+  const misc        = parseFloat(data.misc_amount) || 0;
+  const prevBal     = parseFloat(data.previous_balance) || 0;
   const storedTotal = parseFloat(data.total_amount) || 0;
-  // chargedWater = total - rent - elec - misc - prevBal (clamped to ≥0)
   const chargedWater = Math.max(0, parseFloat((storedTotal - baseRent - elec - misc - prevBal).toFixed(2)));
-
-  // rawWater is still the formula-based gross cost (for the detailed receipt's meter section)
-  const rawWater = parseFloat((units * 10 * 0.22).toFixed(2));
-
-  // Subsidy shown is the difference between raw and charged (only meaningful in detailed view)
-  const subsidy = Math.max(0, parseFloat((rawWater - chargedWater).toFixed(2)));
+  const rawWater     = parseFloat((units * 10 * 0.22).toFixed(2));
+  const subsidy      = Math.max(0, parseFloat((rawWater - chargedWater).toFixed(2)));
 
   const d = {
     id: billId, tenant: t, month: data.billing_month?.slice(0,7),
     waterNew: data.water_reading, prevReading: prevR, units,
-    chargedWater,   // what was actually billed (preserves manual overrides)
-    rawWater,       // formula gross (for the detailed reading section)
-    subsidy,
+    chargedWater, rawWater, subsidy,
     elec, prevBal,
     baseRent, total: storedTotal,
     miscLabel: data.misc_label || '', miscAmount: data.misc_amount || 0,
@@ -2182,11 +2272,9 @@ async function downloadReceipt() {
   a.href = currentReceiptDataUrl; a.click(); toast('Downloaded!');
 }
 
-
 async function shareReceiptImage() {
   if (!currentReceiptDataUrl) { toast('Receipt image not ready', 'error'); return; }
 
-  // Mark bill as sent in the background
   if (currentBillData?.id) {
     db.from('utility_bills').update({ is_sent: true }).eq('id', currentBillData.id)
       .then(() => loadDashboard());
@@ -2195,27 +2283,17 @@ async function shareReceiptImage() {
   const blob  = await (await fetch(currentReceiptDataUrl)).blob();
   const phone = (currentBillData?.tenant?.phone_number || '').replace(/\D/g, '');
 
-  // 1. Try to copy the image to the clipboard so the user can paste in WhatsApp
   let clipboardOk = false;
   try {
     await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
     clipboardOk = true;
-  } catch (_) {
-    // Clipboard write not supported (common on Firefox/some Android WebViews)
-  }
+  } catch (_) {}
 
-  // 2. Build the wa.me deep-link
-  //    - With a phone number  → opens that specific chat directly
-  //    - Without a phone number → opens WhatsApp home so user can pick the chat
-  const waUrl = phone
-    ? `https://wa.me/${phone}`
-    : `https://wa.me/`;
+  const waUrl = phone ? `https://wa.me/${phone}` : `https://wa.me/`;
 
-  // 3. Show feedback toast, then open WhatsApp
   if (clipboardOk) {
     toast('Image copied! Opening WhatsApp — paste it in the chat (hold-tap → Paste).');
   } else {
-    // Clipboard failed: download the file so they can attach it manually
     const a = document.createElement('a');
     a.download = `RentBill_${currentBillData?.tenant?.house_name || 'unit'}.png`;
     a.href = currentReceiptDataUrl;
@@ -2223,11 +2301,9 @@ async function shareReceiptImage() {
     toast('Image downloaded — tap Attach (📎) in WhatsApp to send.');
   }
 
-  // Small delay so the toast renders before the app-switch
   setTimeout(() => window.open(waUrl, '_blank'), 700);
 }
 
-// ── LIBRARY / LEDGER — with active badge tracking
 function updateFilterActiveBadge() {
   const unitF   = document.getElementById('filter-unit').value;
   const monthF  = document.getElementById('filter-month').value;
@@ -2323,6 +2399,8 @@ async function deleteBill(id) {
   if (error) { toast('Archive failed: ' + error.message, 'error'); return; }
   toast('Bill safely archived.'); loadLedger(); loadDashboard();
 }
+
+// ── METER TAB ──
 
 function onMeterUnitSelect() {
   const id = document.getElementById('meter-unit-select').value;
@@ -2534,6 +2612,44 @@ function onMeterReadingInput() {
   }
 }
 
+// ── FIX 1: Smart meter photo retention
+// Keep photos for current month + 1 previous month only (per tenant).
+// Text records (readings without photos) are kept forever.
+async function pruneOldMeterPhotos(tenantId) {
+  try {
+    const now = new Date();
+    const currentYM = getCurrentYM();
+    const prevYM    = stepYM(currentYM, -1);
+    // Cutoff: keep current month and previous month's photos
+    const cutoffDate = prevYM + '-01T00:00:00';
+
+    // Get all active records for this tenant older than our retention window
+    const { data: old } = await db.from('meter_readings')
+      .select('id,photo_path,captured_at')
+      .eq('tenant_id', tenantId)
+      .eq('is_active', true)
+      .lt('captured_at', cutoffDate);
+
+    if (!old || old.length === 0) return;
+
+    // Delete photos from storage but keep the text record (set photo_path/photo_url to null)
+    const pathsToDelete = old.map(r => r.photo_path).filter(p => p && p.trim() !== '');
+    if (pathsToDelete.length > 0) {
+      await db.storage.from(METER_BUCKET).remove(pathsToDelete);
+    }
+
+    // Nullify the photo columns but keep the reading record
+    const idsToNullify = old.map(r => r.id);
+    if (idsToNullify.length > 0) {
+      await db.from('meter_readings')
+        .update({ photo_path: null, photo_url: null })
+        .in('id', idsToNullify);
+    }
+  } catch(e) {
+    console.warn('pruneOldMeterPhotos error (non-fatal):', e);
+  }
+}
+
 async function saveMeterReading() {
   if (!meterSelectedTenant) { toast('No unit selected', 'error'); return; }
   if (!meterSnapshotBlob)   { toast('No photo captured', 'error'); return; }
@@ -2550,14 +2666,17 @@ async function saveMeterReading() {
     const newPath  = `${tenantId}/${now.getTime()}.jpg`;
     const today    = todayYMD();
 
-    const { data: existing } = await db.from('meter_readings')
+    // FIX 1: Only replace same-day records (not all records for this tenant)
+    // This prevents deleting previous month's record when adding current month's
+    const { data: todayRecords } = await db.from('meter_readings')
       .select('id,photo_path').eq('tenant_id', tenantId)
-      .gte('captured_at', today + 'T00:00:00');
+      .gte('captured_at', today + 'T00:00:00')
+      .eq('is_active', true);
 
-    if (existing && existing.length > 0) {
-      const pathsToDelete = existing.map(r => r.photo_path).filter(p => p);
+    if (todayRecords && todayRecords.length > 0) {
+      const pathsToDelete = todayRecords.map(r => r.photo_path).filter(p => p);
       if (pathsToDelete.length > 0) await db.storage.from(METER_BUCKET).remove(pathsToDelete);
-      const idsToDelete = existing.map(r => r.id);
+      const idsToDelete = todayRecords.map(r => r.id);
       await db.from('meter_readings').delete().in('id', idsToDelete);
     }
 
@@ -2581,6 +2700,9 @@ async function saveMeterReading() {
     hideLoading();
     toast(`${meterSelectedTenant.house_name}: ${readingVal} units saved!`);
 
+    // FIX 1: After saving, prune old photos (keep current + previous month)
+    pruneOldMeterPhotos(tenantId);
+
     meterSnapshotBlob = null;
     const snap = document.getElementById('cam-snapshot');
     if (snap._objUrl) { URL.revokeObjectURL(snap._objUrl); snap._objUrl = null; }
@@ -2600,13 +2722,21 @@ async function loadMeterHistory() {
   const el = document.getElementById('meter-history'); if (!el) return;
   el.innerHTML = '<div class="empty"><div class="spinner" style="margin:0 auto 12px;"></div></div>';
   try {
+    // FIX 1: Only show last 2 months of captures in the UI (current + previous month)
+    const currentYM  = getCurrentYM();
+    const prevYM     = stepYM(currentYM, -1);
+    const cutoffDate = prevYM + '-01T00:00:00';
+
     const { data, error } = await db.from('meter_readings')
       .select('*,tenants(house_name)')
       .eq('is_active', true)
-      .order('captured_at', {ascending: false}).limit(20);
+      .gte('captured_at', cutoffDate)   // only last 2 months in UI
+      .order('captured_at', {ascending: false})
+      .limit(40);
+
     if (error) throw error;
     if (!data?.length) {
-      el.innerHTML = '<div class="empty"><div class="empty-icon">📷</div>No meter captures yet.<br>Select a unit &amp; snap the meter above.</div>';
+      el.innerHTML = '<div class="empty"><div class="empty-icon">📷</div>No meter captures in the last 2 months.<br>Select a unit &amp; snap the meter above.</div>';
       return;
     }
     el.innerHTML = data.map(mr => {
