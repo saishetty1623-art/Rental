@@ -661,8 +661,8 @@ input[type="month"].filter-month-styled{color-scheme:dark;padding-right:28px;}
 #receipt-overlay.open{display:flex;}
 .receipt-sheet{
   background:var(--bg2);border-top:1px solid var(--border);
-  border-radius:20px 20px 0 0;margin-top:auto;max-height:92vh;overflow-y:auto;
-  padding-bottom:calc(16px + var(--safe-bottom));
+  border-radius:20px 20px 0 0;margin-top:auto;max-height:92vh;
+  display:flex;flex-direction:column;overflow:hidden;
   animation:slideUp .28s cubic-bezier(0.34,1.1,0.64,1);
 }
 @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
@@ -681,8 +681,15 @@ input[type="month"].filter-month-styled{color-scheme:dark;padding-right:28px;}
 .receipt-prev-wrap{padding:14px;}
 .receipt-img-loading{padding:40px;text-align:center;font-family:var(--font-mono);font-size:11px;color:var(--text3);}
 .receipt-img{width:100%;border-radius:var(--r);display:block;box-shadow:0 4px 24px rgba(0,0,0,.5);}
-.receipt-acts{padding:0 14px 14px;display:flex;flex-direction:column;gap:8px;}
-
+.receipt-acts{
+  position:sticky;bottom:0;
+  background:rgba(20,20,26,0.97);
+  border-top:1px solid var(--border);
+  padding:10px 14px calc(10px + var(--safe-bottom));
+  display:flex;flex-direction:column;gap:8px;
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+}
 /* Receipt print zones */
 #receipt-print-minimal{position:fixed;left:-9999px;top:0;width:400px;background:#fff;color:#111;padding:30px 24px 24px;font-family:'IBM Plex Sans',sans-serif;z-index:-1;}
 #receipt-print-detailed{position:fixed;left:-9999px;top:120px;width:400px;background:#fff;color:#111;padding:30px 24px 24px;font-family:'IBM Plex Sans',sans-serif;z-index:-1;}
@@ -1270,7 +1277,7 @@ input[type="month"]{color-scheme:dark;}
       <span class="receipt-hdr-title" id="receipt-overlay-title">Bill Receipt</span>
       <button class="close-btn" onclick="closeReceipt()">✕</button>
     </div>
-    <div class="receipt-prev-wrap">
+    <div class="receipt-prev-wrap" style="overflow-y:auto;flex:1;">
       <div class="receipt-img-loading" id="receipt-img-loading">
         <div class="spinner" style="margin:0 auto 12px;"></div>
         <div style="font-family:var(--font-mono);font-size:11px;color:var(--text3);">Rendering receipt…</div>
@@ -2786,7 +2793,7 @@ function onMeterReadingInput() {
 
 async function pruneOldMeterPhotos(tenantId) {
   try {
-    const cutoffDate = stepYM(getCurrentYM(), -1) + '-01T00:00:00';
+    const cutoffDate = stepYM(getCurrentYM(), -2) + '-01T00:00:00';
     const { data: old } = await db.from('meter_readings').select('id,photo_path,captured_at').eq('tenant_id', tenantId).eq('is_active', true).lt('captured_at', cutoffDate);
     if (!old || old.length === 0) return;
     const pathsToDelete = old.map(r => r.photo_path).filter(p => p && p.trim() !== '');
@@ -2830,11 +2837,25 @@ async function loadMeterHistory() {
   const el = document.getElementById('meter-history'); if (!el) return;
   el.innerHTML = '<div class="empty"><div class="spinner" style="margin:0 auto 12px;"></div></div>';
   try {
-    const cutoffDate = stepYM(getCurrentYM(), -1) + '-01T00:00:00';
-    const { data, error } = await db.from('meter_readings').select('*,tenants(house_name)').eq('is_active', true).gte('captured_at', cutoffDate).order('captured_at', {ascending: false}).limit(40);
+    const { data, error } = await db.from('meter_readings')
+      .select('*,tenants(house_name)')
+      .eq('is_active', true)
+      .order('captured_at', {ascending: false})
+      .limit(200);
     if (error) throw error;
-    if (!data?.length) { el.innerHTML = '<div class="empty"><div class="empty-icon">📷</div>No meter captures in the last 2 months.</div>'; return; }
-    el.innerHTML = data.map(mr => {
+    if (!data?.length) {
+      el.innerHTML = '<div class="empty"><div class="empty-icon">📷</div>No meter captures yet.</div>';
+      return;
+    }
+
+    // Keep only the latest record per tenant
+    const latestMap = {};
+    data.forEach(mr => {
+      if (!latestMap[mr.tenant_id]) latestMap[mr.tenant_id] = mr;
+    });
+    const latest = Object.values(latestMap);
+
+    el.innerHTML = latest.map(mr => {
       const capDate = new Date(mr.captured_at).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
       const capTime = new Date(mr.captured_at).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
       const rawUrl = mr.photo_url || null;
@@ -2843,7 +2864,9 @@ async function loadMeterHistory() {
         ? `<img class="meter-hist-img" src="${displayUrl}" alt="Meter" onclick="openPhotoFull('${displayUrl}')" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"/>
            <div class="meter-hist-img-ph" style="display:none;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11px;color:var(--amber);cursor:pointer;" onclick="openPhotoFull('${displayUrl}')"><span style="font-size:18px;">🖼</span><span style="font-family:var(--font-mono);font-size:8px;text-align:center;padding:0 4px;">Tap</span></div>`
         : `<div class="meter-hist-img-ph">📷</div>`;
-      const urlDebug = rawUrl ? `<a href="${rawUrl}" target="_blank" style="font-family:var(--font-mono);font-size:8px;color:var(--blue);word-break:break-all;display:block;margin-top:4px;opacity:.6;">View photo ↗</a>` : `<span style="font-family:var(--font-mono);font-size:8px;color:var(--text3);">No photo stored</span>`;
+      const urlDebug = rawUrl
+        ? `<a href="${rawUrl}" target="_blank" style="font-family:var(--font-mono);font-size:8px;color:var(--blue);word-break:break-all;display:block;margin-top:4px;opacity:.6;">View photo ↗</a>`
+        : `<span style="font-family:var(--font-mono);font-size:8px;color:var(--text3);">No photo stored</span>`;
       return `<div class="meter-hist-card">
         <div class="meter-hist-top">
           ${imgPart}
@@ -2853,14 +2876,16 @@ async function loadMeterHistory() {
             <div class="meter-hist-meta">${capDate} · ${capTime}</div>
             ${urlDebug}
             <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;">
-              <button class="btn btn-ghost btn-sm" onclick="useMeterReadingInBill('${mr.tenant_id}','${mr.reading_value}','${mr.billing_month||''}')">Use in Bill</button>
+              <button class="btn btn-ghost btn-sm" onclick="useMeterReadingInBill('${mr.tenant_id}','${mr.reading_value}','${mr.captured_at||''}')">Use in Bill</button>
               <button class="btn btn-danger btn-sm" onclick="deleteMeterReading('${mr.id}','${mr.photo_path||''}')">Delete</button>
             </div>
           </div>
         </div>
       </div>`;
     }).join('');
-  } catch(e) { el.innerHTML = `<div class="empty">Error: ${e.message}</div>`; }
+  } catch(e) {
+    el.innerHTML = `<div class="empty">Error: ${e.message}</div>`;
+  }
 }
 
 function openPhotoFull(url) { document.getElementById('photo-full-img').src = url; document.getElementById('photo-full-overlay').classList.add('open'); }
